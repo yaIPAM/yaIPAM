@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="{$THEME_URL}/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{$THEME_URL}/dist/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="{$THEME_URL}/plugins/datatables/dataTables.bootstrap.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="{$THEME_URL}/dist/css/skins/_all-skins.min.css">
+    <!-- jQuery 2.2.3 -->
+    <script src="{$THEME_URL}/plugins/jQuery/jquery-2.2.3.min.js"></script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    <header class="main-header">
+      <a href="{$SITE_BASE}" class="logo">
+        <!-- LOGO -->
+        yaIPAM
+      </a>
+      <!-- Header Navbar: style can be found in header.less -->
+      <nav class="navbar navbar-static-top" role="navigation">
+      </nav>
+    </header>
+
+    <aside class="main-sidebar">
+      <!-- Inner sidebar -->
+      <section class="sidebar">
+        <!-- Sidebar Menu -->
+        <ul class="sidebar-menu">
+          <li class="header">Navigation</li>
+          <li class="{if $S_ACTIVE_MENU=="vlans"}active {/if}treeview">
+            <a href="#"><span>VLANs</span> <i class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+              <li><a href="{$SITE_BASE}vlans/">Übersicht</a></li>
+              <!--<li><a href="{$SITE_BASE}vlans/otv/">OTV Instanzen</a></li>-->
+                <!--<li><a href="{$SITE_BASE}vlans/domains/">VLAN Domains</a></li>-->
+            </ul>
+          </li>
+        </ul><!-- /.sidebar-menu -->
+
+      </section><!-- /.sidebar -->
+    </aside><!-- /.main-sidebar -->

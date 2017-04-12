@@ -1,0 +1,10 @@
+RewriteEngine On
+
+RewriteBase /yaipam
+
+RewriteCond %{SCRIPT_FILENAME} !-d
+RewriteCond %{SCRIPT_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-f
+
+RewriteRule ^([0-9a-zA-Z]+)/([0-9a-zA-Z]+)/?$ index.php?page=$1&mode=$2
+RewriteRule ^([0-9a-zA-Z]+)/?$ index.php?page=$1

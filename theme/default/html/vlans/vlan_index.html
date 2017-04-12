@@ -1,0 +1,96 @@
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>VLAN Verwaltung</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+          <div class="col-md-4">
+              <form id="FormDomainSelect" method="post" action="{$SITE_BASE}/vlans/" class="form-inline">
+                  <div class="form-group">
+                      <label for="VlanDomain">Domain:</label>
+                      <select name="VlanDomain" id="VlanDomain" class="form-control">
+                          {foreach item=domain from=$D_VLAN_DOMAIN_LIST}
+                          <option value="{$domain.domain_id}"{if $D_VLAN_DOMAIN==$domain.domain_id} selected{/if}>{$domain.domain_name}</option>
+                          {foreachelse}
+                          <option value="0">-- Keine Domains --</option>
+                          {/foreach}
+                      </select>
+                  </div>
+                  <button type="submit" class="btn btn-default" form="FormDomainSelect" name="SelectDomain" value="true">Auswählen</button>
+                  <a href="{$SITE_BASE}vlans/add/" class="btn btn-success form-control">Hinzufügen</a>
+              </form>
+          </div>
+      </div>
+       <div class="row">
+           <p>&nbsp;</p>
+       </div>
+       <div class="row">
+           <div class="col-md-12">
+               {if isset($S_MESSAGE)}
+               {include file=$S_MESSAGE_FILE}
+               {/if}
+               <table class="table table-bordered table-striped table-hover" id="vlanlist">
+                <thead>
+                <th ></th>
+                <th>VLAN ID</th>
+                <th>VLAN Name</th>
+                </thead>
+                   <tbody>
+                   {foreach item=$vlans from=$D_VLANS_LIST}
+                   <tr>
+                       <td class="col-md-1">
+                           <div class="row">
+                           {if $vlans.VlanFree!=true}
+                               <div class="col-md-1">
+                           <form method="post" action="{$SITE_BASE}/vlans/edit/" class="form-inline">
+                               <input type="hidden" name="ID" value="{$vlans.ID}">
+                               <input type="hidden" name="VlanDomain" value="{$D_VLAN_DOMAIN}">
+                               <button class="btn btn-xs btn-default" type="submit" name="Edit" value="true">
+                                   <span class="glyphicon-wrench glyphicon"></span>
+                               </button>
+                           </form>
+                               </div>
+                               <div class="col-md-1">
+                           <form method="post" action="{$SITE_BASE}/vlans/delete/" class="form-inline">
+                               <input type="hidden" name="ID" value="{$vlans.ID}">
+                               <input type="hidden" name="VlanDomain" value="{$D_VLAN_DOMAIN}">
+                                    <button class="btn btn-xs btn-danger" type="submit" name="Delete" value="true">
+                                        <span class="glyphicon-trash glyphicon"></span>
+                                    </button>
+                           </form>
+                               </div>
+                               {else}
+                               <div class="col-md-1">
+                                   <form method="post" action="{$SITE_BASE}/vlans/add/" class="form-inline">
+                                       <input type="hidden" name="ID" value="{$vlans.ID}">
+                                       <input type="hidden" name="VlanID" value="{$vlans.FirstFree}">
+                                       <input type="hidden" name="VlanDomain" value="{$D_VLAN_DOMAIN}">
+                                       <button class="btn btn-xs btn-success" type="submit" name="Add" value="true">
+                                        <span class="glyphicon-plus glyphicon"></span>
+                                       </button>
+                                   </form>
+                               </div>
+                            {/if}
+                           </div>
+                       </td>
+                       <td>{$vlans.VlanID}</td>
+                       <td>{$vlans.VlanName}</td>
+                   </tr>
+                   {foreachelse}
+                   <tr>
+                       <td colspan="2">--- Keine VLANs ---</td>
+                   </tr>
+                   {/foreach}
+                   </tbody>
+               </table>
+           </div>
+       </div>
+   </section>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#vlanlist').DataTable({
+            "ordering": false,
+        });
+    } );
+</script>

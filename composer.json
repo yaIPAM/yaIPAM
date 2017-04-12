@@ -2,6 +2,10 @@
 	"require": {
 		"doctrine/dbal": "2.5.*",
 		"smarty/smarty": "3.1.*",
-		"adldap2/adldap2": "7.0.*"
+		"adldap2/adldap2": "7.0.*",
+		"symfony/http-foundation": "v3.2.7",
+		"filp/whoops": "2.1.8",
+		"caffeinated/flash": "v3.0.1",
+		"mlocati/ip-lib": "1.2.1"
 	}
 }
