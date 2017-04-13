@@ -8,7 +8,7 @@
               {if isset($S_MESSAGE)}
               {include file=$S_MESSAGE_FILE}
               {/if}
-              <form method="post" action="{$SITE_BASE}/vlans/{$D_MODE}/">
+              <form method="post" id="submitForm1" action="{$SITE_BASE}/vlans/{$D_MODE}/">
                   {if $D_MODE=="edit"}
                   <input type="hidden" name="ID" value="{$D_ID}">
                   {/if}
@@ -30,8 +30,21 @@
                           {/foreach}
                       </select>
                   </div>
-                  <button type="submit" name="submitForm1" value="true" class="btn btn-success">Speichern</button>
-                  <a href="{$SITE_BASE}/vlans/" class="btn btn-default">Zurück</a>
+                  <div class="form-group">
+                      <label for="VlanOTVDomain">OTV Instanz</label>
+                      <select name="VlanOTVDomain" id="VlanOTVDomain" class="form-control">
+                          <option value="0"{if $D_VLAN_OTVDOMAIN == 0} selected{/if}>--- Keine ---</option>
+                          {foreach item=otv from=$D_OTV_LIST}
+                          <option value="{$otv.OTVID}"{if $D_VLAN_OTVDOMAIN == $otv.OTVID} selected{/if}>{$otv.OTVName}</option>
+                          {/foreach}
+                      </select>
+                  </div>
+                  <button type="submit" form="submitForm1" name="submitForm1" value="true" class="btn btn-success">Speichern</button>
+                  <button form="backForm" type="submit" class="btn btn-default">Zurück</button>
+              </form>
+              <form method="post" id="backForm" action="{$SITE_BASE}/vlans/" class="form-inline">
+                  <input type="hidden" name="VlanDomain" value="{$D_VLAN_DOMAIN_BACK}">
+
               </form>
           </div>
       </div>

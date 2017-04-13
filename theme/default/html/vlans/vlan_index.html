@@ -34,10 +34,11 @@
                 <th ></th>
                 <th>VLAN ID</th>
                 <th>VLAN Name</th>
+                <th>&nbsp;</th>
                 </thead>
                    <tbody>
                    {foreach item=$vlans from=$D_VLANS_LIST}
-                   <tr>
+                   <tr{if $vlans.OTVVlan == true} class="bg-light-blue" style="font-weight:bold; font-style: italic;"{/if}>
                        <td class="col-md-1">
                            <div class="row">
                            {if $vlans.VlanFree!=true}
@@ -75,6 +76,7 @@
                        </td>
                        <td>{$vlans.VlanID}</td>
                        <td>{$vlans.VlanName}</td>
+                       <td>{if $vlans.OTVVlan == true}Per OTV über Instanz <strong>{$vlans.Overlay}</strong> erweitert.{/if}</td>
                    </tr>
                    {foreachelse}
                    <tr>
@@ -89,7 +91,7 @@
            <div class="col-md-12">
                <div class="callout callout-info">
                    <strong>Hinweis: OTV</strong>
-                   <p>VLANs können per OTV erweitert werden. Sind sie in einer Domain nicht vergeben werden sie gleichzeitig als frei und als per OTV extended markiert.</p>
+                   <p>VLANs können per OTV erweitert werden aber auch lokal angelegt werden. Dadurch kann es sein das in einer Domain VLANs doppelt vergeben erscheinen.</p>
                </div>
            </div>
        </div>

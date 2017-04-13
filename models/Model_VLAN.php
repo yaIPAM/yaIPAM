@@ -1,5 +1,22 @@
 <?php
 
+function array_orderby()
+{
+    $args = func_get_args();
+    $data = array_shift($args);
+    foreach ($args as $n => $field) {
+        if (is_string($field)) {
+            $tmp = array();
+            foreach ($data as $key => $row)
+                $tmp[$key] = $row[$field];
+            $args[$n] = $tmp;
+            }
+    }
+    $args[] = &$data;
+    call_user_func_array('array_multisort', $args);
+    return array_pop($args);
+}
+
 /**
  * Model_VLAN.php
  * Project: yaipam
@@ -14,6 +31,7 @@ class Model_VLAN {
 	private $VlanName = "";
 	private $VlanDomainID = 0;
 	private $VlanDomainName = "";
+	private $VlanOTVDomain = 0;
 
 
 	/**
@@ -26,7 +44,7 @@ class Model_VLAN {
 		$queryBuilder = $dbal->createQueryBuilder();
 
 		$vlan = $queryBuilder
-			->select('v.ID', 'v.VlanID', 'v.VlanName', 'd.domain_name', 'd.domain_id')
+			->select('v.ID', 'v.VlanID', 'v.VlanName', 'd.domain_name', 'd.domain_id', 'v.OTVDomain')
 			->from('vlans', 'v')
 			->innerJoin('v', 'vlan_domains', 'd', 'd.domain_id = v.VlanDomain')
 			->where('v.ID = ?')
@@ -43,6 +61,7 @@ class Model_VLAN {
 			$this->setVlanName($vlan['VlanName']);
 			$this->setVlanDomainID($vlan['domain_id']);
 			$this->setVlanDomainName($vlan['domain_name']);
+			$this->setVlanOTVDomain($vlan['OTVDomain']);
 			return $vlan;
 		}
 	}
@@ -55,7 +74,6 @@ class Model_VLAN {
 		global $dbal;
 
 		$queryBuilder = $dbal->createQueryBuilder();
-
 		$vlan = $queryBuilder
 			->select('v.ID', 'v.VlanID', 'v.VlanName')
 			->from('vlans', 'v')
@@ -65,7 +83,36 @@ class Model_VLAN {
 			->execute()
 			->fetchAll();
 
-			return $vlan;
+		$queryBuilder = $dbal->createQueryBuilder();
+		$vlanDomain = $queryBuilder
+			->select('o.OTVID', 'o2.OTVName')
+			->from('vlan_domains', 'd')
+			->innerJoin('d','otv_domains', 'o', 'o.DomainID = d.domain_id')
+			->innerjoin('o', 'otv', 'o2', 'o2.OTVID = o.OTVID')
+			->where('d.domain_id = ?')
+			->setParameter(0, $DomainID)
+			->execute()
+			->fetch();
+
+		$queryBuilder = $dbal->createQueryBuilder();
+		$otvVlans = $queryBuilder
+			->select('v.ID', 'v.VlanID', 'v.VlanName', 'd.domain_name', '"true" AS OTVVlan', ':VlanDomain as VlanDomain', ':Overlay AS Overlay')
+			->from('vlans', 'v')
+			->innerJoin('v', 'vlan_domains', 'd', 'd.domain_id = v.VlanDomain')
+			->where('v.OTVDomain = :OTVID AND v.VlanDomain != :VlanDomain')
+			->setParameter('OTVID', $vlanDomain['OTVID'])
+			->setParameter('VlanDomain', $DomainID)
+			->setParameter('Overlay', $vlanDomain['OTVName'])
+			->execute()
+			->fetchAll();
+
+
+
+		$new_vlans = array_merge($vlan, $otvVlans);
+		$new_vlans = array_orderby($new_vlans, 'VlanID');
+
+
+			return $new_vlans;
 	}
 
 	/**
@@ -169,9 +216,11 @@ class Model_VLAN {
 			->setValue('VlanID', ':VlanID')
 			->setValue('VlanName', ':VlanName')
 			->setValue('VlanDomain', ':VlanDomain')
+			->setValue('OTVDomain', ':OTVDomain')
 			->setParameter('VlanID', $this->getVlanID())
 			->setParameter('VlanName', $this->getVlanName())
-			->setParameter('VlanDomain', $this->getVlanDomainID());
+			->setParameter('VlanDomain', $this->getVlanDomainID())
+			->setParameter('OTVDomain', $this->getVlanOTVDomain());
 
 		if ($vlan->execute()) {
 			return true;
@@ -192,10 +241,12 @@ class Model_VLAN {
 			->update('vlans')
 			->set('VlanName', '?')
 			->set('VlanDomain', '?')
+			->set('OTVDomain', '?')
 			->where('ID = ?')
 			->setParameter(0, $this->getVlanName())
 			->setParameter(1, $this->getVlanDomainID())
-			->setParameter(2, $this->getID());
+			->setParameter(3, $this->getID())
+			->setParameter(2, $this->getVlanOTVDomain());
 
 		try {
 			$vlan->execute();
@@ -334,4 +385,20 @@ class Model_VLAN {
 	public function setVlanDomainName(string $VlanDomainName) {
 		$this->VlanDomainName = $VlanDomainName;
 	}
+
+	/**
+	 * @return int
+	 */
+	public function getVlanOTVDomain(): int {
+		return $this->VlanOTVDomain;
+	}
+
+	/**
+	 * @param int $VlanOTVDomain
+	 */
+	public function setVlanOTVDomain(int $VlanOTVDomain) {
+		$this->VlanOTVDomain = $VlanOTVDomain;
+	}
+
+
 }

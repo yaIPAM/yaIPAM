@@ -28,13 +28,14 @@ class Model_OTV {
 			->select('o.OTVName', 'o.OTVID', 'd.DomainID', 'do.domain_name as DomainName', 'o.OTVDescription')
 			->from('otv','o')
 			->leftJoin('o','otv_domains', 'd', 'o.OTVID = d.OTVID')
-			->rightJoin('d', 'vlan_domains', 'do', 'd.DomainID = do.domain_id')
+			->leftJoin('d', 'vlan_domains', 'do', 'd.DomainID = do.domain_id')
 			->where('o.OTVID = ?')
 			->setParameter(0, $ID)
 			->orderBy('do.domain_name', 'ASC')
 			->execute()
 			->fetchAll();
 
+		#die(print_r($otv));
 		$this->setOTVID($otv[0]['OTVID']);
 		$this->setOTVName($otv[0]['OTVName']);
 		$this->setOTVDescription($otv[0]['OTVDescription']);
@@ -92,13 +93,14 @@ class Model_OTV {
 				return false;
 			}
 
+
 			$queryBuilder = $dbal->createQueryBuilder();
 			$delete = $queryBuilder
 				->delete('otv_domains')
 				->where('OTVID = ?')
 				->setParameter(0, $this->getOTVID());
 
-			if (!$delete->execute()) {
+			if ($delete->execute() === false) {
 				$dbal->rollBack();
 				return false;
 			}
@@ -113,7 +115,7 @@ class Model_OTV {
 					->setParameter(0, $this->getOTVID())
 					->setParameter(1, $value);
 
-				if (!$insert->execute()) {
+				if ($insert->execute() === false) {
 					$dbal->rollBack();
 					return false;
 				}
@@ -185,6 +187,17 @@ class Model_OTV {
 			->setParameter(0, $this->getOTVID());
 
 		if ($delete->execute() === false) {
+			$dbal->rollBack();
+			return false;
+		}
+
+		$update = $queryBuilder
+			->update('vlans')
+			->set('OTVDomain', 0)
+			->where('OTVDomain = ?')
+			->setParameter(0, $this->getOTVID());
+
+		if ($update->execute() === false) {
 			$dbal->rollBack();
 			return false;
 		}

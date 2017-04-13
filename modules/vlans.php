@@ -2,6 +2,7 @@
 
 require_once SCRIPT_BASE.'/models/Model_VLAN.php';
 require_once SCRIPT_BASE . '/models/Model_VLAN_Domain.php';
+require_once SCRIPT_BASE . '/models/Model_OTV.php';
 
 /**
  * vlans.php
@@ -36,11 +37,12 @@ class Module_vlans {
 		$VlanDomains = new Model_VLAN_Domain();
 		$Vlans = new Model_VLAN();
 
-		if (empty($request->request->getInt('VlanDomain')) && $this->getVlanDomainSelected() == 0) {
+		$request->request->getInt('VlanDomain');
+		if ($request->request->getInt('VlanDomain') == null && $this->getVlanDomainSelected() == 0) {
 			$this->setVlanDomainSelected($VlanDomains->selectFirst()['domain_id']);
 			$tpl->assign("D_VLAN_DOMAIN", $this->getVlanDomainSelected());
 		}
-		else if (!empty($request->request->getInt('VlanDomain')) && $this->getVlanDomainSelected() == 0) {
+		else if ($request->request->getInt('VlanDomain') != null && $this->getVlanDomainSelected() == 0) {
 			$this->setVlanDomainSelected($request->request->getInt('VlanDomain'));
 			$tpl->assign("D_VLAN_DOMAIN", $request->request->getInt('VlanDomain'));
 		}
@@ -99,7 +101,8 @@ class Module_vlans {
 				"VlanID"    =>  $data['VlanID'],
 				"VlanName"  =>  $data['VlanName'],
 				"ID"    =>  $data['ID'],
-
+				"OTVVlan"   =>  $data['OTVVlan'],
+				"Overlay"    =>  $data['Overlay'],
 			);
 			$n = $data['VlanID'];
 		}
@@ -175,8 +178,14 @@ class Module_vlans {
 		$tpl->assign("D_VLAN_DOMAIN_LIST", Model_VLAN_Domain::listDomains());
 		$vlan = new Model_VLAN();
 
+		if ($request->request->get('VlanDomain') != null) {
+			$this->setVlanDomainSelected($request->request->get('VlanDomain'));
+			$tpl->assign("D_VLAN_DOMAIN_BACK", $this->getVlanDomainSelected());
+		}
+
 		$edit = ($vlan->get($request->request->getInt('ID'))) ? true : false;
 		$tpl->assign("D_MODE", ($edit) ? "edit" : "add");
+		$tpl->assign("D_OTV_LIST", Model_OTV::getAll());
 
 		if ($edit) {
 			$tpl->assign(array(
@@ -184,12 +193,14 @@ class Module_vlans {
 				"D_VLAN_NAME"   =>  $vlan->getVlanName(),
 				"D_VLAN_DOMAIN" =>  $vlan->getVlanDomainID(),
 				"D_ID"  =>  $vlan->getID(),
+				"D_VLAN_OTVDOMAIN"  =>  $vlan->getVlanOTVDomain(),
 			));
 		} else {
 			$tpl->assign(array(
 				"D_VLAN_ID" =>  $request->request->getInt('VlanID'),
 				"D_VLAN_NAME"   =>  $request->request->get('VlanName'),
 				"D_VLAN_DOMAIN" =>  $request->request->getInt('VlanDomain'),
+				"D_VLAN_OTVDOMAIN"  =>  $request->request->getInt('VlanOTVDomain')
 			));
 		}
 
@@ -215,6 +226,7 @@ class Module_vlans {
 				$vlan->setVlanDomainID($request->request->getInt('VlanDomain'));
 				$vlan->setVlanName($request->request->get('VlanName'));
 				$vlan->setVlanID($request->request->getInt('VlanID'));
+				$vlan->setVlanOTVDomain($request->request->getInt('VlanOTVDomain'));
 				if (!$edit && $vlan->create()) {
 					MessageHandler::Success("VLAN eintragen",sprintf("Das VLAN %s (%s) wurde eingetragen.", $vlan->getVlanName(), $vlan->getVlanID()));
 					return $this->Page_Default();
@@ -233,6 +245,7 @@ class Module_vlans {
 					"D_VLAN_ID" =>  $request->request->getInt('VlanID'),
 					"D_VLAN_NAME"   =>  $request->request->get('VlanName'),
 					"D_VLAN_DOMAIN" =>  $request->request->getInt('VlanDomain'),
+					"D_VLAN_OTVDOMAIN"  =>  $request->request->getInt('VlanOTVDomain'),
 				));
 			}
 

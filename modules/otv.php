@@ -95,7 +95,7 @@ class Module_OTV {
 		if ($request->request->getBoolean('submitForm1')) {
 			$otv->setOTVName($request->request->get('OTVName'));
 			$otv->setOTVDescription($request->request->get('OTVDescription'));
-			$otv->setOTVDomains($request->request->get('OTVDomains'));
+			$otv->setOTVDomains(($request->request->get('OTVDomains') != null) ? $request->request->get('OTVDomains') : array());
 
 			if ($otv->save()) {
 				MessageHandler::Success("OTV Instanz gespeichert", sprintf("Die OTV Instanz <strong>%s</strong> wurde gespeichert", $otv->getOTVName()));
