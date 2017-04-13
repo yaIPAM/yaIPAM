@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{$SITE_TITLE}</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.6 -->
@@ -38,12 +38,12 @@
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu">
           <li class="header">Navigation</li>
-          <li class="{if $S_ACTIVE_MENU=="vlans"}active {/if}treeview">
+          <li class="{if $S_ACTIVE_MENU=="vlans" or $S_ACTIVE_MENU=="vlandomains"}active {/if}treeview">
             <a href="#"><span>VLANs</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-              <li><a href="{$SITE_BASE}vlans/">Übersicht</a></li>
+              <li{if $S_ACTIVE_MENU=="vlans"} class="active"{/if}><a href="{$SITE_BASE}vlans/">Übersicht</a></li>
               <!--<li><a href="{$SITE_BASE}vlans/otv/">OTV Instanzen</a></li>-->
-                <!--<li><a href="{$SITE_BASE}vlans/domains/">VLAN Domains</a></li>-->
+                <li{if $S_ACTIVE_MENU=="vlandomains"} class="active"{/if}><a href="{$SITE_BASE}vlandomains/">VLAN Domains</a></li>
             </ul>
           </li>
         </ul><!-- /.sidebar-menu -->

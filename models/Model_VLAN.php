@@ -114,9 +114,9 @@ class Model_VLAN {
 
 	/**
 	 * @param int $DomainID
-	 * @return array
+	 * @return mixed
 	 */
-	public function firstVLANByDomain(int $DomainID): array {
+	public function firstVLANByDomain(int $DomainID) {
 		global $dbal;
 
 		$queryBuilder = $dbal->createQueryBuilder();
@@ -136,9 +136,9 @@ class Model_VLAN {
 
 	/**
 	 * @param int $DomainID
-	 * @return array
+	 * @return mixed
 	 */
-	public function LastVLANByDomain(int $DomainID): array {
+	public function LastVLANByDomain(int $DomainID) {
 		global $dbal;
 
 		$queryBuilder = $dbal->createQueryBuilder();
@@ -222,6 +222,47 @@ class Model_VLAN {
 		catch (\Exception $e) {
 			return false;
 		}
+	}
+
+	/**
+	 * @param int $DomainID
+	 * @return bool
+	 */
+	public static function DeleteAllByDomain(int $DomainID): bool {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+		$delete = $queryBuilder
+			->delete('vlans')
+			->where('VlanDomain = ?')
+			->setParameter(0, $DomainID);
+
+		if ($delete->execute()) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $DomainID
+	 * @return int
+	 */
+	public static function CountAllByDomain(int $DomainID): int {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+		$numrows = $queryBuilder
+			->select('COUNT(*) AS total')
+			->from('vlans')
+			->where('VlanDomain = ?')
+			->setParameter(0, $DomainID)
+			->execute()
+			->fetch();
+
+		return $numrows['total'];
+
 	}
 
 	/**

@@ -54,7 +54,7 @@ class Module_vlans {
 		$firstVlan = $Vlans->firstVLANByDomain($this->getVlanDomainSelected());
 		$lastVlan = $Vlans->LastVLANByDomain($this->getVlanDomainSelected());
 
-		if ($firstVlan > 1) {
+		if ($firstVlan['VlanID'] > 1) {
 			if (( $firstVlan['VlanID'] - 1) == 1) {
 				$vlan_list[0] = array(
 					"VlanID"    =>  1,
@@ -173,7 +173,7 @@ class Module_vlans {
 	 * @param bool $edit
 	 */
 	private function Page_add(bool $edit) {
-		global $tpl, $request;
+		global $tpl, $request, $vlans_config;
 
 		$tpl->assign("D_VLAN_DOMAIN_LIST", Model_VLAN_Domain::listDomains());
 		$vlan = new Model_VLAN();
@@ -196,6 +196,19 @@ class Module_vlans {
 			));
 		}
 
+		if ($request->request->getBoolean('submitForm1') &&
+			(empty($request->request->getInt('VlanID')) or
+			empty ($request->request->get('VlanName')) or
+			empty($request->request->getInt('VlanDomain')))) {
+
+			MessageHandler::Warning("Leere Felder", "Bitte alle Felder ausfüllen.");
+			return $tpl->display("vlans/vlan_add.html");
+		}
+
+		if ($request->request->getBoolean('submitForm1') && ($request->request->getInt('VlanID') < 1 or $request->request->getInt('VlanID') > $vlans_config['maxID'])) {
+			MessageHandler::Warning("Out of range", sprintf("Die VLAN ID muss zwischen 1 und %s liegen", $vlans_config['maxID']));
+			return $tpl->display("vlans/vlan_add.html");
+		}
 
 
 		if ($request->request->getBoolean('submitForm1')) {
