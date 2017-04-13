@@ -163,9 +163,6 @@ class Module_vlans {
 
 		$tpl->assign("D_VLAN", $vlanData);
 		$tpl->display("vlans/vlan_delete.html");
-
-
-
 	}
 
 

@@ -12,10 +12,12 @@
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="{$THEME_URL}/dist/css/AdminLTE.min.css">
+
     <link rel="stylesheet" href="{$THEME_URL}/plugins/datatables/dataTables.bootstrap.css">
+    <link rel="stylesheet" href="{$THEME_URL}/plugins/select2/select2.css">
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="{$THEME_URL}/dist/css/AdminLTE.css">
     <link rel="stylesheet" href="{$THEME_URL}/dist/css/skins/_all-skins.min.css">
     <!-- jQuery 2.2.3 -->
     <script src="{$THEME_URL}/plugins/jQuery/jquery-2.2.3.min.js"></script>
@@ -38,12 +40,12 @@
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu">
           <li class="header">Navigation</li>
-          <li class="{if $S_ACTIVE_MENU=="vlans" or $S_ACTIVE_MENU=="vlandomains"}active {/if}treeview">
+          <li class="{if $S_ACTIVE_MENU=="vlans" or $S_ACTIVE_MENU=="vlandomains" or $S_ACTIVE_MENU=="otv"}active {/if}treeview">
             <a href="#"><span>VLANs</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
               <li{if $S_ACTIVE_MENU=="vlans"} class="active"{/if}><a href="{$SITE_BASE}vlans/">Übersicht</a></li>
-              <!--<li><a href="{$SITE_BASE}vlans/otv/">OTV Instanzen</a></li>-->
                 <li{if $S_ACTIVE_MENU=="vlandomains"} class="active"{/if}><a href="{$SITE_BASE}vlandomains/">VLAN Domains</a></li>
+                <li{if $S_ACTIVE_MENU=="otv"} class="active"{/if}><a href="{$SITE_BASE}/otv/">OTV Instanzen (WiP)</a></li>
             </ul>
           </li>
         </ul><!-- /.sidebar-menu -->

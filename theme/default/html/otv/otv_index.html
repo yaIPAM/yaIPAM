@@ -1,0 +1,68 @@
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>OTV Verwaltung</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+          <div class="col-md-1">
+              <a href="{$SITE_BASE}/otv/add/" class="btn btn-success form-control">Hinzufügen</a>
+          </div>
+      </div>
+       <div class="row">
+           <p>&nbsp;</p>
+       </div>
+       <div class="row">
+           <div class="col-md-12">
+               {if isset($S_MESSAGE)}
+               {include file=$S_MESSAGE_FILE}
+               {/if}
+               <table class="table table-bordered table-striped table-hover" id="otvlist">
+                <thead>
+                <th ></th>
+                <th>OTV Name</th>
+                <th>Beschreibung</th>
+                </thead>
+                   <tbody>
+                   {foreach item=$otv from=$D_OTV_LIST}
+                   <tr>
+                       <td class="col-md-1">
+                           <div class="row">
+                               <div class="col-md-1">
+                           <form method="post" id="formOTV_edit_{$otv.OTVID}" action="{$SITE_BASE}/otv/edit/" class="form-inline">
+                               <input type="hidden" name="OTVID" value="{$otv.OTVID}">
+                               <button form="formOTV_edit_{$otv.OTVID}" class="btn btn-xs btn-default" type="submit" name="Edit" value="true">
+                                   <span class="glyphicon-wrench glyphicon"></span>
+                               </button>
+                           </form>
+                               </div>
+                               <div class="col-md-1">
+                           <form method="post" id="formOTV_delete_{$otv.OTVID}" action="{$SITE_BASE}/otv/delete/" class="form-inline">
+                               <input type="hidden" name="OTVID" value="{$otv.OTVID}">
+                                    <button form="formOTV_delete_{$otv.OTVID}" class="btn btn-xs btn-danger" type="submit" name="Delete" value="true">
+                                        <span class="glyphicon-trash glyphicon"></span>
+                                    </button>
+                           </form>
+                               </div>
+                           </div>
+                       </td>
+                       <td>{$otv.OTVName}</td>
+                       <td>{$otv.OTVDescription}</td>
+                   </tr>
+                   {foreachelse}
+                   <tr>
+                       <td colspan="3">--- Keine OTV Instanzen ---</td>
+                   </tr>
+                   {/foreach}
+                   </tbody>
+               </table>
+           </div>
+       </div>
+   </section>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#otvlist').DataTable({
+            "ordering": false,
+        });
+    } );
+</script>
