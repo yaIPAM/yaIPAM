@@ -92,24 +92,29 @@ class Model_VLAN {
 			->where('d.domain_id = ?')
 			->setParameter(0, $DomainID)
 			->execute()
-			->fetch();
-
-		$queryBuilder = $dbal->createQueryBuilder();
-		$otvVlans = $queryBuilder
-			->select('v.ID', 'v.VlanID', 'v.VlanName', 'd.domain_name', '"true" AS OTVVlan', ':VlanDomain as VlanDomain', ':Overlay AS Overlay')
-			->from('vlans', 'v')
-			->innerJoin('v', 'vlan_domains', 'd', 'd.domain_id = v.VlanDomain')
-			->where('v.OTVDomain = :OTVID AND v.VlanDomain != :VlanDomain')
-			->setParameter('OTVID', $vlanDomain['OTVID'])
-			->setParameter('VlanDomain', $DomainID)
-			->setParameter('Overlay', $vlanDomain['OTVName'])
-			->execute()
 			->fetchAll();
 
+		print_r($vlanDomain);
+
+		$otvVlanArray = array();
+		foreach ($vlanDomain as $data) {
+			$queryBuilder = $dbal->createQueryBuilder();
+			$otvVlans = $queryBuilder
+				->select('v.ID', 'v.VlanID', 'v.VlanName', 'd.domain_name', '"true" AS OTVVlan', ':VlanDomain as VlanDomain', ':Overlay AS Overlay')
+				->from('vlans', 'v')
+				->innerJoin('v', 'vlan_domains', 'd', 'd.domain_id = v.VlanDomain')
+				->where('v.OTVDomain = :OTVID AND v.VlanDomain != :VlanDomain')
+				->setParameter('OTVID', $data['OTVID'])
+				->setParameter('VlanDomain', $DomainID)
+				->setParameter('Overlay', $data['OTVName'])
+				->execute()
+				->fetchAll();
 
 
-		$new_vlans = array_merge($vlan, $otvVlans);
-		$new_vlans = array_orderby($new_vlans, 'VlanID');
+				$vlan = array_merge($vlan, $otvVlans);
+		}
+
+		$new_vlans = array_orderby($vlan, 'VlanID');
 
 
 			return $new_vlans;

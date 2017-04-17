@@ -40,6 +40,13 @@
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu">
           <li class="header">Navigation</li>
+            <li class="treeview">
+                <a href="#"><span>Addressspace Management</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <ul class="treeview-menu">
+                    <li><a href="{$SITE_BASE}/addresses/">Adressen</a></li>
+                    <li><a href="{$SITE_BASE}/vrfs/">VRFs</a></li>
+                </ul>
+            </li>
           <li class="{if $S_ACTIVE_MENU=="vlans" or $S_ACTIVE_MENU=="vlandomains" or $S_ACTIVE_MENU=="otv"}active {/if}treeview">
             <a href="#"><span>VLANs</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
