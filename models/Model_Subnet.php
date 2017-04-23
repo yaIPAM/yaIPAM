@@ -17,6 +17,8 @@ class Model_Subnet {
 	private $RangeTo = "";
 	private $PrefixDescription = "";
 	private $PrefixVRF = array();
+	private $ParentID = 0;
+	private $MasterVRF = 0;
 
 	public function save(): bool {
 		global $dbal;
@@ -30,28 +32,50 @@ class Model_Subnet {
 			if ($this->getAFI() == 4) {
 				$insert = $queryBuilder
 					->insert('prefixes')
-					->setValue('Prefix', 'INET_ATON(:Prefix)')
+					->setValue('Prefix', ':Prefix')
 					->setValue('PrefixLength', ':PrefixLength')
 					->setValue('AFI', ':AFI')
 					->setValue('PrefixDescription', ':PrefixDescription')
 					->setValue('RangeFrom', ':RangeFrom')
-					->setValue('RangeTo', ':RangeTo');
+					->setValue('RangeTo', ':RangeTo')
+					->setValue('MasterVRF', ':MasterVRF')
+					->setValue('ParentID', ':ParentID')
+					->setParameter('Prefix', ip2long($this->getPrefix()))
+					->setParameter('PrefixLength', $this->getPrefixLength())
+					->setParameter('AFI', $this->getAFI())
+					->setParameter('PrefixDescription', $this->getPrefixDescription())
+					->setParameter('RangeFrom', $this->getRangeFrom())
+					->setParameter('RangeTo', $this->getRangeTo())
+					->setParameter('MasterVRF', $this->getMasterVRF())
+					->setParameter('ParentID', $this->getParentID());
 			}
 			else if ($this->getAFI() == 6) {
 				$insert = $queryBuilder
 					->insert('prefixes')
-					->setValue('Prefix', 'INET6_ATON(:Prefix)')
+					->setValue('Prefix', ':Prefix')
 					->setValue('PrefixLength', ':PrefixLength')
 					->setValue('AFI', ':AFI')
 					->setValue('PrefixDescription', ':PrefixDescription')
 					->setValue('RangeFrom', ':RangeFrom')
-					->setValue('RangeTo', ':RangeTo');
+					->setValue('RangeTo', ':RangeTo')
+					->setValue('MasterVRF', ':MasterVRF')
+					->setValue('ParentID', ':ParentID')
+					->setParameter('Prefix', ip2long6($this->getPrefix()))
+					->setParameter('PrefixLength', $this->getPrefixLength())
+					->setParameter('AFI', $this->getAFI())
+					->setParameter('PrefixDescription', $this->getPrefixDescription())
+					->setParameter('RangeFrom', $this->getRangeFrom())
+					->setParameter('RangeTo', $this->getRangeTo())
+					->setParameter('MasterVRF', $this->getMasterVRF())
+					->setParameter('ParentID', $this->getParentID());
 			}
 
 			if ($insert->execute() === false) {
 				$dbal->rollBack();
 				return false;
 			}
+
+			$this->setPrefixID($dbal->lastInsertId());
 
 			foreach ($this->getPrefixVRF() as $key => $value) {
 				$queryBuilder = $dbal->createQueryBuilder();
@@ -63,7 +87,7 @@ class Model_Subnet {
 					->setParameter('PrefixID', $this->getPrefixID())
 					->setParameter('VRFID', $value);
 
-				if ($insert === false) {
+				if ($insert->execute() === false) {
 					$dbal->rollBack();
 					return false;
 				}
@@ -78,39 +102,47 @@ class Model_Subnet {
 			if ($this->getAFI() == 4) {
 				$update = $queryBuilder
 					->update('prefixes')
-					->set('Prefix', 'INET_ATON(:Prefix)')
+					->set('Prefix', ':Prefix')
 					->set('PrefixLength', ':PrefixLength')
 					->set('AFI', ':AFI')
 					->set('PrefixDescription', ':PrefixDescription')
 					->set('RangeFrom', ':RangeFrom')
 					->set('RangeTo', ':RangeTo')
+					->set('MasterVRF', ':MasterVRF')
+					->set('ParentID', ':ParentID')
 					->where('PrefixID = :PrefixID')
-					->setParameter('Prefix', $this->getPrefix())
+					->setParameter('Prefix', ip2long($this->getPrefix()))
 					->setParameter('PrefixLength', $this->getPrefixLength())
 					->setParameter('AFI', $this->getAFI())
 					->setParameter('PrefixDescription', $this->getPrefixDescription())
 					->setParameter('RangeFrom', $this->getRangeFrom())
 					->setParameter('RangeTo', $this->getRangeTo())
-					->setParameter('PrefixID', $this->getPrefixID());
+					->setParameter('PrefixID', $this->getPrefixID())
+					->setParameter('MasterVRF', $this->getMasterVRF())
+					->setParameter('ParentID', $this->getParentID());
 
 			}
 			else if ($this->getAFI() == 6) {
 				$update = $queryBuilder
 					->update('prefixes')
-					->set('Prefix', 'INET6_ATON(:Prefix)')
+					->set('Prefix', ':Prefix')
 					->set('PrefixLength', ':PrefixLength')
 					->set('AFI', ':AFI')
 					->set('PrefixDescription', ':PrefixDescription')
 					->set('RangeFrom', ':RangeFrom')
 					->set('RangeTo', ':RangeTo')
+					->set('MasterVRF', ':MasterVRF')
+					->set('ParentID', ':ParentID')
 					->where('PrefixID = :PrefixID')
-					->setParameter('Prefix', $this->getPrefix())
+					->setParameter('Prefix', ip2long6($this->getPrefix()))
 					->setParameter('PrefixLength', $this->getPrefixLength())
 					->setParameter('AFI', $this->getAFI())
 					->setParameter('PrefixDescription', $this->getPrefixDescription())
 					->setParameter('RangeFrom', $this->getRangeFrom())
 					->setParameter('RangeTo', $this->getRangeTo())
-					->setParameter('PrefixID', $this->getPrefixID());
+					->setParameter('PrefixID', $this->getPrefixID())
+					->setParameter('MasterVRF', $this->getMasterVRF())
+					->setParameter('ParentID', $this->getParentID());
 			}
 
 			if ($update->execute() === false) {
@@ -145,6 +177,36 @@ class Model_Subnet {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param int $VRFID
+	 * @return bool
+	 */
+	public function deleteByVRF(int $VRFID): bool {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+
+		$delete = $queryBuilder
+			->delete('prefixes')
+			->where('MasterVRF = :VRFID')
+			->setParameter('VRFID', $VRFID);
+
+		if ($delete->execute() === false) {
+			return false;
+		}
+
+		$delete = $queryBuilder
+			->delete('prefixes_vrfs')
+			->where('VRFID = :VRFID')
+			->setParameter('VRFID', $VRFID);
+
+		if ($delete->execute() === false) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -257,6 +319,34 @@ class Model_Subnet {
 	 */
 	public function setPrefixVRF(array $PrefixVRF) {
 		$this->PrefixVRF = $PrefixVRF;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getParentID(): int {
+		return $this->ParentID;
+	}
+
+	/**
+	 * @param int $ParentID
+	 */
+	public function setParentID(int $ParentID) {
+		$this->ParentID = $ParentID;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getMasterVRF(): int {
+		return $this->MasterVRF;
+	}
+
+	/**
+	 * @param int $MasterVRF
+	 */
+	public function setMasterVRF(int $MasterVRF) {
+		$this->MasterVRF = $MasterVRF;
 	}
 
 }

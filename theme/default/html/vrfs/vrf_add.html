@@ -8,7 +8,7 @@
               {if isset($S_MESSAGE)}
               {include file=$S_MESSAGE_FILE}
               {/if}
-              <form method="post" id="submitForm1" action="{$SITE_BASE}/vrfs{$D_MODE}/">
+              <form method="post" id="submitForm1" action="{$SITE_BASE}/vrfs/{$D_MODE}/">
                   {if $D_MODE=="edit"}
                   <input type="hidden" name="VRFID" value="{$D_VRFID}">
                   {/if}

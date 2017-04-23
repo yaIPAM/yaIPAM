@@ -1,5 +1,7 @@
 <?php
 
+require_once SCRIPT_BASE . '/models/Model_Subnet.php';
+
 /**
  * Model_VRF.php
  * Project: yaipam
@@ -68,6 +70,7 @@ class Model_VRF {
 			$Subnet->setPrefixVRF(array($this->getVRFID()));
 			$Subnet->setRangeFrom($RootPrefix->getComparableStartString());
 			$Subnet->setRangeTo($RootPrefix->getComparableEndString());
+			$Subnet->setMasterVRF($this->getVRFID());
 
 			if ($Subnet->save() === false) {
 				$dbal->rollBack();
@@ -84,11 +87,16 @@ class Model_VRF {
 			$Subnet->setPrefixVRF(array($this->getVRFID()));
 			$Subnet->setRangeFrom($RootPrefix->getComparableStartString());
 			$Subnet->setRangeTo($RootPrefix->getComparableEndString());
+			$Subnet->setMasterVRF($this->getVRFID());
 
 			if ($Subnet->save() === false) {
 				$dbal->rollBack();
 				return false;
 			}
+
+			$dbal->commit();
+
+			return true;
 
 
 		}
@@ -114,6 +122,105 @@ class Model_VRF {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param int $VRFID
+	 * @return array
+	 */
+	public function getByID(int $VRFID): array {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+
+		$select = $queryBuilder
+			->select('*')
+			->from('vrfs')
+			->where('VRFID = :VRFID')
+			->setParameter('VRFID', $VRFID)
+			->execute()
+			->fetch();
+
+		$this->setVRFRT($select['VRFRT']);
+		$this->setVRFRD($select['VRFRD']);
+		$this->setVRFName($select['VRFName']);
+		$this->setVRFDescription($select['VRFDescription']);
+		$this->setVRFID($select['VRFID']);
+
+		return $select;
+	}
+
+	public static function getWithRoot(): array {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+
+		$select = $queryBuilder
+			->select('VRFName', 'VRFID', 'VRFDescription')
+			->from('vrfs')
+			->orderBy('VRFID')
+			->execute()
+			->fetchAll();
+
+		$vrfs = array();
+		foreach ($select as $data) {
+			$queryBuilder = $dbal->createQueryBuilder();
+			$IPv4Root = $queryBuilder
+				->select('PrefixID')
+				->from('prefixes')
+				->where('MasterVRF = :MasterVRF')
+				->andWhere('ParentID = 0')
+				->andWhere('AFI = 4')
+				->setParameter('MasterVRF', $data['VRFID'])
+				->execute()
+				->fetch();
+			$IPv6Root = $queryBuilder
+				->select('PrefixID')
+				->from('prefixes')
+				->where('MasterVRF = :MasterVRF')
+				->andWhere('ParentID = 0')
+				->andWhere('AFI = 6')
+				->setParameter('MasterVRF', $data['VRFID'])
+				->execute()
+				->fetch();
+			$vrfs[] = array(
+				"VRFName"   =>  $data['VRFName'],
+				"VRFID" =>  $data['VRFID'],
+				"VRFDescription"    =>  $data['VRFDescription'],
+				"IPv4Root"  =>  $IPv4Root['PrefixID'],
+				"IPv6Root"  =>  $IPv6Root['PrefixID'],
+			);
+		}
+
+		return $vrfs;
+	}
+
+	public function delete(): bool {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+
+		$dbal->beginTransaction();
+
+		$Subnet = new Model_Subnet();
+		if (!$Subnet->deleteByVRF($this->getVRFID())) {
+			$dbal->rollBack();
+			return false;
+		}
+
+		$delete = $queryBuilder
+			->delete('vrfs')
+			->where('VRFID = :VRFID')
+			->setParameter('VRFID', $this->getVRFID());
+
+		if ($delete->execute() === false) {
+			$dbal->rollBack();
+			return false;
+		}
+
+		$dbal->commit();
+
+		return true;
 	}
 
 

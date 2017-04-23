@@ -16,3 +16,4 @@ $dbase_config['driver'] = 'pdo_mysql';
 $vlans_config['maxID'] = 4096;
 
 $general_config['site_title'] = 'yaIPAM - Test';
+$general_config['devMode'] = false;

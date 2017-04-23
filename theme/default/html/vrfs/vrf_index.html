@@ -31,7 +31,7 @@
                            <div class="row">
                                <div class="col-md-1">
                            <form method="post" action="{$SITE_BASE}/vrfs/edit/" class="form-inline">
-                               <input type="hidden" name="ID" value="{$vrf.VRFID}">
+                               <input type="hidden" name="VRFID" value="{$vrf.VRFID}">
                                <button class="btn btn-xs btn-default" type="submit" name="Edit" value="true">
                                    <span class="glyphicon-wrench glyphicon"></span>
                                </button>
@@ -39,7 +39,7 @@
                                </div>
                                <div class="col-md-1">
                            <form method="post" action="{$SITE_BASE}/vrfs/delete/" class="form-inline">
-                               <input type="hidden" name="ID" value="{$vrf.VRFID}">
+                               <input type="hidden" name="VRFID" value="{$vrf.VRFID}">
                                     <button class="btn btn-xs btn-danger" type="submit" name="Delete" value="true">
                                         <span class="glyphicon-trash glyphicon"></span>
                                     </button>
@@ -63,6 +63,7 @@
        </div>
    </section>
 </div>
+{if !empty($D_VRF_LIST)}
 <script>
     $(document).ready(function() {
         $('#vrflist').DataTable({
@@ -70,3 +71,4 @@
         });
     } );
 </script>
+{/if}
