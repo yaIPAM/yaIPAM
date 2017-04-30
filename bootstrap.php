@@ -6,8 +6,9 @@
  * Date: 23.04.17
  * Time: 10:52
  */
+session_start();
 
-define("SITE_BASE", "/yaipam/");
+define("SITE_BASE", "/yaipam");
 define("SCRIPT_BASE", __DIR__);
 
 // Composer Autoloader
@@ -15,6 +16,15 @@ require SCRIPT_BASE . '/vendor/autoload.php';
 require SCRIPT_BASE .'/libs/MessageHandler.php';
 require SCRIPT_BASE .'/libs/IP.php';
 require SCRIPT_BASE .'/config.php';
+require SCRIPT_BASE .'/libs/i18n.php';
+
+// Language setup
+
+I18N::init('messages', SCRIPT_BASE.'/lang', 'en_US', array(
+    '/^de((-|_).*?)?$/i' => 'de_DE',
+    '/^en((-|_).*?)?$/i' => 'en_US',
+    '/^es((-|_).*?)?$/i' => 'es_ES'
+));
 
 // Basic DBAL Configuration
 

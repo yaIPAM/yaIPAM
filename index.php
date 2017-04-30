@@ -8,6 +8,7 @@ $tpl->setTemplateDir(__DIR__.'/theme/default/html');
 $tpl->setCompileDir(__DIR__.'/cache');
 $tpl->setCacheDir(__DIR__.'/cache');
 $tpl->setConfigDir(__DIR__.'/theme/default/configs');
+$tpl->setPluginsDir(__DIR__.'/libs/smartyplugins');
 
 
 $tpl->assign("SITE_BASE", SITE_BASE);

@@ -18,7 +18,7 @@
                    {foreach item=$vrf from=$D_VRF_LIST}
                    <tr>
                        <td>{$vrf.VRFName}</td>
-                       <td><a href="{$SITE_BASE}/addresses/subnet/{$vrf.IPv4Root}/" class="btn btn-default">IPv4</a> / <a href="{$SITE_BASE}/addresses/subnet/{$vrf.IPv6Root}/" class="btn btn-default">IPv6</a></td>
+                       <td>{"addresses/subnet/{$vrf.IPv4Root}/"|createlink:"IPv4":"btn btn-default":true} / {"addresses/subnet/{$vrf.IPv6Root}/"|createlink:"IPv6":"btn btn-default":true}</td>
                        <td>{$vrf.VRFDescription}</td>
                    </tr>
                    {foreachelse}

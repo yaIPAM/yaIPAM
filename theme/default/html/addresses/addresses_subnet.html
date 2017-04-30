@@ -1,0 +1,69 @@
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="row">
+            <div class="col-md-4">
+                <h1>{t}Adressspace Management{/t}</h1>
+                <p><a href="/addresses/">{$D_MasterVRF_Name}</a> >> {$D_Prefix}/{$D_PrefixLength}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 col-md-offset-10">
+                {"addresses/address/add/"|createlink:"+ {t}Address{/t}":"btn btn-success":true}
+                {"addresses/subnet/{$D_PrefixID}/add/"|createlink:"+ {t}Prefix{/t}":"btn btn-success":true}
+            </div>
+        </div>
+   </section>
+   <section class="content">
+       <div class="row">
+           <div class="col-md-12">
+               {if isset($S_MESSAGE)}
+               {include file=$S_MESSAGE_FILE}
+               {/if}
+               <h3>{$D_Prefix}/{$D_PrefixLength} ({$D_PrefixDescription})</h3>
+               <table class="table table-bordered table-striped table-hover" id="subnetlist">
+                <thead>
+                <tr>
+                    <th colspan="3"><strong>{t}Allocated Blocks{/t}</strong></th>
+                </tr>
+                <tr>
+                    <th>{t}Prefix{/t}</th>
+                    <th>{t}Description{/t}</th>
+                    <th>{t}VLAN{/t}</th>
+                </tr>
+                </thead>
+                   <tbody>
+                   {foreach item=$subnet from=$D_Subnets}
+                   <tr>
+                       <td><a href="{"/addresses/subnet/{$subnet.PrefixID}/"|url}/">{if $subnet.AFI==4}{$subnet.Prefix|long2ip}{else}{$subnet.Prefix|long2ip6}{/if}/{$subnet.PrefixLength}</a></td>
+                       <td>{$subnet.PrefixDescription}</td>
+                       <td>{$subnet.VLAN}</td>
+                   </tr>
+                   {foreachelse}
+                   <tr>
+                       <td colspan="3" style="text-align:center;">--- {t}No subnets to list.{/t} ---</td>
+                   </tr>
+                   {/foreach}
+               </table>
+               <table>
+                   <thead>
+                   <th colspan="2"><strong>{$D_Prefix}/{$D_PrefixLength} - Info</strong></th>
+                   </thead>
+                   <tbody>
+                   <tr>
+                       <td colspan="2">{"addresses/subnet/{$D_PrefixID}/edit/"|createlink:"{t}Edit{/t}":"btn btn-info":true}{"addresses/subnet/{$D_PrefixID}/delete/"|createlink:"{t}Delete{/t}":"btn btn-danger":true}</td>
+                   </tr>
+                   </tbody>
+               </table>
+           </div>
+       </div>
+   </section>
+</div>
+{if !empty($D_Subnets)}
+<script>
+    $(document).ready(function() {
+        $('#subnetlist').DataTable({
+            "ordering": true,
+        });
+    } );
+</script>
+{/if}

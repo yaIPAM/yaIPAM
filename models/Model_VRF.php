@@ -195,6 +195,27 @@ class Model_VRF {
 		return $vrfs;
 	}
 
+	/**
+	 * @param int $ID
+	 * @return array
+	 */
+	public static function getAllExcept(int $ID): array {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+
+		$select = $queryBuilder
+			->select('*')
+			->from('vrfs')
+			->where('VRFID != :VRFID')
+			->setParameter('VRFID', $ID)
+			->execute()
+			->fetchAll();
+
+
+		return $select;
+	}
+
 	public function delete(): bool {
 		global $dbal;
 

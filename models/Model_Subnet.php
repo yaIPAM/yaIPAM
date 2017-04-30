@@ -19,6 +19,7 @@ class Model_Subnet {
 	private $PrefixVRF = array();
 	private $ParentID = 0;
 	private $MasterVRF = 0;
+	private $PrefixState = 0;
 
 	public function save(): bool {
 		global $dbal;
@@ -29,45 +30,33 @@ class Model_Subnet {
 
 			$dbal->beginTransaction();
 
+			$insert = $queryBuilder
+				->insert('prefixes')
+				->setValue('Prefix', ':Prefix')
+				->setValue('PrefixLength', ':PrefixLength')
+				->setValue('AFI', ':AFI')
+				->setValue('PrefixDescription', ':PrefixDescription')
+				->setValue('RangeFrom', ':RangeFrom')
+				->setValue('RangeTo', ':RangeTo')
+				->setValue('MasterVRF', ':MasterVRF')
+				->setValue('ParentID', ':ParentID')
+				->setValue('PrefixState', ':PrefixState')
+				->setParameter('PrefixLength', $this->getPrefixLength())
+				->setParameter('AFI', $this->getAFI())
+				->setParameter('PrefixDescription', $this->getPrefixDescription())
+				->setParameter('RangeFrom', $this->getRangeFrom())
+				->setParameter('RangeTo', $this->getRangeTo())
+				->setParameter('MasterVRF', $this->getMasterVRF())
+				->setParameter('ParentID', $this->getParentID())
+				->setParameter('PrefixState', $this->getPrefixID());
+
 			if ($this->getAFI() == 4) {
-				$insert = $queryBuilder
-					->insert('prefixes')
-					->setValue('Prefix', ':Prefix')
-					->setValue('PrefixLength', ':PrefixLength')
-					->setValue('AFI', ':AFI')
-					->setValue('PrefixDescription', ':PrefixDescription')
-					->setValue('RangeFrom', ':RangeFrom')
-					->setValue('RangeTo', ':RangeTo')
-					->setValue('MasterVRF', ':MasterVRF')
-					->setValue('ParentID', ':ParentID')
-					->setParameter('Prefix', ip2long($this->getPrefix()))
-					->setParameter('PrefixLength', $this->getPrefixLength())
-					->setParameter('AFI', $this->getAFI())
-					->setParameter('PrefixDescription', $this->getPrefixDescription())
-					->setParameter('RangeFrom', $this->getRangeFrom())
-					->setParameter('RangeTo', $this->getRangeTo())
-					->setParameter('MasterVRF', $this->getMasterVRF())
-					->setParameter('ParentID', $this->getParentID());
+
+				$insert->setParameter('Prefix', ip2long($this->getPrefix()));
+
 			}
 			else if ($this->getAFI() == 6) {
-				$insert = $queryBuilder
-					->insert('prefixes')
-					->setValue('Prefix', ':Prefix')
-					->setValue('PrefixLength', ':PrefixLength')
-					->setValue('AFI', ':AFI')
-					->setValue('PrefixDescription', ':PrefixDescription')
-					->setValue('RangeFrom', ':RangeFrom')
-					->setValue('RangeTo', ':RangeTo')
-					->setValue('MasterVRF', ':MasterVRF')
-					->setValue('ParentID', ':ParentID')
-					->setParameter('Prefix', ip2long6($this->getPrefix()))
-					->setParameter('PrefixLength', $this->getPrefixLength())
-					->setParameter('AFI', $this->getAFI())
-					->setParameter('PrefixDescription', $this->getPrefixDescription())
-					->setParameter('RangeFrom', $this->getRangeFrom())
-					->setParameter('RangeTo', $this->getRangeTo())
-					->setParameter('MasterVRF', $this->getMasterVRF())
-					->setParameter('ParentID', $this->getParentID());
+				$insert->setParameter('Prefix', ip2long6($this->getPrefix()));
 			}
 
 			if ($insert->execute() === false) {
@@ -93,56 +82,42 @@ class Model_Subnet {
 				}
 			}
 
+			$this->RecalcTree($this->getParentID(), $this->getPrefixID());
+
 			$dbal->commit();
 			return true;
 		}
 		else if ($this->getPrefixID() > 0) {
 			$dbal->beginTransaction();
 
+			$update = $queryBuilder
+				->update('prefixes')
+				->set('Prefix', ':Prefix')
+				->set('PrefixLength', ':PrefixLength')
+				->set('AFI', ':AFI')
+				->set('PrefixDescription', ':PrefixDescription')
+				->set('RangeFrom', ':RangeFrom')
+				->set('RangeTo', ':RangeTo')
+				->set('MasterVRF', ':MasterVRF')
+				->set('ParentID', ':ParentID')
+				->set('PrefixState', ':PrefixState')
+				->where('PrefixID = :PrefixID')
+				->setParameter('PrefixLength', $this->getPrefixLength())
+				->setParameter('AFI', $this->getAFI())
+				->setParameter('PrefixDescription', $this->getPrefixDescription())
+				->setParameter('RangeFrom', $this->getRangeFrom())
+				->setParameter('RangeTo', $this->getRangeTo())
+				->setParameter('PrefixID', $this->getPrefixID())
+				->setParameter('MasterVRF', $this->getMasterVRF())
+				->setParameter('ParentID', $this->getParentID())
+				->setParameter('PrefixState', $this->getPrefixState());
+
 			if ($this->getAFI() == 4) {
-				$update = $queryBuilder
-					->update('prefixes')
-					->set('Prefix', ':Prefix')
-					->set('PrefixLength', ':PrefixLength')
-					->set('AFI', ':AFI')
-					->set('PrefixDescription', ':PrefixDescription')
-					->set('RangeFrom', ':RangeFrom')
-					->set('RangeTo', ':RangeTo')
-					->set('MasterVRF', ':MasterVRF')
-					->set('ParentID', ':ParentID')
-					->where('PrefixID = :PrefixID')
-					->setParameter('Prefix', ip2long($this->getPrefix()))
-					->setParameter('PrefixLength', $this->getPrefixLength())
-					->setParameter('AFI', $this->getAFI())
-					->setParameter('PrefixDescription', $this->getPrefixDescription())
-					->setParameter('RangeFrom', $this->getRangeFrom())
-					->setParameter('RangeTo', $this->getRangeTo())
-					->setParameter('PrefixID', $this->getPrefixID())
-					->setParameter('MasterVRF', $this->getMasterVRF())
-					->setParameter('ParentID', $this->getParentID());
+				$update->setParameter('Prefix', ip2long($this->getPrefix()));
 
 			}
 			else if ($this->getAFI() == 6) {
-				$update = $queryBuilder
-					->update('prefixes')
-					->set('Prefix', ':Prefix')
-					->set('PrefixLength', ':PrefixLength')
-					->set('AFI', ':AFI')
-					->set('PrefixDescription', ':PrefixDescription')
-					->set('RangeFrom', ':RangeFrom')
-					->set('RangeTo', ':RangeTo')
-					->set('MasterVRF', ':MasterVRF')
-					->set('ParentID', ':ParentID')
-					->where('PrefixID = :PrefixID')
-					->setParameter('Prefix', ip2long6($this->getPrefix()))
-					->setParameter('PrefixLength', $this->getPrefixLength())
-					->setParameter('AFI', $this->getAFI())
-					->setParameter('PrefixDescription', $this->getPrefixDescription())
-					->setParameter('RangeFrom', $this->getRangeFrom())
-					->setParameter('RangeTo', $this->getRangeTo())
-					->setParameter('PrefixID', $this->getPrefixID())
-					->setParameter('MasterVRF', $this->getMasterVRF())
-					->setParameter('ParentID', $this->getParentID());
+				$update->setParameter('Prefix', ip2long6($this->getPrefix()));
 			}
 
 			if ($update->execute() === false) {
@@ -207,6 +182,154 @@ class Model_Subnet {
 		}
 
 		return true;
+	}
+
+	public function delete(): bool {
+		global $dbal;
+
+		$dbal->beginTransaction();
+
+		$queryBuilder = $dbal->createQueryBuilder();
+
+		$delete = $queryBuilder
+			->delete('prefixes')
+			->where('PrefixID = :PrefixID')
+			->setParameter('PrefixID', $this->getPrefixID());
+
+		if ($delete->execute() === false) {
+			$dbal->rollBack();
+			return false;
+		}
+
+		$this->RecalcTree($this->getPrefixID());
+
+		$dbal->commit();
+
+		return true;
+	}
+
+	public function RecalcTree(int $ParentID, int $SelfID = 0): bool {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+
+		$select = $queryBuilder
+			->select('PrefixID', 'MasterVRF', 'Prefix', 'AFI', 'PrefixLength')
+			->from('prefixes')
+			->where('ParentID = :ParentID')
+			->andWhere('ParentID <> 0')
+			->setParameter('ParentID', $ParentID);
+
+		if ($SelfID != 0) {
+			$select->andWhere('PrefixID <> :SelfID')
+			->setParameter('SelfID', $SelfID);
+		}
+
+		$select->execute()->fetchAll();
+
+		foreach ($select as $data) {
+			$Prefix = ($data['AFI']==4) ? long2ip($data['Prefix']) : long2ip6($data['Prefix']);
+			$Prefix = $Prefix."/".$data['PrefixLength'];
+			$NewParent = self::CalculateParentID($Prefix, $data['MasterVRF']);
+			$queryBuilder = $dbal->createQueryBuilder();
+			$queryBuilder
+				->update('prefixes')
+				->set('ParentID', ':ParentID')
+				->where('PrefixID = :PrefixID')
+				->setParameter('ParentID', $NewParent)
+				->setParameter('PrefixID', $data['PrefixID']);
+
+			if ($queryBuilder->execute() === false) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param int $ID
+	 * @return bool
+	 */
+	public function getByID(int $ID): bool {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+		$select = $queryBuilder
+			->select('*')
+			->from('prefixes')
+			->where('PrefixID = :PrefixID')
+			->setParameter('PrefixID', $ID)
+			->execute()
+			->fetch();
+
+		if (empty($select)) {
+			return false;
+		}
+		else {
+			$this->setMasterVRF($select['MasterVRF']);
+			$this->setPrefixID($select['PrefixID']);
+			$this->setAFI($select['AFI']);
+			if ($this->getAFI() == 4) {
+				$this->setPrefix(long2ip($select['Prefix']));
+			} else if ($this->getAFI() == 6) {
+				$this->setPrefix(long2ip6($select['Prefix']));
+			}
+			$this->setPrefixLength($select['PrefixLength']);
+			$this->setRangeTo($select['RangeTo']);
+			$this->setRangeFrom($select['RangeFrom']);
+			$this->setPrefixDescription($select['PrefixDescription']);
+			$this->setParentID($select['ParentID']);
+
+			return true;
+		}
+	}
+
+	/**
+	 * @param int $ParentID
+	 * @return array
+	 */
+	public static function getSubPrefixes(int $ParentID): array {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+		$select = $queryBuilder
+			->select('*')
+			->from('prefixes')
+			->where('ParentID = :PrefixID')
+			->setParameter('PrefixID', $ParentID)
+			->execute()
+			->fetchAll();
+
+		return $select;
+	}
+
+	public static function CalculateParentID(string $PrefixName, int $VRF): int {
+		global $dbal;
+
+		$Address = \IPLib\Range\Subnet::fromString($PrefixName);
+
+		$queryBuilder = $dbal->createQueryBuilder();
+		$select = $queryBuilder
+			->select('PrefixID')
+			->from('prefixes')
+			->where('AFI = :AFI')
+			->andWhere('MasterVRF = :VRF')
+			->andWhere(':StartAddress > RangeFrom and :EndAddress < RangeTo')
+			->orderBy('Prefix', 'DESC')
+			->setParameter('AFI', $Address->getAddressType())
+			->setParameter('StartAddress', $Address->getComparableStartString())
+			->setParameter('EndAddress', $Address->getComparableEndString())
+			->setParameter('VRF', $VRF)
+			->execute()
+			->fetch();
+
+		if (!empty($select['PrefixID'])) {
+			return $select['PrefixID'];
+		}
+		else {
+			return 0;
+		}
 	}
 
 	/**
@@ -348,5 +471,20 @@ class Model_Subnet {
 	public function setMasterVRF(int $MasterVRF) {
 		$this->MasterVRF = $MasterVRF;
 	}
+
+	/**
+	 * @return int
+	 */
+	public function getPrefixState(): int {
+		return $this->PrefixState;
+	}
+
+	/**
+	 * @param int $PrefixState
+	 */
+	public function setPrefixState(int $PrefixState) {
+		$this->PrefixState = $PrefixState;
+	}
+
 
 }
