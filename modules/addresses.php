@@ -26,6 +26,10 @@ class Module_Addresses {
 			return $this->Page_Subnet();
 		} else if ($request->query->get('mode') == "subnetadd") {
 			return $this->Page_SubnetAdd();
+		} else if ($request->query->get('mode') == 'subnetedit') {
+			return $this->Page_SubnetAdd(true);
+		} else if ($request->query->get('mode') == "subnetdelete") {
+			return $this->Page_SubnetDelete();
 		}
 	}
 
@@ -45,6 +49,16 @@ class Module_Addresses {
 		$CurrentSubnet = new Model_Subnet();
 		$CurrentSubnet->getByID($SubnetID);
 
+		if (!empty($CurrentSubnet) && $edit) {
+			$tpl->assign(array(
+				"D_MODE"    =>  "edit",
+				"D_PrefixID"    =>  $CurrentSubnet->getPrefixID(),
+				"D_PrefixName"  =>  $CurrentSubnet->getPrefix()."/".$CurrentSubnet->getPrefixLength(),
+				"D_PrefixState" =>  $CurrentSubnet->getPrefixState(),
+				"D_PrefixDescription"   =>  $CurrentSubnet->getPrefixDescription(),
+			));
+		}
+
 		$VRF = Model_VRF::getAllExcept($CurrentSubnet->getMasterVRF());
 
 		$tpl->assign(array(
@@ -60,6 +74,7 @@ class Module_Addresses {
 					"D_PrefixName"  =>  $request->request->get('PrefixName'),
 					"D_PrefixState" =>  $request->request->get('PrefixState'),
 					"D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
+					"D_PrefixState" =>  $request->request->getInt('PrefixState'),
 				));
 
 				return $tpl->display("subnets/subnet_add.html");
@@ -72,20 +87,29 @@ class Module_Addresses {
 					"D_PrefixName"  =>  $request->request->get('PrefixName'),
 					"D_PrefixState" =>  $request->request->get('PrefixState'),
 					"D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
+					"D_PrefixState" =>  $request->request->getInt('PrefixState'),
 				));
 
 				return $tpl->display("subnets/subnet_add.html");
 			}
 
-			$ParentID = Model_Subnet::CalculateParentID($request->request->get('PrefixName'), $CurrentSubnet->getMasterVRF());
+			if (!$edit) {
+				$ParentID = Model_Subnet::CalculateParentID($request->request->get('PrefixName'), $CurrentSubnet->getMasterVRF());
+			}
 
 			$PrefixName = $request->request->get('PrefixName');
 			$Prefix = \IPLib\Range\Subnet::fromString($PrefixName);
-			$PrefixName = explode("/", $PrefixName);
+			$PrefixName = explode("/", \IPLib\Range\Subnet::fromString($PrefixName)->toString());
 
-			$NewSubnet = new Model_Subnet();
+			if (!$edit) {
+				$NewSubnet = new Model_Subnet();
+				$NewSubnet->setParentID($ParentID);
+			}
+			else {
+				$NewSubnet = $CurrentSubnet;
+			}
+
 			$NewSubnet->setPrefix($PrefixName[0]);
-			$NewSubnet->setParentID($ParentID);
 			$NewSubnet->setMasterVRF($CurrentSubnet->getMasterVRF());
 			$NewSubnet->setPrefixDescription($request->request->get('PrefixDescription'));
 			$NewSubnet->setRangeFrom($Prefix->getComparableStartString());
@@ -116,6 +140,46 @@ class Module_Addresses {
 		$tpl->display("subnets/subnet_add.html");
 	}
 
+
+	private function Page_SubnetDelete() {
+		global $tpl, $request;
+
+
+		$CurrentSubnet = new Model_Subnet();
+		$CurrentSubnet->getByID($this->getCurrentSubnet());
+
+		if (empty($CurrentSubnet)) {
+			MessageHandler::Warning(_('Prefix not existing'), _('The selected prefix does not exist.'));
+			return $this->Page_Subnet();
+		}
+
+		if ($request->request->getBoolean('submitForm1') && $request->request->getInt('DeleteOption') == 1) {
+			if ($CurrentSubnet->delete(1)) {
+				MessageHandler::Success(_('Prefix deleted'), _('The prefix and all nested prefixes/addresses have been deleted.'));
+				return $this->Page_Default();
+			}
+			else {
+				MessageHandler::Error(_("Ooops!"), _('Something unexpected went wrong!'));
+			}
+		} else if ($request->request->getBoolean('submitForm1') && $request->request->getInt('DeleteOption') == 2) {
+			if ($CurrentSubnet->delete(2)) {
+				MessageHandler::Success(_('Prefix deleted'), _('The prefix has been deleted'));
+				return $this->Page_Default();
+			}
+			else {
+				MessageHandler::Error(_("Ooops!"), _('Something unexpected went wrong!'));
+			}
+		}
+
+
+		$tpl->assign(array(
+			"D_Prefix"  =>  $CurrentSubnet->getPrefix(),
+			"D_PrefixLength"    =>  $CurrentSubnet->getPrefixLength(),
+			"D_PrefixID"    =>  $CurrentSubnet->getPrefixID(),
+		));
+		$tpl->display("subnets/subnet_delete.html");
+	}
+
 	private function Page_Subnet(int $SubnetID = 0) {
 		global $tpl;
 
@@ -132,18 +196,25 @@ class Module_Addresses {
 		$VRF = new Model_VRF();
 		$VRF->getByID($Subnet->getMasterVRF());
 
+		$IPData = IPBlock::create($Subnet->getPrefix()."/".$Subnet->getPrefixLength());
+
 		$tpl->assign(array(
 			"D_PrefixID"    =>  $Subnet->getPrefixID(),
 			"D_MasterVRF"   =>  $Subnet->getMasterVRF(),
 			"D_MasterVRF_Name"  =>  $VRF->getVRFName(),
 			"D_AFI" =>  $Subnet->getAFI(),
 			"D_Prefix"  =>  $Subnet->getPrefix(),
-			"D_RangeTo" =>  $Subnet->getRangeTo(),
-			"D_RangeFrom"   =>  $Subnet->getRangeFrom(),
+			"D_RangeTo" =>  $IPData->getLastIp(),
+			"D_RangeFrom"   =>  $IPData->getFirstIp(),
 			"D_PrefixDescription"   =>  $Subnet->getPrefixDescription(),
 			"D_PrefixLength"    =>  $Subnet->getPrefixLength(),
 			"D_ParentID"    =>  $Subnet->getParentID(),
 			"D_Subnets" =>  Model_Subnet::getSubPrefixes($Subnet->getPrefixID()),
+			"D_Breadcrumbs"  =>  Model_Subnet::createSubnetBreadcrumbs($ID),
+			"D_NetworkMask" =>  $IPData->getMask(),
+			"D_Broadcast_Address" => $IPData->getFirstIp(),
+			"D_NetworkNumber_Addresses" =>  $IPData->getNbAddresses(),
+			"D_Network_Wildcard"    =>  reverseNetmask($IPData->getMask()),
 		));
 
 

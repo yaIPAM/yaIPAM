@@ -1,13 +1,20 @@
 <div class="content-wrapper">
     <section class="content-header">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-12">
                 <h1>{t}Adressspace Management{/t}</h1>
-                <p><a href="/addresses/">{$D_MasterVRF_Name}</a> >> {$D_Prefix}/{$D_PrefixLength}</p>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-2 col-md-offset-10">
+            <div class="col-md-10">
+                <ol class="breadcrumb">
+                    <li><a href="{"/addresses/"|url}">{$D_Breadcrumbs.vrf.VRFName}</a></li>
+                    {foreach item=subs from=$D_Breadcrumbs.Prefixes}
+                    <li><a href="{"/addresses/subnet/{$subs.PrefixID}/"|url}">{$subs.Prefix}/{$subs.PrefixLength}</a></li>
+                    {/foreach}
+                </ol>
+            </div>
+            <div class="col-md-2">
                 {"addresses/address/add/"|createlink:"+ {t}Address{/t}":"btn btn-success":true}
                 {"addresses/subnet/{$D_PrefixID}/add/"|createlink:"+ {t}Prefix{/t}":"btn btn-success":true}
             </div>
@@ -34,7 +41,7 @@
                    <tbody>
                    {foreach item=$subnet from=$D_Subnets}
                    <tr>
-                       <td><a href="{"/addresses/subnet/{$subnet.PrefixID}/"|url}/">{if $subnet.AFI==4}{$subnet.Prefix|long2ip}{else}{$subnet.Prefix|long2ip6}{/if}/{$subnet.PrefixLength}</a></td>
+                       <td><a href="{"/addresses/subnet/{$subnet.PrefixID}"|url}">{if $subnet.AFI==4}{$subnet.Prefix|long2ip}{else}{$subnet.Prefix|long2ip6}{/if}/{$subnet.PrefixLength}</a></td>
                        <td>{$subnet.PrefixDescription}</td>
                        <td>{$subnet.VLAN}</td>
                    </tr>
@@ -44,16 +51,38 @@
                    </tr>
                    {/foreach}
                </table>
-               <table>
+               <table class="table table-bordered table-striped table-hover">
                    <thead>
-                   <th colspan="2"><strong>{$D_Prefix}/{$D_PrefixLength} - Info</strong></th>
+                   <th colspan="2"><h3>{$D_Prefix}/{$D_PrefixLength} - Info</h3></th>
                    </thead>
                    <tbody>
                    <tr>
-                       <td colspan="2">{"addresses/subnet/{$D_PrefixID}/edit/"|createlink:"{t}Edit{/t}":"btn btn-info":true}{"addresses/subnet/{$D_PrefixID}/delete/"|createlink:"{t}Delete{/t}":"btn btn-danger":true}</td>
+                       <td style="width: 10%;"><strong>{t}CIDR{/t}</strong></td>
+                       <td>{$D_PrefixLength}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Networkmask{/t}</strong></td>
+                       <td>{$D_NetworkMask}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Wildcard{/t}</strong></td>
+                       <td>{$D_Network_Wildcard}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Broadcast address{/t}</strong></td>
+                       <td>{$D_Broadcast_Address}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Network range{/t}</strong></td>
+                       <td>{$D_RangeFrom} - {$D_RangeTo}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Number of addresses{/t}</strong></td>
+                       <td>{$D_NetworkNumber_Addresses}</td>
                    </tr>
                    </tbody>
                </table>
+               {"addresses/subnet/{$D_PrefixID}/edit/"|createlink:"{t}Edit{/t}":"btn btn-info":true}&nbsp;{"addresses/subnet/{$D_PrefixID}/delete/"|createlink:"{t}Delete{/t}":"btn btn-danger":true}
            </div>
        </div>
    </section>

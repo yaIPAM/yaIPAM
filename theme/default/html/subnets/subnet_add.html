@@ -1,6 +1,6 @@
 <div class="content-wrapper">
     <section class="content-header">
-        <h1>{t}Addressspace Management{/t} - {t}Add prefix{/t}</h1>
+        <h1>{t}Addressspace Management{/t} - {if $D_MODE=="edit"}{t}Edit Prefix{/t}{else}{t}Add prefix{/t}{/if}</h1>
    </section>
    <section class="content">
        <div class="row">
@@ -8,17 +8,18 @@
                {if isset($S_MESSAGE)}
                {include file=$S_MESSAGE_FILE}
                {/if}
-               <form method="post" action='{"/addresses/subnet/{$D_PrefixID}/add/"|url}' class="form">
+               <form method="post" action='{"/addresses/subnet/{$D_PrefixID}/{if $D_MODE=="edit"}edit{else}add{/if}/"|url}' class="form">
+
                     <div class="form-group">
                         <label for="PrefixName">{t}Prefix{/t} ({t}required{/t})</label>
-                        <input type="text" name="PrefixName" id="PrefixName" value="{$D_PrefixName}" class="form-control" required>
+                        <input type="text" name="PrefixName" id="PrefixName" value="{$D_PrefixName}" class="form-control" {if $D_MODE=="edit"}readonly{else}required{/if}>
                     </div>
                    <div class="form-group">
                        <label for="PrefixState">{t}State{/t}</label>
                        <select name="PrefixState" id="PrefixState" class="form-control">
-                           <option value="1">{t}Allocated{/t}</option>
-                           <option value="2">{t}Reserved{/t}</option>
-                           <option value="3">{t}Expired{/t}</option>
+                           <option value="1"{if $D_PrefixState == 1} selected{/if}>{t}Allocated{/t}</option>
+                           <option value="2"{if $D_PrefixState == 2} selected{/if}>{t}Reserved{/t}</option>
+                           <option value="3"{if $D_PrefixState == 3} selected{/if}>{t}Expired{/t}</option>
                        </select>
                    </div>
                    <div class="form-group">

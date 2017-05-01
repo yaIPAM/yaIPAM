@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "42b462e8ae31ba86dad6ac2bf224ad1e",
+    "content-hash": "1ba626abe9b85a2ab889a30b21d59f29",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -1013,6 +1013,43 @@
             "time": "2016-10-10T12:19:37+00:00"
         },
         {
+            "name": "rlanvin/php-ip",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rlanvin/php-ip.git",
+                "reference": "210b8fb956bdba4c971650626cfda84883321ec5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rlanvin/php-ip/zipball/210b8fb956bdba4c971650626cfda84883321ec5",
+                "reference": "210b8fb956bdba4c971650626cfda84883321ec5",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gmp": "*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "IPv4/IPv6 manipulation library for PHP",
+            "homepage": "https://github.com/rlanvin/php-ip",
+            "keywords": [
+                "IP",
+                "ipv4",
+                "ipv6"
+            ],
+            "time": "2016-11-06 21:52:05"
+        },
+        {
             "name": "smarty-gettext/smarty-gettext",
             "version": "v1.5.0",
             "source": {
@@ -1356,7 +1393,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "doctrine/orm": 20
+        "doctrine/orm": 20,
+        "rlanvin/php-ip": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

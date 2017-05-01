@@ -30,6 +30,8 @@ class Model_Subnet {
 
 			$dbal->beginTransaction();
 
+			$this->setParentID(self::CalculateParentID($this->getPrefix()."/".$this->getPrefixLength(), $this->getMasterVRF()));
+
 			$insert = $queryBuilder
 				->insert('prefixes')
 				->setValue('Prefix', ':Prefix')
@@ -48,10 +50,9 @@ class Model_Subnet {
 				->setParameter('RangeTo', $this->getRangeTo())
 				->setParameter('MasterVRF', $this->getMasterVRF())
 				->setParameter('ParentID', $this->getParentID())
-				->setParameter('PrefixState', $this->getPrefixID());
+				->setParameter('PrefixState', $this->getPrefixState());
 
 			if ($this->getAFI() == 4) {
-
 				$insert->setParameter('Prefix', ip2long($this->getPrefix()));
 
 			}
@@ -83,7 +84,6 @@ class Model_Subnet {
 			}
 
 			$this->RecalcTree($this->getParentID(), $this->getPrefixID());
-
 			$dbal->commit();
 			return true;
 		}
@@ -184,30 +184,45 @@ class Model_Subnet {
 		return true;
 	}
 
-	public function delete(): bool {
+	public function delete(int $Option = 1): bool {
 		global $dbal;
 
 		$dbal->beginTransaction();
 
 		$queryBuilder = $dbal->createQueryBuilder();
 
-		$delete = $queryBuilder
-			->delete('prefixes')
-			->where('PrefixID = :PrefixID')
-			->setParameter('PrefixID', $this->getPrefixID());
+		if ($Option == 1) {
+			$delete = $queryBuilder
+				->delete('prefixes')
+				->where('PrefixID = :PrefixID')
+				->orWhere('ParentID = :PrefixID')
+				->setParameter('PrefixID', $this->getPrefixID());
+		} else if ($Option == 2) {
+			$delete = $queryBuilder
+				->delete('prefixes')
+				->where('PrefixID = :PrefixID')
+				->setParameter('PrefixID', $this->getPrefixID());
+		}
 
 		if ($delete->execute() === false) {
 			$dbal->rollBack();
 			return false;
 		}
 
-		$this->RecalcTree($this->getPrefixID());
+		if ($Option == 2) {
+			$this->RecalcTree($this->getPrefixID());
+		}
 
 		$dbal->commit();
 
 		return true;
 	}
 
+	/**
+	 * @param int $ParentID
+	 * @param int $SelfID
+	 * @return bool
+	 */
 	public function RecalcTree(int $ParentID, int $SelfID = 0): bool {
 		global $dbal;
 
@@ -225,12 +240,13 @@ class Model_Subnet {
 			->setParameter('SelfID', $SelfID);
 		}
 
-		$select->execute()->fetchAll();
+		$select = $select->execute()->fetchAll();
 
 		foreach ($select as $data) {
 			$Prefix = ($data['AFI']==4) ? long2ip($data['Prefix']) : long2ip6($data['Prefix']);
 			$Prefix = $Prefix."/".$data['PrefixLength'];
-			$NewParent = self::CalculateParentID($Prefix, $data['MasterVRF']);
+			$NewParent = self::CalculateParentID($Prefix, $data['MasterVRF'], $data['PrefixID']);
+			echo $NewParent;
 			$queryBuilder = $dbal->createQueryBuilder();
 			$queryBuilder
 				->update('prefixes')
@@ -245,6 +261,65 @@ class Model_Subnet {
 		}
 
 		return true;
+	}
+
+	public static function createSubnetBreadcrumbs(int $PrefixID): array {
+		global $dbal;
+
+		$queryBuilder = $dbal->createQueryBuilder();
+
+		$select = $queryBuilder
+			->select('PrefixID', 'ParentID', 'Prefix', 'PrefixLength', 'AFI', 'MasterVRF')
+			->from('prefixes')
+			->where('PrefixID = :PrefixID')
+			->setParameter('PrefixID', $PrefixID)
+			->execute()
+			->fetch();
+
+		$breadcrumbs = array();
+		$breadcrumbs['Prefixes'][] = array(
+			"PrefixID"  =>  $select['PrefixID'],
+			"ParentID"  =>  $select['ParentID'],
+			"Prefix"    =>  ($select['AFI'] == 4) ? long2ip($select['Prefix']) : long2ip6($select['Prefix']),
+			"PrefixLength"  =>  $select['PrefixLength'],
+		);
+
+		while ($select['ParentID'] > 0) {
+			$queryBuilder = $dbal->createQueryBuilder();
+			$select = $queryBuilder
+				->select('PrefixID', 'ParentID', 'Prefix', 'PrefixLength', 'AFI', 'MasterVRF')
+				->from('prefixes')
+				->where('PrefixID = :PrefixID')
+				->setParameter('PrefixID', $select['ParentID'])
+				->execute()
+				->fetch();
+
+			$breadcrumbs['Prefixes'][] = array(
+				"PrefixID"  =>  $select['PrefixID'],
+				"ParentID"  =>  $select['ParentID'],
+				"Prefix"    =>  ($select['AFI'] == 4) ? long2ip($select['Prefix']) : long2ip6($select['Prefix']),
+				"PrefixLength"  =>  $select['PrefixLength'],
+			);
+		}
+
+		$breadcrumbs['Prefixes'] = array_reverse($breadcrumbs['Prefixes']);
+
+		$queryBuilder = $dbal->createQueryBuilder();
+		$select = $queryBuilder
+			->select('VRFID', 'VRFName')
+			->from('vrfs')
+			->where('VRFID = :VRFID')
+			->setParameter('VRFID', $select['MasterVRF'])
+			->execute()
+			->fetch();
+
+		$breadcrumbs['vrf'] = array(
+			"VRFID" =>  $select['VRFID'],
+			"VRFName"   =>  $select['VRFName'],
+		);
+
+		return $breadcrumbs;
+
 	}
 
 	/**
@@ -280,6 +355,7 @@ class Model_Subnet {
 			$this->setRangeFrom($select['RangeFrom']);
 			$this->setPrefixDescription($select['PrefixDescription']);
 			$this->setParentID($select['ParentID']);
+			$this->setPrefixState($select['PrefixState']);
 
 			return true;
 		}
@@ -304,7 +380,7 @@ class Model_Subnet {
 		return $select;
 	}
 
-	public static function CalculateParentID(string $PrefixName, int $VRF): int {
+	public static function CalculateParentID(string $PrefixName, int $VRF, $PrefixID = 0): int {
 		global $dbal;
 
 		$Address = \IPLib\Range\Subnet::fromString($PrefixName);
@@ -315,14 +391,18 @@ class Model_Subnet {
 			->from('prefixes')
 			->where('AFI = :AFI')
 			->andWhere('MasterVRF = :VRF')
-			->andWhere(':StartAddress > RangeFrom and :EndAddress < RangeTo')
+			->andWhere(':StartAddress >= RangeFrom and :EndAddress <= RangeTo')
 			->orderBy('Prefix', 'DESC')
 			->setParameter('AFI', $Address->getAddressType())
 			->setParameter('StartAddress', $Address->getComparableStartString())
 			->setParameter('EndAddress', $Address->getComparableEndString())
-			->setParameter('VRF', $VRF)
-			->execute()
-			->fetch();
+			->setParameter('VRF', $VRF);
+
+		if ($PrefixID > 0) {
+			$select->andWhere('PrefixID != :PrefixID')->setParameter('PrefixID', $PrefixID);
+		}
+
+		$select = $select->execute()->fetch();
 
 		if (!empty($select['PrefixID'])) {
 			return $select['PrefixID'];

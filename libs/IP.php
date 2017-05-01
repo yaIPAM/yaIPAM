@@ -7,6 +7,12 @@
  * Time: 19:40
  */
 
+function reverseNetmask(string $Netmask): string {
+	$Netmask = explode('.', $Netmask);
+
+	return ($Netmask[0] ^ 255).".".($Netmask[1] ^ 255).".".($Netmask[2] ^ 255).".".($Netmask[3] ^ 255);
+}
+
 function ip2long6($ipv6) {
 	$ipv6long = "";
 	$ip_n = inet_pton($ipv6);
