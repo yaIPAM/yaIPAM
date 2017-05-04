@@ -1,6 +1,8 @@
 <?php
 require_once 'bootstrap.php';
 
+error_reporting(E_ALL ^ E_NOTICE);
+
 // Firing up Smarty as a template engine
 $tpl = new Smarty();
 

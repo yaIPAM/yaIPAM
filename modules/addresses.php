@@ -67,6 +67,33 @@ class Module_Addresses {
 		));
 
 		if ($request->request->getBoolean('Submit')) {
+
+		    if (\IPLib\Range\Subnet::fromString($request->request->get('PrefixName')) == false) {
+                MessageHandler::Error(_('Invalid prefix'), _('The entered prefix is invalid.'));
+
+                $tpl->assign(array(
+                    "D_PrefixName"  =>  $request->request->get('PrefixName'),
+                    "D_PrefixState" =>  $request->request->get('PrefixState'),
+                    "D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
+                    "D_PrefixState" =>  $request->request->getInt('PrefixState'),
+                ));
+
+                return $tpl->display("subnets/subnet_add.html");
+            }
+
+            if (Model_Subnet::PrefixExists($request->request->get('PrefixName'), $CurrentSubnet->getMasterVRF())) {
+                MessageHandler::Error(_('Prefix already exists'), _('The entered prefix already exists.'));
+
+                $tpl->assign(array(
+                    "D_PrefixName"  =>  $request->request->get('PrefixName'),
+                    "D_PrefixState" =>  $request->request->get('PrefixState'),
+                    "D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
+                    "D_PrefixState" =>  $request->request->getInt('PrefixState'),
+                ));
+
+                return $tpl->display("subnets/subnet_add.html");
+            }
+
 			if ($request->request->get('PrefixName') == null) {
 				MessageHandler::Error(_('Empty field'), _('Please fill in all required fields'));
 

@@ -197,16 +197,22 @@ class Model_Subnet {
 				->where('PrefixID = :PrefixID')
 				->orWhere('ParentID = :PrefixID')
 				->setParameter('PrefixID', $this->getPrefixID());
+
+            if ($delete->execute() === false) {
+                $dbal->rollBack();
+                return false;
+            }
+
 		} else if ($Option == 2) {
 			$delete = $queryBuilder
 				->delete('prefixes')
 				->where('PrefixID = :PrefixID')
 				->setParameter('PrefixID', $this->getPrefixID());
-		}
 
-		if ($delete->execute() === false) {
-			$dbal->rollBack();
-			return false;
+            if ($delete->execute() === false) {
+                $dbal->rollBack();
+                return false;
+            }
 		}
 
 		if ($Option == 2) {
@@ -217,6 +223,40 @@ class Model_Subnet {
 
 		return true;
 	}
+
+    /**
+     * @param string $Prefix
+     * @param int $VRF
+     * @return bool
+     */
+    public static function PrefixExists(string $Prefix, int $VRF): bool {
+	    global $dbal;
+
+	    $queryBuilder = $dbal->createQueryBuilder();
+
+	    $IP = \IPLib\Range\Subnet::fromString($Prefix);
+
+	    $Prefix = explode("/", $Prefix);
+
+	    $select = $queryBuilder
+            ->select('COUNT(*) AS total')
+            ->from('prefixes')
+            ->where('Prefix = :Prefix')
+            ->andWhere('PrefixLength = :PrefixLength')
+            ->andWhere('MasterVRF = :VRF')
+            ->setParameter('Prefix', ($IP->getAddressType() == 4) ? ip2long($Prefix[0]) : ip2long6($Prefix[0]))
+            ->setParameter('PrefixLength', $Prefix[1])
+            ->setParameter('VRF', $VRF)
+            ->execute()
+            ->fetch();
+
+	    if ($select['total'] > 0) {
+	        return true;
+        }
+        else {
+	        return false;
+        }
+    }
 
 	/**
 	 * @param int $ParentID

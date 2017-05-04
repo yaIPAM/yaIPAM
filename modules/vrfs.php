@@ -34,8 +34,6 @@ class Module_vrfs {
 
 		$range = \IPLib\Range\Subnet::fromString("::/0");
 
-		echo $range->getAddressType()." - ".$range->getComparableStartString()." - ".$range->getComparableEndString();
-
 
 		$tpl->assign("D_VRF_LIST", Model_VRF::getAll());
 		$tpl->display("vrfs/vrf_index.html");

@@ -7,6 +7,7 @@ To install yaIPAM, you will need the following software installed and running on
 ** gettext
 ** pdo-mysql
 ** ldap
+** intl
 * Apache 2.2 or higher with mod rewrite enabled and allowed
 * git
 
@@ -29,3 +30,5 @@ Currently there is no installer, which can help you with this step. Please creat
 ## 4. Copy config.dist.php to config.php
 
 ## 5. Edit the values under config.php so they will fit your needs.
+
+## 6. Create a cache/ directory and make it writable for the PHP and HTTPD process
