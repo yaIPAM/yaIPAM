@@ -1,3 +1,9 @@
 # yaIPAM - yet another IPAM
 
-This is just an experiment on developing an IPAM (IP address management) solution. Please don't consider it stable or anywhere ready for production. However ideas and maybe pull requests are just welcome.
+In the beginning this was just a little experiment for simple functions which can do stuff with IP addresses and networks. However after time goes by it started to become bigger and bigger.
+
+I have decided to write my own IP Address Management software as other opensource solutions are good but not perfect. Though yaIPAM is not designed to be the perfect solution it should be another approach on managing IP addresses and networks.
+
+If you are interested in this project please feel free to contact me, write issues or feature requests and we can discuss several things.
+
+If you want to experiment please feel free to have a look at the docs/ directory.
