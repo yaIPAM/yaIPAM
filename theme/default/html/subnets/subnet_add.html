@@ -36,6 +36,16 @@
                            {/foreach}
                        </select>
                    </div>
+                   <div class="form-group">
+                       <label for="PrefixVLAN">{t}VLAN{/t}</label>
+                       <select name="PrefixVLAN" id="PrefixVLAN" class="form-control select2" data-placeholder="{t}Select VLAN{/t}">
+                           {foreach item=vlans from=$D_VLANS}
+                           <option value="{$vlans.ID}">{$vlans.VlanID} ({$vlans.VlanName}) ({$vlans.VlanDomainName})</option>
+                           {foreachelse}
+                           <option value="0">--- {t}No VLANs{/t} ---</option>
+                           {/foreach}
+                       </select>
+                   </div>
                    <button type="submit" name="Submit" value="true" class="btn btn-success">{t}Save{/t}</button>
                    {"/addresses/subnet/{$D_PrefixID}/"|createlink:"{t}Back{/t}":"btn btn-default"}
                </form>

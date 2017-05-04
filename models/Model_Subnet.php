@@ -20,6 +20,7 @@ class Model_Subnet {
 	private $ParentID = 0;
 	private $MasterVRF = 0;
 	private $PrefixState = 0;
+	private $PrefixVLAN = 0;
 
 	public function save(): bool {
 		global $dbal;
@@ -43,6 +44,7 @@ class Model_Subnet {
 				->setValue('MasterVRF', ':MasterVRF')
 				->setValue('ParentID', ':ParentID')
 				->setValue('PrefixState', ':PrefixState')
+                ->setValue('PrefixVLAN', ':PrefixVLAN')
 				->setParameter('PrefixLength', $this->getPrefixLength())
 				->setParameter('AFI', $this->getAFI())
 				->setParameter('PrefixDescription', $this->getPrefixDescription())
@@ -50,7 +52,8 @@ class Model_Subnet {
 				->setParameter('RangeTo', $this->getRangeTo())
 				->setParameter('MasterVRF', $this->getMasterVRF())
 				->setParameter('ParentID', $this->getParentID())
-				->setParameter('PrefixState', $this->getPrefixState());
+				->setParameter('PrefixState', $this->getPrefixState())
+                ->setParameter('PrefixVLAN', $this->getPrefixVLAN());
 
 			if ($this->getAFI() == 4) {
 				$insert->setParameter('Prefix', ip2long($this->getPrefix()));
@@ -101,6 +104,7 @@ class Model_Subnet {
 				->set('MasterVRF', ':MasterVRF')
 				->set('ParentID', ':ParentID')
 				->set('PrefixState', ':PrefixState')
+                ->set('PrefixVLAN', ':PrefixVLAN')
 				->where('PrefixID = :PrefixID')
 				->setParameter('PrefixLength', $this->getPrefixLength())
 				->setParameter('AFI', $this->getAFI())
@@ -110,7 +114,8 @@ class Model_Subnet {
 				->setParameter('PrefixID', $this->getPrefixID())
 				->setParameter('MasterVRF', $this->getMasterVRF())
 				->setParameter('ParentID', $this->getParentID())
-				->setParameter('PrefixState', $this->getPrefixState());
+				->setParameter('PrefixState', $this->getPrefixState())
+                ->setParameter('PrefixVLAN', $this->getPrefixVLAN());
 
 			if ($this->getAFI() == 4) {
 				$update->setParameter('Prefix', ip2long($this->getPrefix()));
@@ -396,6 +401,7 @@ class Model_Subnet {
 			$this->setPrefixDescription($select['PrefixDescription']);
 			$this->setParentID($select['ParentID']);
 			$this->setPrefixState($select['PrefixState']);
+			$this->setPrefixVLAN($select['PrefixVLAN']);
 
 			return true;
 		}
@@ -605,6 +611,22 @@ class Model_Subnet {
 	public function setPrefixState(int $PrefixState) {
 		$this->PrefixState = $PrefixState;
 	}
+
+    /**
+     * @return int
+     */
+    public function getPrefixVLAN(): int
+    {
+        return $this->PrefixVLAN;
+    }
+
+    /**
+     * @param int $PrefixVLAN
+     */
+    public function setPrefixVLAN(int $PrefixVLAN)
+    {
+        $this->PrefixVLAN = $PrefixVLAN;
+    }
 
 
 }

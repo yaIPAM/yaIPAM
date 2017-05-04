@@ -80,6 +80,10 @@
                        <td><strong>{t}Number of addresses{/t}</strong></td>
                        <td>{$D_NetworkNumber_Addresses}</td>
                    </tr>
+                   <tr>
+                       <td><strong>{t}VLAN{/t}</strong></td>
+                       <td>{$D_PrefixVLAN}</td>
+                   </tr>
                    </tbody>
                </table>
                {"addresses/subnet/{$D_PrefixID}/edit/"|createlink:"{t}Edit{/t}":"btn btn-info":true}&nbsp;{"addresses/subnet/{$D_PrefixID}/delete/"|createlink:"{t}Delete{/t}":"btn btn-danger":true}

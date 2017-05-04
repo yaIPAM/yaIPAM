@@ -1,0 +1,1 @@
+ALTER TABLE `prefixes` ADD `PrefixVLAN` INT NOT NULL AFTER `PrefixState`;
