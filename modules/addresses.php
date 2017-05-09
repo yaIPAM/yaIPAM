@@ -2,6 +2,7 @@
 require_once SCRIPT_BASE .'/models/Model_VRF.php';
 require_once SCRIPT_BASE .'/models/Model_VLAN.php';
 require_once SCRIPT_BASE .'/models/Model_VLAN_Domain.php';
+require_once SCRIPT_BASE .'/models/Model_Address.php';
 
 /**
  * addresses.php
@@ -32,7 +33,9 @@ class Module_Addresses {
 			return $this->Page_SubnetAdd(true);
 		} else if ($request->query->get('mode') == "subnetdelete") {
 			return $this->Page_SubnetDelete();
-		}
+		} else if ($request->query->get('mode') == 'addressadd') {
+		    return $this->Page_AddressAdd();
+        }
 	}
 
 	private function Page_Default() {
@@ -42,6 +45,95 @@ class Module_Addresses {
 		$tpl->assign("D_VRF_LIST", Model_VRF::getWithRoot());
 		$tpl->display("addresses/addresses_index.html");
 	}
+
+	private function Page_AddressAdd(bool $edit = false) {
+	    global $tpl, $request;
+
+	    $Prefix = new Model_Subnet();
+	    if ($request->query->get('subnetid') == null or empty($Prefix->getByID($request->query->get('subnetid')))) {
+	        MessageHandler::Error(_('Prefix not existing'), _('The selected Prefix does not exist.'));
+
+	        return $this->Page_Default();
+        }
+
+        $tpl->assign("D_PrefixID", $Prefix->getPrefixID());
+
+        $Address = new Model_Address();
+
+        if ($edit && !empty($Address)) {
+            $tpl->assign(array(
+                "D_MODE"    =>  "edit",
+                "D_AddressID"   =>  $Address->getAddressID(),
+                "D_Address" =>  $Address->getAddress(),
+                "D_AddressName" =>  $Address->getAddressName(),
+                "D_AddressFQDN" =>  $Address->getAddressFQDN(),
+                "D_AddressState"    =>  $Address->getAddressState(),
+                "D_AddressMAC"  =>  $Address->getAddressMAC(),
+                "D_AddressTT"   =>  $Address->getAddressTT(),
+                "D_AddressDescription"  =>  $Address->getAddressDescription(),
+            ));
+
+        }
+        else {
+            $tpl->assign(array(
+                "D_MODE"    =>  "add",
+            ));
+        }
+
+
+        $error = false;
+        if ($request->request->get('submitForm1') != null) {
+
+            if ($request->request->get('Address') == null or IPLib\Factory::addressFromString($request->request->get('Address')) == false) {
+                MessageHandler::Error(_('Invalid address'), _('The supplied IP address is invalid.'));
+            }
+
+            if ($error) {
+                $tpl->assign(array(
+                    "D_Address" =>  $request->request->get('Address'),
+                    "D_AddressName" =>  $request->request->get('AddressName'),
+                    "D_AddressFQDN" =>  $request->request->get('AddressFQDN'),
+                    "D_AddressState"    =>  $request->request->get('AddressState'),
+                    "D_AddressMAC"  =>  $request->request->get('AddressMAC'),
+                    "D_AddressTT"   =>  $request->request->get('AddressTT'),
+                    "D_AddressDescription"  =>  $request->request->get('AddressDescription'),
+                ));
+
+                $tpl->display("addresses/address_add.html");
+                return false;
+            }
+
+            if (!$edit) {
+                $NewAddress = new Model_Address();
+            }
+            $Address = IPLib\Factory::addressFromString($request->request->get('Address'));
+
+            $NewAddress->setAddress($Address->getBytes());
+            $NewAddress->setAddressAFI($Address->getAddressType());
+            $NewAddress->setAddressDescription($request->request->get('AddressDescription'));
+            $NewAddress->setAddressFQDN($request->request->get('AddressFQDN'));
+            $NewAddress->setAddressMAC($request->request->get('AddressMAC'));
+            $NewAddress->setAddressName($request->request->get('AddressName'));
+            $NewAddress->setAddressState($request->request->get('AddressState'));
+            $NewAddress->setAddressTT($request->request->get('AddressTT'));
+
+            if ($NewAddress->save() === false) {
+                MessageHandler::Error(_('Error'), _('Error while saving IP address'));
+
+                return $this->Page_Subnet($request->query->get('subnetid'));
+            }
+            else {
+                MessageHandler::Success(_('Saved'), _('IP address has been saved.'));
+
+                return $this->Page_Subnet($request->query->get('subnetid'));
+            }
+
+
+        }
+
+
+        $tpl->display("addresses/address_add.html");
+    }
 
 	private function Page_SubnetAdd(bool $edit = false) {
 		global $tpl, $request;
@@ -260,6 +352,7 @@ class Module_Addresses {
 			"D_PrefixLength"    =>  $Subnet->getPrefixLength(),
 			"D_ParentID"    =>  $Subnet->getParentID(),
 			"D_Subnets" =>  Model_Subnet::getSubPrefixes($Subnet->getPrefixID()),
+			"D_Addresses"   =>  Model_Address::listAddresses(),
 			"D_Breadcrumbs"  =>  Model_Subnet::createSubnetBreadcrumbs($ID),
 			"D_NetworkMask" =>  $IPData->getMask(),
 			"D_Broadcast_Address" => $IPData->getFirstIp(),

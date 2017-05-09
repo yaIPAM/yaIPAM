@@ -15,7 +15,7 @@
                 </ol>
             </div>
             <div class="col-md-2">
-                {"addresses/address/add/"|createlink:"+ {t}Address{/t}":"btn btn-success":true}
+                {"addresses/address/{$D_PrefixID}/add/"|createlink:"+ {t}Address{/t}":"btn btn-success":true}
                 {"addresses/subnet/{$D_PrefixID}/add/"|createlink:"+ {t}Prefix{/t}":"btn btn-success":true}
             </div>
         </div>
@@ -27,6 +27,7 @@
                {include file=$S_MESSAGE_FILE}
                {/if}
                <h3>{$D_Prefix}/{$D_PrefixLength} ({$D_PrefixDescription})</h3>
+               {if !empty($D_Subnets)}
                <table class="table table-bordered table-striped table-hover" id="subnetlist">
                 <thead>
                 <tr>
@@ -51,6 +52,39 @@
                    </tr>
                    {/foreach}
                </table>
+               {/if}
+               {if !empty($D_Addresses)}
+               <table class="table table-bordered table-striped table-hover" id="addresslist">
+                   <thead>
+                   <tr>
+                       <th colspan="3"><strong>{t}Assigned Addresses{/t}</strong></th>
+                   </tr>
+                   <tr>
+                       <th>{t}Address{/t}</th>
+                       <th>{t}State{/t}</th>
+                       <th>{t}Name{/t}</th>
+                       <th>{t}FQDN{/t}</th>
+                       <th>{t}MAC{/t}</th>
+                       <th>{t}TT{/t}</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   {foreach item=$address from=$D_Addresses}
+                   <tr>
+                       <td><a href="{"/addresses/address/{$address.AddressID}"|url}">{if $address.AFI==4}{$address.Address|long2ip}{else}{$address.Address|long2ip6}{/if}/{$subnet.PrefixLength}</a></td>
+                       <td>{$address.AddressState}</td>
+                       <td>{$address.AddressName}</td>
+                       <td>{$address.AddressFQDN}</td>
+                       <td>{$address.AddressMAC}</td>
+                       <td>{$address.AddressTT}</td>
+                   </tr>
+                   {foreachelse}
+                   <tr>
+                       <td colspan="3" style="text-align:center;">--- {t}No addresses to list.{/t} ---</td>
+                   </tr>
+                   {/foreach}
+               </table>
+               {/if}
                <table class="table table-bordered table-striped table-hover">
                    <thead>
                    <th colspan="2"><h3>{$D_Prefix}/{$D_PrefixLength} - Info</h3></th>
