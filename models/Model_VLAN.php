@@ -120,6 +120,25 @@ class Model_VLAN {
 			return $new_vlans;
 	}
 
+    /**
+     * @return array
+     */
+    public static function getAll(): array {
+        global $dbal;
+
+        $queryBuilder = $dbal->createQueryBuilder();
+        $vlan = $queryBuilder
+            ->select('v.ID', 'v.VlanID', 'v.VlanName', 'd.domain_name')
+            ->from('vlans', 'v')
+            ->innerJoin('v', 'vlan_domains', 'd', 'd.domain_id = v.VlanDomain')
+            ->orderBy("d.domain_name", "ASC")
+            ->addOrderBy('v.VlanID', 'ASC')
+            ->execute()
+            ->fetchAll();
+
+        return $vlan;
+    }
+
 	/**
 	 * @param int $VLANID
 	 * @return mixed

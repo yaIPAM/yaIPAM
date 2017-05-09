@@ -47,11 +47,11 @@ class Model_VLAN_Domain {
 			->execute()
 			->fetch();
 
-		$this->setDomainID($domains['domain_id']);
-		$this->setDomainDescription($domains['domain_description']);
-		$this->setDomainName($domains['domain_name']);
+		$this->setDomainID((int)$domains['domain_id']);
+		$this->setDomainDescription((string)$domains['domain_description']);
+		$this->setDomainName((string)$domains['domain_name']);
 
-		return $domains;
+		return (array)$domains;
 	}
 
 	/**
@@ -71,11 +71,11 @@ class Model_VLAN_Domain {
 			->execute()
 			->fetch();
 
-		$this->setDomainID($domain['domain_id']);
-		$this->setDomainDescription($domain['domain_description']);
-		$this->setDomainName($domain['domain_name']);
+		$this->setDomainID((int)$domain['domain_id']);
+		$this->setDomainDescription((string)$domain['domain_description']);
+		$this->setDomainName((string)$domain['domain_name']);
 
-		return $domain;
+		return (array)$domain;
 	}
 
 	/**

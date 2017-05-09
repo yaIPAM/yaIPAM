@@ -26,7 +26,8 @@
                        <label for="PrefixDescription">{t}Description{/t}</label>
                        <textarea rows="10" name="PrefixDescription" id="PrefixDescription" class="form-control">{$D_PrefixDescription}</textarea>
                    </div>
-                   <div class="form-group">
+                   <!-- WIP -->
+                   <!--<div class="form-group">
                        <label for="PrefixVRF">{t}Additional VRFs{/t}</label>
                        <select name="PrefixVRF[]" id="PrefixVRF" class="form-control select2" multiple="multiple" data-placeholder="{t}Select additional VRFs{/t}">
                            {foreach item=vrf from=$D_VRFS}
@@ -35,14 +36,13 @@
                            <option value="0">-- {t}None{/t} ---</option>
                            {/foreach}
                        </select>
-                   </div>
+                   </div>-->
                    <div class="form-group">
                        <label for="PrefixVLAN">{t}VLAN{/t}</label>
                        <select name="PrefixVLAN" id="PrefixVLAN" class="form-control select2" data-placeholder="{t}Select VLAN{/t}">
+                           <option value="0"{if $D_PrefixVLAN == 0} selected{/if}>--- {t}None{/t} ---</option>
                            {foreach item=vlans from=$D_VLANS}
-                           <option value="{$vlans.ID}">{$vlans.VlanID} ({$vlans.VlanName}) ({$vlans.VlanDomainName})</option>
-                           {foreachelse}
-                           <option value="0">--- {t}No VLANs{/t} ---</option>
+                           <option value="{$vlans.ID}"{if $D_PrefixVLAN == $vlans.ID} selected{/if}>{$vlans.VlanID} ({$vlans.VlanName}) ({$vlans.domain_name})</option>
                            {/foreach}
                        </select>
                    </div>

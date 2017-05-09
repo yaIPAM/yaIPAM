@@ -44,16 +44,16 @@
             <li class="treeview{if $S_ACTIVE_MENU=="vrfs" or $S_ACTIVE_MENU=="addresses"} active{/if}">
                 <a href="#"><span>Addressspace Management</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
-                    <li{if $S_ACTIVE_MENU=="addresses"} class="active"{/if}><a href="{$SITE_BASE}/addresses/">Adressen</a></li>
-                    <li{if $S_ACTIVE_MENU=="vrfs"} class="active"{/if}><a href="{$SITE_BASE}/vrfs/">VRFs</a></li>
+                    <li{if $S_ACTIVE_MENU=="addresses"} class="active"{/if}><a href="{"/addresses/"|url}">Adressen</a></li>
+                    <li{if $S_ACTIVE_MENU=="vrfs"} class="active"{/if}><a href="{"/vrfs/"|url}">VRFs</a></li>
                 </ul>
             </li>
           <li class="{if $S_ACTIVE_MENU=="vlans" or $S_ACTIVE_MENU=="vlandomains" or $S_ACTIVE_MENU=="otv"}active {/if}treeview">
             <a href="#"><span>VLANs</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-              <li{if $S_ACTIVE_MENU=="vlans"} class="active"{/if}><a href="{$SITE_BASE}vlans/">Übersicht</a></li>
-                <li{if $S_ACTIVE_MENU=="vlandomains"} class="active"{/if}><a href="{$SITE_BASE}vlandomains/">VLAN Domains</a></li>
-                <li{if $S_ACTIVE_MENU=="otv"} class="active"{/if}><a href="{$SITE_BASE}/otv/">OTV Instanzen</a></li>
+              <li{if $S_ACTIVE_MENU=="vlans"} class="active"{/if}><a href="{"/vlans/"|url}">Übersicht</a></li>
+                <li{if $S_ACTIVE_MENU=="vlandomains"} class="active"{/if}><a href="{"/vlandomains/"|url}">VLAN Domains</a></li>
+                <li{if $S_ACTIVE_MENU=="otv"} class="active"{/if}><a href="{"/otv/"|url}">OTV Instanzen</a></li>
             </ul>
           </li>
         </ul><!-- /.sidebar-menu -->

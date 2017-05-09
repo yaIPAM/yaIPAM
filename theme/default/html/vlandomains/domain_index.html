@@ -5,7 +5,7 @@
    <section class="content">
       <div class="row">
           <div class="col-md-1">
-              <a href="{$SITE_BASE}vlandomains/add/" class="btn btn-success form-control">Hinzufügen</a>
+              <a href="{"/vlandomains/add/"|url}" class="btn btn-success form-control">Hinzufügen</a>
           </div>
       </div>
        <div class="row">
@@ -28,7 +28,7 @@
                        <td class="col-md-1">
                            <div class="row">
                                <div class="col-md-1">
-                           <form method="post" action="{$SITE_BASE}/vlandomains/edit/" class="form-inline">
+                           <form method="post" action="{"/vlandomains/edit/"|url}" class="form-inline">
                                <input type="hidden" name="ID" value="{$domain.domain_id}">
                                <button class="btn btn-xs btn-default" type="submit" name="Edit" value="true">
                                    <span class="glyphicon-wrench glyphicon"></span>
@@ -36,7 +36,7 @@
                            </form>
                                </div>
                                <div class="col-md-1">
-                           <form method="post" action="{$SITE_BASE}/vlandomains/delete/" class="form-inline">
+                           <form method="post" action="{"/vlandomains/delete/"|url}" class="form-inline">
                                <input type="hidden" name="ID" value="{$domain.domain_id}">
                                     <button class="btn btn-xs btn-danger" type="submit" name="Delete" value="true">
                                         <span class="glyphicon-trash glyphicon"></span>
@@ -50,7 +50,7 @@
                    </tr>
                    {foreachelse}
                    <tr>
-                       <td colspan="3">--- Keine VLAN Domains ---</td>
+                       <td colspan="3" style="text-align:center;">--- Keine VLAN Domains ---</td>
                    </tr>
                    {/foreach}
                    </tbody>
@@ -59,6 +59,7 @@
        </div>
    </section>
 </div>
+{if !empty($D_VLAN_DOMAINS)}
 <script>
     $(document).ready(function() {
         $('#domainlist').DataTable({
@@ -66,3 +67,4 @@
         });
     } );
 </script>
+{/if}

@@ -1,5 +1,7 @@
 <?php
 require_once SCRIPT_BASE .'/models/Model_VRF.php';
+require_once SCRIPT_BASE .'/models/Model_VLAN.php';
+require_once SCRIPT_BASE .'/models/Model_VLAN_Domain.php';
 
 /**
  * addresses.php
@@ -56,6 +58,7 @@ class Module_Addresses {
 				"D_PrefixName"  =>  $CurrentSubnet->getPrefix()."/".$CurrentSubnet->getPrefixLength(),
 				"D_PrefixState" =>  $CurrentSubnet->getPrefixState(),
 				"D_PrefixDescription"   =>  $CurrentSubnet->getPrefixDescription(),
+                "D_PrefixVLAN"  =>  $CurrentSubnet->getPrefixVLAN(),
 			));
 		}
 
@@ -64,6 +67,7 @@ class Module_Addresses {
 		$tpl->assign(array(
 			"D_PrefixID"    =>  $SubnetID,
 			"D_VRFS"    =>  $VRF,
+            "D_VLANS"   =>  Model_VLAN::getAll(),
 		));
 
 		if ($request->request->getBoolean('Submit')) {
@@ -76,12 +80,13 @@ class Module_Addresses {
                     "D_PrefixState" =>  $request->request->get('PrefixState'),
                     "D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
                     "D_PrefixState" =>  $request->request->getInt('PrefixState'),
+                    "D_PrefixVLAN"  =>  $request->request->getInt('PrefixVLAN'),
                 ));
 
                 return $tpl->display("subnets/subnet_add.html");
             }
 
-            if (Model_Subnet::PrefixExists($request->request->get('PrefixName'), $CurrentSubnet->getMasterVRF())) {
+            if (!$edit && Model_Subnet::PrefixExists($request->request->get('PrefixName'), $CurrentSubnet->getMasterVRF())) {
                 MessageHandler::Error(_('Prefix already exists'), _('The entered prefix already exists.'));
 
                 $tpl->assign(array(
@@ -89,6 +94,7 @@ class Module_Addresses {
                     "D_PrefixState" =>  $request->request->get('PrefixState'),
                     "D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
                     "D_PrefixState" =>  $request->request->getInt('PrefixState'),
+                    "D_PrefixVLAN"  =>  $request->request->getInt('PrefixVLAN'),
                 ));
 
                 return $tpl->display("subnets/subnet_add.html");
@@ -102,6 +108,7 @@ class Module_Addresses {
 					"D_PrefixState" =>  $request->request->get('PrefixState'),
 					"D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
 					"D_PrefixState" =>  $request->request->getInt('PrefixState'),
+                    "D_PrefixVLAN"  =>  $request->request->getInt('PrefixVLAN'),
 				));
 
 				return $tpl->display("subnets/subnet_add.html");
@@ -115,6 +122,7 @@ class Module_Addresses {
 					"D_PrefixState" =>  $request->request->get('PrefixState'),
 					"D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
 					"D_PrefixState" =>  $request->request->getInt('PrefixState'),
+                    "D_PrefixVLAN"  =>  $request->request->getInt('PrefixVLAN'),
 				));
 
 				return $tpl->display("subnets/subnet_add.html");
@@ -144,6 +152,7 @@ class Module_Addresses {
 			$NewSubnet->setPrefixLength($PrefixName[1]);
 			$NewSubnet->setAFI($Prefix->getAddressType());
 			$NewSubnet->setPrefixState($request->request->get('PrefixState'));
+			$NewSubnet->setPrefixVLAN($request->request->get('PrefixVLAN'));
 
 			if ($NewSubnet->save()) {
 				MessageHandler::Success(_('Prefix saved'), _('The prefix has been saved'));
@@ -157,6 +166,7 @@ class Module_Addresses {
 					"D_PrefixName"  =>  $request->request->get('PrefixName'),
 					"D_PrefixState" =>  $request->request->get('PrefixState'),
 					"D_PrefixDescription"   =>  $request->request->get('PrefixDescription'),
+                    "D_PrefixVLAN"  =>  $request->request->getInt('PrefixVLAN'),
 				));
 
 				return $tpl->display("subnets/subnet_add.html");
@@ -225,6 +235,19 @@ class Module_Addresses {
 
 		$IPData = IPBlock::create($Subnet->getPrefix()."/".$Subnet->getPrefixLength());
 
+		if ($Subnet->getPrefixVLAN() == 0) {
+		    $Prefix = _('None');
+        }
+        else {
+            $Vlan = new Model_VLAN();
+            $Vlan->get($Subnet->getPrefixVLAN());
+
+            $VlanDomain = new Model_VLAN_Domain();
+            $VlanDomain->selectByID($Vlan->getVlanDomainID());
+
+            $Prefix = $VlanDomain->getDomainName().": ".$Vlan->getVlanID()." - ".$Vlan->getVlanName();
+        }
+
 		$tpl->assign(array(
 			"D_PrefixID"    =>  $Subnet->getPrefixID(),
 			"D_MasterVRF"   =>  $Subnet->getMasterVRF(),
@@ -242,6 +265,7 @@ class Module_Addresses {
 			"D_Broadcast_Address" => $IPData->getFirstIp(),
 			"D_NetworkNumber_Addresses" =>  $IPData->getNbAddresses(),
 			"D_Network_Wildcard"    =>  reverseNetmask($IPData->getMask()),
+            "D_PrefixVLAN"  =>  $Prefix,
 		));
 
 

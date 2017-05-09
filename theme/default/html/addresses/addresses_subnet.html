@@ -43,7 +43,7 @@
                    <tr>
                        <td><a href="{"/addresses/subnet/{$subnet.PrefixID}"|url}">{if $subnet.AFI==4}{$subnet.Prefix|long2ip}{else}{$subnet.Prefix|long2ip6}{/if}/{$subnet.PrefixLength}</a></td>
                        <td>{$subnet.PrefixDescription}</td>
-                       <td>{$subnet.VLAN}</td>
+                       <td>{$subnet.VlanID} - {$subnet.VlanName} ({$subnet.domain_name})</td>
                    </tr>
                    {foreachelse}
                    <tr>

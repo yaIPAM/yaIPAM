@@ -39,7 +39,7 @@ class Module_vlans {
 
 		$request->request->getInt('VlanDomain');
 		if ($request->request->getInt('VlanDomain') == null && $this->getVlanDomainSelected() == 0) {
-			$this->setVlanDomainSelected($VlanDomains->selectFirst()['domain_id']);
+			$this->setVlanDomainSelected((int)$VlanDomains->selectFirst()['domain_id']);
 			$tpl->assign("D_VLAN_DOMAIN", $this->getVlanDomainSelected());
 		}
 		else if ($request->request->getInt('VlanDomain') != null && $this->getVlanDomainSelected() == 0) {

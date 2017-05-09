@@ -417,7 +417,9 @@ class Model_Subnet {
 		$queryBuilder = $dbal->createQueryBuilder();
 		$select = $queryBuilder
 			->select('*')
-			->from('prefixes')
+			->from('prefixes', 'p')
+            ->leftJoin('p', 'vlans', 'v', 'v.ID = p.PrefixVLAN')
+            ->leftjoin('v', 'vlan_domains', 'd', 'd.domain_id = v.VlanDomain')
 			->where('ParentID = :PrefixID')
 			->setParameter('PrefixID', $ParentID)
 			->execute()
