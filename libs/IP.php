@@ -7,6 +7,17 @@
  * Time: 19:40
  */
 
+function stateToText($ID) {
+
+    $states = array(
+        1   =>  _('Allocated'),
+        2   =>  _('Reserved'),
+        3   =>  _('Expired'),
+    );
+
+    return $states[$ID];
+}
+
 function reverseNetmask(string $Netmask): string {
 	$Netmask = explode('.', $Netmask);
 

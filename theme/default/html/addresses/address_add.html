@@ -8,13 +8,13 @@
               {if isset($S_MESSAGE)}
               {include file=$S_MESSAGE_FILE}
               {/if}
-              <form method="post" action="{"/addresses/address/{$D_PrefixID}/{$D_MODE}/"|url}">
+              <form method="post" action="{"/addresses/address/{$D_PrefixID}/{$D_AddressID}/{$D_MODE}/"|url}">
                   {if $D_MODE=="edit"}
                   <input type="hidden" name="AddressID" value="{$D_AddressID}">
                   {/if}
                   <div class="form-group">
                       <label for="Address">{t}Address{/t}</label>
-                      <input type="text" class="form-control" id="Address" name="Address" size="255" maxlength="255" value="{$D_Address}">
+                      <input type="text" class="form-control" id="Address" name="Address" size="255" maxlength="255" value="{$D_Address}"{if $D_MODE=="edit"} readonly{/if}>
                   </div>
               <div class="form-group">
                   <label for="AddressName">{t}Name{/t}</label>
@@ -45,6 +45,7 @@
                   <textarea class="form-control" id="AddressDescription" name="AddressDescription" rows="10">{$D_AddressDescription}</textarea>
               </div>
                   <button type="submit" name="submitForm1" value="true" class="btn btn-success">{t}Save{/t}</button>
+                    <a href="{"/addresses/address/{$D_PrefixID}/{$D_AddressID}/delete/"|url}" class="btn btn-danger">{t}Delete{/t}</a>
                   <a href="{"/addresses/subnet/{$D_PrefixID}/"|url}" class="btn btn-default">{t}Back{/t}</a>
               </form>
           </div>

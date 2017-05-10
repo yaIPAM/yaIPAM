@@ -1,5 +1,7 @@
 <?php
 
+require_once SCRIPT_BASE .'/models/Model_Address.php';
+
 /**
  * Model_Subnet.php
  * Project: yaipam
@@ -87,6 +89,7 @@ class Model_Subnet {
 			}
 
 			$this->RecalcTree($this->getParentID(), $this->getPrefixID());
+            Model_Address::calcNewPrefix($this->getParentID(), $this->getMasterVRF(), $this->getAFI());
 			$dbal->commit();
 			return true;
 		}
@@ -208,6 +211,12 @@ class Model_Subnet {
                 return false;
             }
 
+            if (Model_Address::deleteByPrefix($this->getPrefixID()) === false) {
+                $dbal->rollBack();
+                return false;
+            }
+
+
 		} else if ($Option == 2) {
 			$delete = $queryBuilder
 				->delete('prefixes')
@@ -222,6 +231,11 @@ class Model_Subnet {
 
 		if ($Option == 2) {
 			$this->RecalcTree($this->getPrefixID());
+
+			if (Model_Address::calcNewPrefix($this->getPrefixID(), $this->getMasterVRF(), $this->getAFI()) === false) {
+			    $dbal->rollBack();
+			    return false;
+            }
 		}
 
 		$dbal->commit();

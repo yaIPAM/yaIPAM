@@ -44,7 +44,7 @@
                    <tr>
                        <td><a href="{"/addresses/subnet/{$subnet.PrefixID}"|url}">{if $subnet.AFI==4}{$subnet.Prefix|long2ip}{else}{$subnet.Prefix|long2ip6}{/if}/{$subnet.PrefixLength}</a></td>
                        <td>{$subnet.PrefixDescription}</td>
-                       <td>{$subnet.VlanID} - {$subnet.VlanName} ({$subnet.domain_name})</td>
+                       <td>{if !empty($subnet.VLANID)}{$subnet.VlanID} - {$subnet.VlanName} ({$subnet.domain_name}){/if}</td>
                    </tr>
                    {foreachelse}
                    <tr>
@@ -71,8 +71,8 @@
                    <tbody>
                    {foreach item=$address from=$D_Addresses}
                    <tr>
-                       <td><a href="{"/addresses/address/{$address.AddressID}"|url}">{if $address.AFI==4}{$address.Address|long2ip}{else}{$address.Address|long2ip6}{/if}/{$subnet.PrefixLength}</a></td>
-                       <td>{$address.AddressState}</td>
+                       <td><a href="{"/addresses/address/{$D_PrefixID}/{$address.AddressID}/edit/"|url}">{if $address.AddressAFI==4}{$address.Address|long2ip}{else}{$address.Address|long2ip6}{/if}</a></td>
+                       <td>{$address.AddressState|state2Text}</td>
                        <td>{$address.AddressName}</td>
                        <td>{$address.AddressFQDN}</td>
                        <td>{$address.AddressMAC}</td>

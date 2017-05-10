@@ -1,0 +1,19 @@
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}Addressspace Management{/t} - {t}Delete Address{/t}</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+          <div class="col-md-12">
+              {if isset($S_MESSAGE)}
+              {include file=$S_MESSAGE_FILE}
+              {/if}
+              <form method="post" action='{"/addresses/address/{$D_PrefixID}/{$D_AddressID}/delete/"|url}'>
+                    <div class="alert-info alert">{t 1=$D_Address}Should IP %1 be deleted?{/t}</div>
+                  <button type="submit" name="submitForm1" value="true" class="btn btn-danger">{t}Delete{/t}</button>
+                  {"/addresses/subnet/{$D_PrefixID}/"|createlink:"{t}Back{/t}":"btn btn-default"}
+              </form>
+          </div>
+      </div>
+   </section>
+</div>

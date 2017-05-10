@@ -6,6 +6,7 @@ RewriteCond %{SCRIPT_FILENAME} !-d
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-f
 
+RewriteRule ^addresses/address/([0-9]+)/([0-9]+)/([0-9a-zA-Z]+)/?$ index.php?page=addresses&mode=address$3&subnetid=$1&addressid=$2
 RewriteRule ^addresses/address/([0-9]+)/([0-9a-zA-Z]+)/?$ index.php?page=addresses&mode=address$2&subnetid=$1
 RewriteRule ^addresses/subnet/([0-9]+)/([0-9a-zA-Z]+)/?$ index.php?page=addresses&mode=subnet$2&id=$1
 RewriteRule ^addresses/subnet/([0-9]+)/?$ index.php?page=addresses&mode=subnet&id=$1
