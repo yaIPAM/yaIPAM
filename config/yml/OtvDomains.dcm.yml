@@ -1,0 +1,27 @@
+OtvDomains:
+    type: entity
+    table: otv_domains
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            column: ID
+            generator:
+                strategy: IDENTITY
+    fields:
+        otvid:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            column: OTVID
+        domainid:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            column: DomainID
+    lifecycleCallbacks: {  }

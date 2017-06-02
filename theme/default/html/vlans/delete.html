@@ -1,0 +1,26 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>VLAN Verwaltung - VLAN löschen</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+          <div class="col-md-12">
+              {if isset($S_MESSAGE)}
+              {include file=$S_MESSAGE_FILE}
+              {/if}
+              <form method="post" action="{$SITE_BASE}/vlans/delete/">
+                  <input type="hidden" name="ID" value="{$D_VLAN.ID}">
+                  <div class="alert-info alert">
+                      Soll VLAN <strong>{$D_VLAN.VlanName} ({$D_VLAN.VlanID})</strong> wirklich gelöscht werden?
+                      <button type="submit" name="submitForm1" value="true" class="btn btn-danger">Löschen</button>
+
+                  </div>
+
+                  <a href="{$SITE_BASE}/vlans/" class="btn btn-default">Zurück</a>
+              </form>
+          </div>
+      </div>
+   </section>
+</div>
+{include file="footer.html"}

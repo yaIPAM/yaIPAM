@@ -1,0 +1,46 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}User Management{/t} - {t}Edit User{/t}</h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                {if isset($S_MESSAGE)}
+                {include file=$S_MESSAGE_FILE}
+                {/if}
+                <form method="post" action='{"usersettings/edit/{$D_User->getUserid()}"|url}'>
+                    <div class="form-group">
+                        <label for="Username">{t}Username{/t}</label>
+                        <input type="text" class="form-control" id="Username" name="required[Username]" placeholder="{t}Username{/t}" value="{$D_User->getUsername()}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="Password">{t}Password{/t}</label>
+                        <input type="password" class="form-control" id="Password" name="Password" placeholder="{t}Password{/t}">
+                    </div>
+                    <div class="form-group">
+                        <label for="Email">{t}Email Address{/t}</label>
+                        <input type="email" class="form-control" id="Email" name="required[Email]" placeholder="{t}Email Address{/t}" value="{$D_User->getUseremail()}">
+                    </div>
+                    <div class="form-group">
+                        <label for="Method">{t}Authentication method{/t}</label>
+                        <select name="required[Method]" id="Method" class="form-control">
+                            <option value="1"{if $D_User->getMethod()==1} selected{/if}>{t}Local Authentication{/t}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Group">{t}Gruppe{/t}</label>
+                        <select name="required[Usergroup]" id="Group" class="form-control">
+                            <option value="1"{if $D_User->getUsergroup() == 1} selected{/if}>{t}User{/t}</option>
+                            <option value="2"{if $D_User->getUsergroup() == 2} selected{/if}>{t}Administrator{/t}</option>
+                            <option value="3"{if $D_User->getUsergroup() == 3} selected{/if}>{t}Systemadministrator{/t}</option>
+                        </select>
+                    </div>
+                    <button type="submit" name="submit" value="true" class="btn btn-success">{t}Save{/t}</button>
+                    <a href='{"usersettings/"|url}' class="btn btn-default">{t}Back{/t}</a>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+{include file="footer.html"}

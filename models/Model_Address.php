@@ -1,5 +1,7 @@
 <?php
 
+// @TODO Move this to an entity
+
 /**
  * Created by PhpStorm.
  * User: ktammling
@@ -20,6 +22,9 @@ class Model_Address
     private $AddressPrefix = 0;
 
 
+    /**
+     * @return bool
+     */
     public function save(): bool {
         global $dbal;
 

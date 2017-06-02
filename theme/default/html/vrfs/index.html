@@ -1,0 +1,76 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>VRF Verwaltung</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+          <div class="col-md-1">
+              <a href="{$SITE_BASE}/vrfs/add/" class="btn btn-success form-control">Hinzufügen</a>
+          </div>
+      </div>
+       <div class="row">
+           <p>&nbsp;</p>
+       </div>
+       <div class="row">
+           <div class="col-md-12">
+               {if isset($S_MESSAGE)}
+               {include file=$S_MESSAGE_FILE}
+               {/if}
+               <table class="table table-bordered table-striped table-hover" id="vrflist">
+                <thead>
+                <th></th>
+                <th>Name</th>
+                <th>RD</th>
+                <th>RT</th>
+                <th>Beschreibung</th>
+                </thead>
+                   <tbody>
+                   {foreach item=$vrf from=$D_VRF_LIST}
+                   <tr>
+                       <td class="col-md-1">
+                           <div class="row">
+                               <div class="col-md-1">
+                           <form method="post" action="{$SITE_BASE}/vrfs/edit/" class="form-inline">
+                               <input type="hidden" name="VRFID" value="{$vrf->getVrfid()}">
+                               <button class="btn btn-xs btn-default" type="submit" name="Edit" value="true">
+                                   <span class="glyphicon-wrench glyphicon"></span>
+                               </button>
+                           </form>
+                               </div>
+                               <div class="col-md-1">
+                           <form method="post" action="{$SITE_BASE}/vrfs/delete/" class="form-inline">
+                               <input type="hidden" name="VRFID" value="{$vrf->getVrfid()}">
+                                    <button class="btn btn-xs btn-danger" type="submit" name="Delete" value="true">
+                                        <span class="glyphicon-trash glyphicon"></span>
+                                    </button>
+                           </form>
+                               </div>
+                           </div>
+                       </td>
+                       <td>{$vrf->getVrfname()}</td>
+                       <td>{$vrf->getVrfrd()}</td>
+                       <td>{$vrf->getVrfrt()}</td>
+                       <td>{$vrf->getVrfdescription()}</td>
+                   </tr>
+                   {foreachelse}
+                   <tr>
+                       <td colspan="5" style="text-align:center;">--- Keine VRFs ---</td>
+                   </tr>
+                   {/foreach}
+                   </tbody>
+               </table>
+           </div>
+       </div>
+   </section>
+</div>
+{if !empty($D_VRF_LIST)}
+<script>
+    $(document).ready(function() {
+        $('#vrflist').DataTable({
+            "ordering": false,
+        });
+    } );
+</script>
+{/if}
+{include file="footer.html"}

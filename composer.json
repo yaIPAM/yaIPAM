@@ -1,14 +1,24 @@
 {
+	"autoload": {
+		"psr-4": {
+			"Service\\": "src/services/",
+			"Entity\\": "src/entities/",
+			"Controller\\": "src/controllers/",
+			"Application\\DQL\\": "src/libs/doctrineextensions"
+		}
+	},
 	"require": {
 		"doctrine/dbal": "2.5.*",
 		"smarty/smarty": "3.1.*",
 		"adldap2/adldap2": "7.0.*",
 		"symfony/http-foundation": "v3.2.7",
+		"symfony/yaml": "*",
 		"filp/whoops": "2.1.8",
 		"caffeinated/flash": "v3.0.1",
 		"mlocati/ip-lib": "1.2.1",
 		"doctrine/orm": "2.5.x-dev",
 		"smarty-gettext/smarty-gettext": "v1.5.0",
-		"rlanvin/php-ip": "dev-master"
+		"rlanvin/php-ip": "dev-master",
+		"s1lentium/iptools": "*"
 	}
 }

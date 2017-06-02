@@ -8,6 +8,7 @@ To install yaIPAM, you will need the following software installed and running on
 ** pdo-mysql
 ** ldap
 ** intl
+** bcmath
 * Apache 2.2 or higher with mod rewrite enabled and allowed
 * git
 
@@ -25,7 +26,7 @@ We don't want to reinvent the wheel, so we will depend on other composer librari
 
 ## 3. Install the SQL schema
 
-Currently there is no installer, which can help you with this step. Please create a MySQL/MariaDB database and import the SQL schema under docs/schema.sql
+Currently there is no installer, which can help you with this step. You can use doctrine to install the schema for you vendor/bin/doctrine orm:schema-tools:create
 
 ## 4. Copy config.dist.php to config.php
 

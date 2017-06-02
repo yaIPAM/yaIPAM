@@ -1,5 +1,6 @@
 <?php
 require_once 'bootstrap.php';
+require_once SCRIPT_BASE.'/src/libs/MessageHandler.php';
 
 error_reporting(E_ALL ^ E_NOTICE);
 
@@ -10,28 +11,57 @@ $tpl->setTemplateDir(__DIR__.'/theme/default/html');
 $tpl->setCompileDir(__DIR__.'/cache');
 $tpl->setCacheDir(__DIR__.'/cache');
 $tpl->setConfigDir(__DIR__.'/theme/default/configs');
-$tpl->setPluginsDir(__DIR__.'/libs/smartyplugins');
+$tpl->setPluginsDir(__DIR__.'/src/libs/smartyplugins');
 
 
 $tpl->assign("SITE_BASE", SITE_BASE);
 $tpl->assign("THEME_URL", SITE_BASE."/theme/default/");
 $tpl->assign("SITE_TITLE", $general_config['site_title']);
 
-if (!isset($_GET['page']) or empty($_GET['page'])) {
-	$module_file = "default";
+if (empty($request->query->get('url'))) {
+    $url = "default";
 }
 else {
-	$module_file = $_GET['page'];
-	$tpl->assign("S_ACTIVE_MENU", $module_file);
+    $url = $request->query->get('url');
 }
 
-$tpl->display("header.html");
-
-if (file_exists(__DIR__."/modules/$module_file.php")) {
-	require_once __DIR__."/modules/$module_file.php";
+if ($_SESSION['login'] == false) {
+    $url = "login/";
+    $tpl->assign("S_LOGIN", false);
 }
 else {
-	$tpl->display("errors/404.html");
+    $tpl->assign("S_LOGIN", true);
 }
 
-$tpl->display("footer.html");
+$urlArray = array();
+$urlArray = explode("/",$url);
+
+$controller = $urlArray[0];
+array_shift($urlArray);
+if (empty($urlArray[0])) {
+    $action = "IndexAction";
+}
+else {
+    $action = $urlArray[0].'Action';
+}
+array_shift($urlArray);
+$queryString = $urlArray;
+
+$namespace = '\Controller\\';
+$controllerName = $controller;
+$controller = ucwords($controller);
+$model = rtrim($controller, 's');
+$controller .= 'Controller';
+$controller = $namespace . $controller;
+if (method_exists($controller, $action)) {
+    try {
+        $dispatch = new $controller($controllerName, $action);
+        call_user_func_array(array($dispatch, $action), $queryString);
+    }
+    catch (Exception $e) {
+        $whoops->handleException($e);
+    }
+} else {
+    $dispatch = new \Controller\ErrorController('\Controller\ErrorController', 'NotfoundAction');
+    call_user_func_array(array($dispatch, 'NotFoundAction'), $queryString);
+}

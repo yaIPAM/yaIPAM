@@ -1,0 +1,25 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}User Management{/t} - {t}Delete User{/t}</h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                {if isset($S_MESSAGE)}
+                {include file=$S_MESSAGE_FILE}
+                {/if}
+                <form method="post" action='{"/usersettings/delete/{$D_User->getUserid()}"|url}'>
+                    <div class="alert-info alert">
+                        <p>{t 1=$D_User->getUsername()}Do you really want to delete user %1?{/t}</p>
+                        <p><button type="submit" name="submit" value="true" class="btn btn-danger">{t}Delete{/t}</button></p>
+
+                    </div>
+
+                    <a href="{'usersettings/'|url}" class="btn btn-default">{t}Back{/t}</a>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+{include file="footer.html"}

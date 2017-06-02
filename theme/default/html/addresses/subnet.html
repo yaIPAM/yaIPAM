@@ -1,0 +1,198 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{t}Addressspace Management{/t}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+                <ol class="breadcrumb">
+                    <li><a href="{"/addresses/"|url}">{$D_Breadcrumbs.vrf.VRFName}</a></li>
+                    {foreach item=subs from=$D_Breadcrumbs.Prefixes}
+                    <li><a href="{"/addresses/subnet/{$subs.PrefixID}/"|url}">{$subs.Prefix}/{$subs.PrefixLength}</a></li>
+                    {/foreach}
+                </ol>
+            </div>
+            <div class="col-md-2">
+                {"addresses/addressadd/{$D_PrefixID}/"|createlink:"+ {t}Address{/t}":"btn btn-success":true}
+                {"addresses/subnetadd/{$D_PrefixID}/"|createlink:"+ {t}Prefix{/t}":"btn btn-success":true}
+            </div>
+        </div>
+   </section>
+   <section class="content">
+       <div class="row">
+           <div class="col-md-12">
+               {if isset($S_MESSAGE)}
+               {include file=$S_MESSAGE_FILE}
+               {/if}
+               <h3>{$D_Prefix}/{$D_PrefixLength} ({$D_PrefixDescription})</h3>
+               {if !empty($D_Subnets)}
+               <table class="table table-bordered table-striped table-hover" id="subnetlist">
+                <thead>
+                <tr>
+                    <th colspan="2"><strong>{t}Allocated Blocks{/t}</strong></th>
+                    <th style="text-align:right;"><strong><a href="#" id="showPrefixes">{t}Show free prefixes{/t}</a><a href="#" id="hidePrefixes">{t}Hide free prefixes{/t}</a></strong></th>
+                </tr>
+                <tr>
+                    <th>{t}Prefix{/t}</th>
+                    <th>{t}Description{/t}</th>
+                    <th>{t}VLAN{/t}</th>
+                </tr>
+                </thead>
+                   <tbody>
+                   {foreach item=$subnet from=$D_Subnets}
+                   <tr{if $subnet.free} style="font-style: italic;" data-user="freesubnet"{else} data-user="usedsubnet"{/if}>
+                       <td>{if $subnet.free == true}<a href='{"addresses/subnetadd/{$D_PrefixID}/{$subnet.prefix}/{$subnet.prefixlength}/"|url}'>{else}<a href="{"/addresses/subnet/{$subnet.prefixid}"|url}">{/if}{$subnet.prefix}/{$subnet.prefixlength}</a></td>
+                       <td>{if $subnet.free}{t}Free{/t}{else}{$subnet.prefixdescription}{/if}</td>
+                       <td>{if !empty($subnet.vlanid)}{$subnet.vlanid} - {$subnet.vlanname} ({$subnet.domainName}){/if}</td>
+                   </tr>
+                   {foreachelse}
+                   <tr>
+                       <td colspan="3" style="text-align:center;">--- {t}No subnets to list.{/t} ---</td>
+                   </tr>
+                   {/foreach}
+                   </tbody>
+               </table>
+               {/if}
+               {if !empty($D_Addresses)}
+               <table class="table table-bordered table-striped table-hover" id="addresslist">
+                   <thead>
+                   <tr>
+                       <th colspan="5"><strong>{t}Assigned Addresses{/t}</strong></th>
+                       <th style="text-align:right;"><strong><a href="#" id="showAddresses">{t}Show free addresses{/t}</a><a href="#" id="hideAddresses">{t}Hide free addresses{/t}</a></strong></th>
+                   </tr>
+                   <tr>
+                       <th>{t}Address{/t}</th>
+                       <th>{t}State{/t}</th>
+                       <th>{t}Name{/t}</th>
+                       <th>{t}FQDN{/t}</th>
+                       <th>{t}MAC{/t}</th>
+                       <th>{t}TT{/t}</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   {foreach item=$address from=$D_Addresses}
+                   <tr{if $address.free} style="font-style: italic;" data-user="freeaddress"{else} data-user="usedaddress"{/if}>
+                       <td><a href="{"/addresses/{if $address.free}addressadd{else}addressedit{/if}/{$D_PrefixID}/{if $address.free}0/{$address.address|long2ip}{else}{$address.addressid}{/if}/"|url}">{$address.address|long2ip}</a> {if $address.type=="broadcast"}{t}Broadcast Address{/t}{elseif $address.type=="network"}{t}Network Address{/t}{/if}</td>
+                       <td>{if $address.free == true}{t}Free{/t}{else}{$address.addressstate|state2Text}{/if}</td>
+                       <td>{$address.addressname}</td>
+                       <td>{$address.addressfqdn}</td>
+                       <td>{$address.addressmac}</td>
+                       <td>{$address.addresstt}</td>
+                   </tr>
+                   {foreachelse}
+                   <tr>
+                       <td colspan="3" style="text-align:center;">--- {t}No addresses to list.{/t} ---</td>
+                   </tr>
+                   {/foreach}
+               </table>
+               {/if}
+               <table class="table table-bordered table-striped table-hover">
+                   <thead>
+                   <th colspan="2"><h3>{$D_Prefix}/{$D_PrefixLength} - Info</h3></th>
+                   </thead>
+                   <tbody>
+                   <tr>
+                       <td style="width: 10%;"><strong>{t}CIDR{/t}</strong></td>
+                       <td>{$D_PrefixLength}</td>
+                   </tr>
+                  {if $D_AFI == 4}
+                   <tr>
+                       <td><strong>{t}Networkmask{/t}</strong></td>
+                       <td>{$D_NetworkMask}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Wildcard{/t}</strong></td>
+                       <td>{$D_Network_Wildcard}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Network address{/t}</strong></td>
+                       <td>{$D_Network_Address}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Broadcast address{/t}</strong></td>
+                       <td>{$D_Broadcast_Address}</td>
+                   </tr>
+                   {/if}
+                   <tr>
+                       <td><strong>{t}Network range{/t}</strong></td>
+                       <td>{$D_RangeFrom} - {$D_RangeTo}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}Number of addresses{/t}</strong></td>
+                       <td>{$D_NetworkNumber_Addresses}</td>
+                   </tr>
+                   <tr>
+                       <td><strong>{t}VLAN{/t}</strong></td>
+                       <td>{$D_PrefixVLAN}</td>
+                   </tr>
+                   </tbody>
+               </table>
+               {"addresses/subnetedit/{$D_PrefixID}/"|createlink:"{t}Edit{/t}":"btn btn-info":true}&nbsp;{"addresses/subnetdelete/{$D_PrefixID}/"|createlink:"{t}Delete{/t}":"btn btn-danger":true}
+           </div>
+       </div>
+   </section>
+</div>
+
+<script>
+    $(document).ready(function() {
+
+        {if !empty($D_Subnets)}
+        var subnetlist = $('#subnetlist').DataTable({
+            "ordering": false,
+        });
+
+        function hideFreePrefix() {
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    return $(subnetlist.row(dataIndex).node()).attr('data-user') == 'usedsubnet';
+                }
+            );
+            subnetlist.draw();
+            $('#showPrefixes').show();
+            $('#hidePrefixes').hide();
+        }
+
+        function showFreePrefix() {
+            $.fn.dataTable.ext.search.pop();
+            subnetlist.draw();
+            $('#showPrefixes').hide();
+            $('#hidePrefixes').show();
+        }
+        document.getElementById('showPrefixes').addEventListener('click', showFreePrefix, false);
+        document.getElementById('hidePrefixes').addEventListener('click', hideFreePrefix, false);
+        hideFreePrefix();
+        $('#hidePrefixes').hide();
+        {/if}
+
+        {if !empty($D_Addresses)}
+        var addresslist = $('#addresslist').DataTable({
+            "ordering": false,
+        });
+        function hideFreeAddresses() {
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    return $(addresslist.row(dataIndex).node()).attr('data-user') == 'usedaddress';
+                }
+            );
+            addresslist.draw();
+            $('#showAddresses').show();
+            $('#hideAddresses').hide();
+        }
+
+        function showFreeAddresses() {
+            $.fn.dataTable.ext.search.pop();
+            addresslist.draw();
+            $('#showAddresses').hide();
+            $('#hideAddresses').show();
+        }
+        hideFreeAddresses();
+        $('#hideAddresses').hide();
+        document.getElementById('showAddresses').addEventListener('click', showFreeAddresses, false);
+        document.getElementById('hideAddresses').addEventListener('click', hideFreeAddresses, false);
+        {/if}
+    } );
+</script>
+{include file="footer.html"}

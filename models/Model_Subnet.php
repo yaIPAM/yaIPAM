@@ -1,5 +1,5 @@
 <?php
-
+// @TODO Move this to an entity
 require_once SCRIPT_BASE .'/models/Model_Address.php';
 
 /**
@@ -33,7 +33,7 @@ class Model_Subnet {
 
 			$dbal->beginTransaction();
 
-			$this->setParentID(self::CalculateParentID($this->getPrefix()."/".$this->getPrefixLength(), $this->getMasterVRF()));
+			$this->setParentID(\Service\Prefixes::CalculateParentID($this->getPrefix()."/".$this->getPrefixLength(), $this->getMasterVRF()));
 
 			$insert = $queryBuilder
 				->insert('prefixes')

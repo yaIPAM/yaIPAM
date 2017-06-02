@@ -1,0 +1,26 @@
+PrefixesVrfs:
+    type: entity
+    table: prefixes_vrfs
+    id:
+        prefixid:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            column: PrefixID
+        vrfid:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            column: VRFID
+    fields:
+        parentid:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            column: ParentID
+    lifecycleCallbacks: {  }

@@ -1,0 +1,26 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>OTV Verwaltung - Instanz löschen</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+          <div class="col-md-12">
+              {if isset($S_MESSAGE)}
+              {include file=$S_MESSAGE_FILE}
+              {/if}
+              <form method="post" action="{$SITE_BASE}/otv/delete/">
+                  <input type="hidden" name="OTVID" value="{$D_OTV.OTVID}">
+                  <div class="alert-info alert">
+                      Soll die OTV Instanz <strong>{$D_OTV.OTVName}</strong> gelöscht werden?
+                      <button type="submit" name="submitForm1" value="true" class="btn btn-danger">Löschen</button>
+
+                  </div>
+
+                  <a href="{$SITE_BASE}/otv/" class="btn btn-default">Zurück</a>
+              </form>
+          </div>
+      </div>
+   </section>
+</div>
+{include file="footer.html"}

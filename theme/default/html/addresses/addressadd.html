@@ -1,0 +1,56 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}Addressmanagement{/t} - {if $D_MODE=="add"}{t}Add address{/t}{else}{t}Edit address{/t}{/if}</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+          <div class="col-md-12">
+              {if isset($S_MESSAGE)}
+              {include file=$S_MESSAGE_FILE}
+              {/if}
+              <form method="post" action="{"/addresses/address{$D_MODE}/{$D_PrefixID}/{$D_AddressID}/"|url}">
+                  {if $D_MODE=="edit"}
+                  <input type="hidden" name="AddressID" value="{$D_AddressID}">
+                  {/if}
+                  <div class="form-group">
+                      <label for="Address">{t}Address{/t}</label>
+                      <input type="text" class="form-control" id="Address" name="Address" size="255" maxlength="255" value="{$D_Address}"{if $D_MODE=="edit"} readonly{/if}>
+                  </div>
+              <div class="form-group">
+                  <label for="AddressName">{t}Name{/t}</label>
+                  <input type="text" class="form-control" id="AddressName" name="AddressName" size="255" maxlength="255" value="{$D_AddressName}">
+              </div>
+              <div class="form-group">
+                  <label for="AddressFQDN">{t}FQDN{/t}</label>
+                  <input type="text" class="form-control" id="AddressFQDN" name="AddressFQDN" size="255" maxlength="255" value="{$D_AddressFQDN}">
+              </div>
+              <div class="form-group">
+                  <label for="AddressState">{t}State{/t}</label>
+                  <select name="AddressState" id="AddressState" class="form-control">
+                      <option value="1"{if $D_AddressState == 1} selected{/if}>{t}Allocated{/t}</option>
+                      <option value="2"{if $D_AddressState == 2} selected{/if}>{t}Reserved{/t}</option>
+                      <option value="3"{if $D_AddressState == 3} selected{/if}>{t}Expired{/t}</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label for="AddressMAC">{t}MAC{/t}</label>
+                  <input type="text" class="form-control" id="AddressMAC" name="AddressMAC" size="255" maxlength="255" value="{$D_AddressMAC}">
+              </div>
+              <div class="form-group">
+                  <label for="AddressTT">{t}TT{/t}</label>
+                  <input type="text" class="form-control" id="AddressTT" name="AddressTT" size="255" maxlength="255" value="{$D_AddressTT}">
+              </div>
+              <div class="form-group">
+                  <label for="AddressDescription">{t}Description{/t}</label>
+                  <textarea class="form-control" id="AddressDescription" name="AddressDescription" rows="10">{$D_AddressDescription}</textarea>
+              </div>
+                  <button type="submit" name="submitForm1" value="true" class="btn btn-success">{t}Save{/t}</button>
+                    <a href="{"/addresses/addressdelete/{$D_PrefixID}/{$D_AddressID}/"|url}" class="btn btn-danger">{t}Delete{/t}</a>
+                  <a href="{"/addresses/subnet/{$D_PrefixID}/"|url}" class="btn btn-default">{t}Back{/t}</a>
+              </form>
+          </div>
+      </div>
+   </section>
+</div>
+{include file="footer.html"}

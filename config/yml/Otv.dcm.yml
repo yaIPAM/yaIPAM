@@ -1,0 +1,29 @@
+Otv:
+    type: entity
+    table: otv
+    id:
+        otvid:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            column: OTVID
+            generator:
+                strategy: IDENTITY
+    fields:
+        otvname:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+            column: OTVName
+        otvdescription:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+            column: OTVDescription
+    lifecycleCallbacks: {  }

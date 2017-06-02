@@ -32,6 +32,18 @@
       </a>
       <!-- Header Navbar: style can be found in header.less -->
       <nav class="navbar navbar-static-top" role="navigation">
+          {if $S_LOGIN}
+          <div class="pull-right">
+              <form method="post" action='{"search/search/"|url}' class="navbar-form">
+                  <div class="input-group">
+                      <input type="text" id="search" name="search" class="form-control " placeholder="{t}Search{/t}" value="{$D_SearchString}">
+                      <span class="input-group-btn">
+                          <button type="submit" name="submitsearch" class="btn btn-flat"><i class="fa fa-search"></i></button>
+                      </span>
+                  </div>
+              </form>
+          </div>
+          {/if}
       </nav>
     </header>
 
@@ -40,22 +52,33 @@
       <section class="sidebar">
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu">
-          <li class="header">Navigation</li>
+          <li class="header">{t}Navigation{/t}</li>
+            {if $S_LOGIN}
             <li class="treeview{if $S_ACTIVE_MENU=="vrfs" or $S_ACTIVE_MENU=="addresses"} active{/if}">
-                <a href="#"><span>Addressspace Management</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <a href="#"><span>{t}Addressspace Management{/t}</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
-                    <li{if $S_ACTIVE_MENU=="addresses"} class="active"{/if}><a href="{"/addresses/"|url}">Adressen</a></li>
-                    <li{if $S_ACTIVE_MENU=="vrfs"} class="active"{/if}><a href="{"/vrfs/"|url}">VRFs</a></li>
+                    <li{if $S_ACTIVE_MENU=="addresses"} class="active"{/if}><a href="{"addresses/"|url}">{t}Addresses{/t}</a></li>
+                    <li{if $S_ACTIVE_MENU=="vrfs"} class="active"{/if}><a href="{"vrfs/"|url}">{t}VRFs{/t}</a></li>
                 </ul>
             </li>
           <li class="{if $S_ACTIVE_MENU=="vlans" or $S_ACTIVE_MENU=="vlandomains" or $S_ACTIVE_MENU=="otv"}active {/if}treeview">
-            <a href="#"><span>VLANs</span> <i class="fa fa-angle-left pull-right"></i></a>
+            <a href="#"><span>{t}VLANs{/t}</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-              <li{if $S_ACTIVE_MENU=="vlans"} class="active"{/if}><a href="{"/vlans/"|url}">Übersicht</a></li>
-                <li{if $S_ACTIVE_MENU=="vlandomains"} class="active"{/if}><a href="{"/vlandomains/"|url}">VLAN Domains</a></li>
-                <li{if $S_ACTIVE_MENU=="otv"} class="active"{/if}><a href="{"/otv/"|url}">OTV Instanzen</a></li>
+              <li{if $S_ACTIVE_MENU=="vlans"} class="active"{/if}><a href="{"vlans/"|url}">{t}Overview{/t}</a></li>
+                <li{if $S_ACTIVE_MENU=="vlandomains"} class="active"{/if}><a href="{"/vlandomains/"|url}">{t}VLAN Domains{/t}</a></li>
+                <li{if $S_ACTIVE_MENU=="otv"} class="active"{/if}><a href="{"otv/"|url}">{t}OTV{/t}</a></li>
             </ul>
           </li>
+            <li class="{if $S_ACTIVE_MENU=="usersettings"}active {/if}treeview">
+            <a href="#"><span>{t}Settings{/t}</span> <i class="fa fa-angle-left pull-right"></i></a>
+            <ul class="treeview-menu">
+                <li{if $S_ACTIVE_MENU=="usersettings"} class="active"{/if}><a href="{"usersettings/"|url}">{t}Users{/t}</a></li>
+            </ul>
+            </li>
+            <li{if $S_ACTIVE_MEN=="logout"} class="active"{/if}><a href="{'login/logout/'|url}">{t}Logout{/t}</a></li>
+            {else}
+            <li{if $S_ACTIVE_MENU=="login"} class="active"{/if}><a href="{'login/'|url}">{t}Login{/t}</a></li>
+            {/if}
         </ul><!-- /.sidebar-menu -->
 
       </section><!-- /.sidebar -->

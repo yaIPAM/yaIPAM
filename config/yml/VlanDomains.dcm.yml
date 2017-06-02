@@ -1,0 +1,29 @@
+VlanDomains:
+    type: entity
+    table: vlan_domains
+    id:
+        domainId:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            column: domain_id
+            generator:
+                strategy: IDENTITY
+    fields:
+        domainName:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+            column: domain_name
+        domainDescription:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+            column: domain_description
+    lifecycleCallbacks: {  }

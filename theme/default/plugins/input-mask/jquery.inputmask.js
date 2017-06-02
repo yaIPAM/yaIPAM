@@ -1574,7 +1574,7 @@
                         activeMasksetIndex = this.data('_inputmask')['activeMasksetIndex'];
                         opts = this.data('_inputmask')['opts'];
                         return maskScope(masksets, activeMasksetIndex, opts, { "action": "isComplete", "buffer": this[0]._valueGet().split('') });
-                    case "getmetadata": //return mask metadata if exists
+                    case "getmetadata": //return mask models if exists
                         if (this.data('_inputmask')) {
                             masksets = this.data('_inputmask')['masksets'];
                             activeMasksetIndex = this.data('_inputmask')['activeMasksetIndex'];

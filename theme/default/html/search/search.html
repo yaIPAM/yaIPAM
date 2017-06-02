@@ -1,0 +1,96 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}Search{/t} - {t}Search for{/t} {$D_SearchString}</h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                {if isset($S_MESSAGE)}
+                {include file=$S_MESSAGE_FILE}
+                {/if}
+                {if !empty($D_Addresses)}
+                <h4>{t}IP Addresses{/t}</h4>
+                <table class="table table-bordered table-striped table-hover" id="addresslist">
+                    <thead>
+                    <tr>
+                        <th>{t}Address{/t}</th>
+                        <th>{t}State{/t}</th>
+                        <th>{t}Name{/t}</th>
+                        <th>{t}FQDN{/t}</th>
+                        <th>{t}MAC{/t}</th>
+                        <th>{t}TT{/t}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {foreach item=$address from=$D_Addresses}
+                    <tr>
+                    <td><a href="{"/addresses/addressedit/{$address.addressprefix}/{$address.addressid}/"|url}">{$address.address|long2ip}</a></td>
+                    <td>{$address.addressstate|state2Text}</td>
+                    <td>{$address.addressname}</td>
+                    <td>{$address.addressfqdn}</td>
+                    <td>{$address.addressmac}</td>
+                    <td>{$address.addresstt}</td>
+                    </tr>
+                    {foreachelse}
+                    <tr>
+                        <td colspan="3" style="text-align:center;">--- {t}No addresses to list.{/t} ---</td>
+                    </tr>
+                    {/foreach}
+                </table>
+                {/if}
+                {if !empty($D_Subnets)}
+                <h4>IP Networks</h4>
+                <table class="table table-bordered table-striped table-hover" id="subnetlist">
+                    <thead>
+                    <tr>
+                        <th>{t}Prefix{/t}</th>
+                        <th>{t}Description{/t}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {foreach item=$subnet from=$D_Subnets}
+                    <tr}>
+                    <td><a href="{"/addresses/subnet/{$subnet.prefixid}"|url}">{$subnet.prefix|long2subnet:$subnet.prefixlength}</a></td>
+                    <td>{$subnet.prefixdescription}</td>
+                    </tr>
+                    {foreachelse}
+                    <tr>
+                        <td colspan="3" style="text-align:center;">--- {t}No subnets to list.{/t} ---</td>
+                    </tr>
+                    {/foreach}
+                    </tbody>
+                </table>
+                {/if}
+                {if !empty($D_Vlans)}
+                <h4>{t}Vlans{/t}</h4>
+                <table class="table table-bordered table-striped table-hover" id="vlanlist">
+                    <thead>
+                    <th>VLAN ID</th>
+                    <th>VLAN Name</th>
+                    </thead>
+                    <tbody>
+                    {foreach item=$vlans from=$D_Vlans}
+                    <tr>
+                    <td>{$vlans.vlanid}</td>
+                    <td>{$vlans.vlanname}</td>
+                    </tr>
+                    {/foreach}
+                    </tbody>
+                </table>
+                {/if}
+            </div>
+        </div>
+        <!--<div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    {t}These are valid search operators.{/t}
+                    <ul>
+                        <li>* - Wildcard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>-->
+    </section>
+</div>
+{include file="footer.html"}

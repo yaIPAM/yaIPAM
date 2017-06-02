@@ -1,0 +1,26 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>VRF Verwaltung - VRF löschen</h1>
+   </section>
+   <section class="content">
+      <div class="row">
+          <div class="col-md-12">
+              {if isset($S_MESSAGE)}
+              {include file=$S_MESSAGE_FILE}
+              {/if}
+              <form method="post" action="{$SITE_BASE}/vrfs/delete/">
+                  <input type="hidden" name="VRFID" value="{$D_VRF->getVrfid()}">
+                  <div class="alert-info alert">
+                      Soll die VRF <strong>{$D_VRF->getVrfname()}</strong> mit allen dazugehörigen Netzen wirklich gelöscht werden?
+                      <button type="submit" name="submitForm1" value="true" class="btn btn-danger">Löschen</button>
+
+                  </div>
+
+                  <a href="{$SITE_BASE}/vrfs/" class="btn btn-default">Zurück</a>
+              </form>
+          </div>
+      </div>
+   </section>
+</div>
+{include file="footer.html"}

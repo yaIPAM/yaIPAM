@@ -1,0 +1,61 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}User Management{/t}</h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-md-2 col-md-offset-10">
+                <p><a href="{'usersettings/add/'|url}" class="btn btn-success">+ {t}Add{/t}</a></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                {if isset($S_MESSAGE)}
+                {include file=$S_MESSAGE_FILE}
+                {/if}
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                    <th><strong>{t}Username{/t}</strong></th>
+                    <th><strong>{t}Method{/t}</strong></th>
+                    <th><strong>{t}Email Address{/t}</strong></th>
+                    <th><strong>{t}Group{/t}</strong></th>
+                    <th></th>
+                    </thead>
+                    <tbody>
+                    {foreach item=User from=$D_USERS}
+                    <tr>
+                        <td>{$User->getUsername()}</td>
+                        <td>
+                            {if $User->getMethod() == 1}
+                            {t}Local Authentication{/t}
+                            {/if}
+                        </td>
+                        <td>{$User->getUseremail()}</td>
+                        <td>
+                            {if $User->getUsergroup() == 1}
+                            {t}User{/t}
+                            {elseif $User->getUsergroup() == 2}
+                            {t}Administrator{/t}
+                            {elseif $User->getUsergroup() == 3}
+                            {t}Systemadministrator{/t}
+                            {/if}
+                        </td>
+                        <td>
+                            <a href="{"usersettings/edit/{$User->getUserid()}/"|url}" class="btn btn-xs btn-default"><span class="glyphicon-wrench glyphicon"></span></a>
+                            &nbsp;
+                            <a href="{"usersettings/delete/{$User->getUserid()}/"|url}" class="btn btn-xs btn-default"><span class="glyphicon-trash glyphicon"></span></a>
+                        </td>
+                    </tr>
+                    {foreachelse}
+                    <tr>
+                        <d colspan="5" style="text-align:center;">--- {t}No Users{/t} ---</d>
+                    </tr>
+                    {/foreach}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{include file="footer.html"}

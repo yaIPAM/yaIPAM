@@ -279,7 +279,7 @@ var dpComputableOptions = {
 
 	defaultButtonText: function(dpOptions) {
 		return {
-			// the translations sometimes wrongly contain HTML entities
+			// the translations sometimes wrongly contain HTML models
 			prev: stripHtmlEntities(dpOptions.prevText),
 			next: stripHtmlEntities(dpOptions.nextText),
 			today: stripHtmlEntities(dpOptions.currentText)
@@ -3605,7 +3605,7 @@ Grid.mixin({
 			end: null
 		};
 
-		// if dropped on an all-day cell, and element's metadata specified a time, set it
+		// if dropped on an all-day cell, and element's models specified a time, set it
 		if (meta.startTime && !dropLocation.start.hasTime()) {
 			dropLocation.start.time(meta.startTime);
 		}

@@ -1,0 +1,62 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}Addressspace Management{/t} - {if $D_MODE=="edit"}{t}Edit Prefix{/t}{else}{t}Add prefix{/t}{/if}</h1>
+   </section>
+   <section class="content">
+       <div class="row">
+           <div class="col-md-12">
+               {if isset($S_MESSAGE)}
+               {include file=$S_MESSAGE_FILE}
+               {/if}
+               <form method="post" action='{"/addresses/subnet{if $D_MODE=="edit"}edit{else}add{/if}/{$D_PrefixID}/"|url}' class="form">
+
+                    <div class="form-group">
+                        <label for="PrefixName">{t}Prefix{/t} ({t}required{/t})</label>
+                        <input type="text" name="PrefixName" id="PrefixName" value="{$D_PrefixName}" class="form-control" {if $D_MODE=="edit"}readonly{else}required{/if}>
+                    </div>
+                   <div class="form-group">
+                       <label for="PrefixState">{t}State{/t}</label>
+                       <select name="PrefixState" id="PrefixState" class="form-control">
+                           <option value="1"{if $D_PrefixState == 1} selected{/if}>{t}Allocated{/t}</option>
+                           <option value="2"{if $D_PrefixState == 2} selected{/if}>{t}Reserved{/t}</option>
+                           <option value="3"{if $D_PrefixState == 3} selected{/if}>{t}Expired{/t}</option>
+                       </select>
+                   </div>
+                   <div class="form-group">
+                       <label for="PrefixDescription">{t}Description{/t}</label>
+                       <textarea rows="10" name="PrefixDescription" id="PrefixDescription" class="form-control">{$D_PrefixDescription}</textarea>
+                   </div>
+                   <!-- WIP -->
+                   <!--<div class="form-group">
+                       <label for="PrefixVRF">{t}Additional VRFs{/t}</label>
+                       <select name="PrefixVRF[]" id="PrefixVRF" class="form-control select2" multiple="multiple" data-placeholder="{t}Select additional VRFs{/t}">
+                           {foreach item=vrf from=$D_VRFS}
+                           <option value="{$vrf.VRFID}">{$vrf.VRFName}</option>
+                           {foreachelse}
+                           <option value="0">-- {t}None{/t} ---</option>
+                           {/foreach}
+                       </select>
+                   </div>-->
+                   <div class="form-group">
+                       <label for="PrefixVLAN">{t}VLAN{/t}</label>
+                       <select name="PrefixVLAN" id="PrefixVLAN" class="form-control select2" data-placeholder="{t}Select VLAN{/t}">
+                           <option value="0"{if $D_PrefixVLAN == 0} selected{/if}>--- {t}None{/t} ---</option>
+                           {foreach item=vlans from=$D_VLANS}
+                           <option value="{$vlans.ID}"{if $D_PrefixVLAN == $vlans.ID} selected{/if}>{$vlans.VlanID} ({$vlans.VlanName}) ({$vlans.domain_name})</option>
+                           {/foreach}
+                       </select>
+                   </div>
+                   <button type="submit" name="Submit" value="true" class="btn btn-success">{t}Save{/t}</button>
+                   {"/addresses/subnet/{$D_PrefixID}/"|createlink:"{t}Back{/t}":"btn btn-default"}
+               </form>
+           </div>
+       </div>
+   </section>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".select2").select2();
+    });
+</script>
+{include file="footer.html"}
