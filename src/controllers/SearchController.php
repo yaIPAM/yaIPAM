@@ -17,7 +17,12 @@ class SearchController extends BaseController
 
         $SearchString = $this->req->request->get("search");
         $OrignalSearchString = $SearchString;
-        $FulltextSearch = $SearchString."*";
+        $FulltextSearch = trim($SearchString, '*')."*";
+
+        if (empty($OrignalSearchString)) {
+            \MessageHandler::Error(_('Searchstring too short'), _("The search string seems to be empty and won't work like this."));
+            return $this->view();
+        }
 
         try {
             $IPSearch = \IP::create($SearchString);

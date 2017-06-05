@@ -19,13 +19,16 @@ define("SCRIPT_BASE", __DIR__);
 
 session_start();
 
-// Include default config
-require 'config.dist.php';
-// Defaults will be overwritten by a local configuration.
-require 'config.php';
+/*
+ * Loading default config and local config.
+ * Local config will overwrite defaults.
+ */
+$ConfigDefault = require 'config.dist.php';
+$Config = require 'config.php';
+$Config = array_merge($ConfigDefault, $Config);
 
-define("SITE_BASE", $general_config['sitebase']);
 
+// Very simple CSFR check
 if (!isset($_SESSION['csfr'])) {
     $_SESSION['csfr'] = uniqid('', true);
 }
@@ -33,8 +36,6 @@ if (!isset($_SESSION['csfr'])) {
 if (!isset($_SESSION['login'])) {
     $_SESSION['login'] = false;
 }
-
-
 
 // Composer Autoloader
 require SCRIPT_BASE . '/vendor/autoload.php';
@@ -53,19 +54,11 @@ $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
 $whoops->writeToOutput(true);
 $whoops->register();
 
-// Language setup
-
-I18N::init('messages', SCRIPT_BASE.'/lang', 'en_US', array(
-    '/^de((-|_).*?)?$/i' => 'de_DE',
-    '/^en((-|_).*?)?$/i' => 'en_US',
-    '/^es((-|_).*?)?$/i' => 'es_ES'
-));
-
 // Basic DBAL Configuration
 
 $dbal_config = new DBAL\Configuration();
-$dbal = DriverManager::getConnection($dbase_config, $dbal_config);
-$orm_config = Setup::createAnnotationMetadataConfiguration(array(SCRIPT_BASE.'/src/entities'), $general_config['devMode'], null, null, false);
+$dbal = DriverManager::getConnection($Config['dbase'], $dbal_config);
+$orm_config = Setup::createAnnotationMetadataConfiguration(array(SCRIPT_BASE.'/src/entities'), $Config['general']['devMode'], null, null, false);
 if (extension_loaded('apcu')) {
     $orm_config->setQueryCacheImpl(new \Doctrine\Common\Cache\ApcuCache());
     $orm_config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ApcuCache());
@@ -88,13 +81,10 @@ $auditconfig->setUsernameCallable(function () {
 $evm = new EventManager();
 $auditManager = new AuditManager($auditconfig);
 $auditManager->registerEvents($evm);
-$EntityManager = EntityManager::create($dbase_config, $orm_config, $evm);
+$EntityManager = EntityManager::create($Config['dbase'], $orm_config, $evm);
 $EntityManager->getConfiguration()->addCustomStringFunction('inet_aton', 'Application\DQL\InetAtonFunction');
 $EntityManager->getConfiguration()->addCustomStringFunction('inet6_aton', 'Application\DQL\Inet6AtonFunction');
 $EntityManager->getConfiguration()->addCustomStringFunction('MATCH_AGAINST', 'Application\DQL\MatchAgainstFunction');
-
-
-$a = array();
 
 // Request wrapper from Symfony.
 use Symfony\Component\HttpFoundation\Request;

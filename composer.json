@@ -4,23 +4,26 @@
 			"Service\\": "src/services/",
 			"Entity\\": "src/entities/",
 			"Controller\\": "src/controllers/",
-			"Application\\DQL\\": "src/libs/doctrineextensions"
+			"Application\\DQL\\": "src/libs/doctrineextensions",
+			"DoctrineDBALMigrations\\": "src/migrations/"
 		}
 	},
 	"require": {
 		"doctrine/dbal": "2.5.*",
-		"smarty/smarty": "3.1.*",
-		"adldap2/adldap2": "7.0.*",
+		"doctrine/migrations":	"*",
+		"doctrine/orm": "2.5.x-dev",
+		"simplethings/entity-audit-bundle": "1.0.*",
 		"symfony/http-foundation": "v3.2.7",
-		"symfony/yaml": "*",
 		"filp/whoops": "2.1.8",
 		"caffeinated/flash": "v3.0.1",
-		"mlocati/ip-lib": "1.2.1",
-		"doctrine/orm": "2.5.x-dev",
+		"smarty/smarty": "3.1.*",
 		"smarty-gettext/smarty-gettext": "v1.5.0",
+		"adldap2/adldap2": "7.0.*",
+		"mlocati/ip-lib": "1.2.1",
 		"rlanvin/php-ip": "dev-master",
-		"s1lentium/iptools": "*",
-		"simplethings/entity-audit-bundle": "1.0.*",
+		"s1lentium/iptools": "*"
+	},
+	"require-dev": {
 		"phpmd/phpmd": "2.*"
 	}
 }

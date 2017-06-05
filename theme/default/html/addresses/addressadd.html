@@ -47,6 +47,7 @@
               </div>
                   <button type="submit" name="submitForm1" value="true" class="btn btn-success">{t}Save{/t}</button>
                     <a href="{"/addresses/addressdelete/{$D_PrefixID}/{$D_AddressID}/"|url}" class="btn btn-danger">{t}Delete{/t}</a>
+              {if $D_MODE=="edit"}{"changelog/address/{$D_AddressID}/"|createlink:"{t}Changelog{/t}":"btn btn-info":true}{/if}
                   <a href="{"/addresses/subnet/{$D_PrefixID}/"|url}" class="btn btn-default">{t}Back{/t}</a>
               </form>
           </div>

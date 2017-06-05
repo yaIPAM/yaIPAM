@@ -7,14 +7,20 @@
  * Time: 11:53
  */
 
-$dbase_config['dbname'] = 'yaipam';
-$dbase_config['user'] = 'someuser';
-$dbase_config['password'] = 'somepass';
-$dbase_config['host'] = 'localhost';
-$dbase_config['driver'] = 'pdo_mysql';
-
-$vlans_config['maxID'] = 4096;
-
-$general_config['site_title'] = 'yaIPAM - Test';
-$general_config['devMode'] = false;
-$general_config['sitebase'] = 'yaIPAM';
+return [
+    "dbase" =>   [
+        "dbname"  =>  'yaipam',
+        "user"  =>  'someuser',
+        "password"  =>  'somepass',
+        "host"  =>  'localhost',
+        "driver"    =>  'pdo_mysql'
+    ],
+    "vlan"  => [
+        "maxID" =>  4096,
+    ],
+    "general"   =>  [
+        "site_title"    =>  'yaIPAM - Test',
+        "devMode"   =>  false,
+        "sitebase"  =>  "yaIPAM",
+    ]
+];

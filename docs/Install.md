@@ -9,6 +9,7 @@ To install yaIPAM, you will need the following software installed and running on
 ** ldap
 ** intl
 ** bcmath
+** apcu (If you want caching)
 * Apache 2.2 or higher with mod rewrite enabled and allowed
 * git
 
@@ -24,12 +25,23 @@ We don't want to reinvent the wheel, so we will depend on other composer librari
 
 `php composer.phar update`
 
-## 3. Install the SQL schema
+## 3. Copy config.dist.php to config.php
 
-Currently there is no installer, which can help you with this step. You can use doctrine to install the schema for you vendor/bin/doctrine orm:schema-tools:create
+You should edit the config.php with the data for your setup before proceeding with the database.
 
-## 4. Copy config.dist.php to config.php
+## 4. Create the cache/ directory
 
-## 5. Edit the values under config.php so they will fit your needs.
+The cache directory is needed to cache template files. It needs to be writable by PHP.
 
-## 6. Create a cache/ directory and make it writable for the PHP and HTTPD process
+## 5. Install the SQL schema
+
+To install the schema you can use the following command:
+
+`./manager orm:schema-tools:create`
+
+## 6. Updating from older version
+
+Updating should be quite easy if you have just installed the new application code and configured the config.php correctly.
+Just execute the migrations tool:
+
+`./manager migrations:execute`

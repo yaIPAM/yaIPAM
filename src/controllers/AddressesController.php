@@ -396,9 +396,9 @@ class AddressesController extends BaseController
             $Vlan->get($Subnet->getEntity()->getPrefixvlan());
 
             $VlanDomain = new \Service\VlanDomains($this->em);
-            $VlanDomain->selectByID($Vlan->getEntity()->getVlanDomainID());
+            $VlanDomain->selectByID($Vlan->getEntity()->getVlandomain());
 
-            $Prefix = $VlanDomain->getDomainName().": ".($Vlan->getEntity() != null) ? $Vlan->getEntity()->getVlanID()." - ".$Vlan->getEntity()->getVlanName() : "";
+            $Prefix = $VlanDomain->getEntity()->getDomainName().": ".($Vlan->getEntity() != null) ? $Vlan->getEntity()->getVlanID()." - ".$Vlan->getEntity()->getVlanName() : "";
         }
 
 

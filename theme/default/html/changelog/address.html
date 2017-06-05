@@ -1,0 +1,57 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}Changelog{/t} - {t}Address{/t} <a href='{"addresses/addressedit/{$D_PrefixID}/{$D_AddressID}"|url}'>{$D_Address}</a></h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                {if isset($S_MESSAGE)}
+                {include file=$S_MESSAGE_FILE}
+                {/if}
+                {if !empty($D_AuditRevisions_Addresses)}
+                <table class="table table-bordered table-striped table-hover" id="revisions">
+                    <thead>
+                    <th>{t}Revision{/t}</th>
+                    <th>{t}Date{/t}</th>
+                    <th>{t}Username{/t}</th>
+                    <th>{t}Address{/t}</th>
+                    <th>{t}Address name{/t}</th>
+                    <th>{t}Address MAC{/t}</th>
+                    <th>{t}Address TT{/t}</th>
+                    <th>{t}Address Description{/t}</th>
+                    </thead>
+                    <tbody>
+                    {foreach item=rev from=$D_AuditRevisions_Addresses}
+                    <tr>
+                        <td>{$rev.rev}</td>
+                        <td>{$rev.timestamp}</td>
+                        <td>{$rev.username}</td>
+                        <td>{$rev.address}</td>
+                        <td>{$rev.addressname}</td>
+                        <td>{$rev.addressmac}</td>
+                        <td>{$rev.addresstt}</td>
+                        <td>{$rev.addressdescription}</td>
+                    </tr>
+                    {foreachelse}
+                    <tr>
+                        <td colspan="8">{t}No revisions for this object{/t}</td>
+                    </tr>
+                    {/foreach}
+                    </tbody>
+                </table>
+                {/if}
+            </div>
+        </div>
+    </section>
+</div>
+{if !empty($D_AuditRevisions_Prefixes)}
+<script type="text/javascript">
+    $(document).ready(function() {
+         $('#revisions').DataTable({
+            "ordering": false,
+        });
+    });
+</script>
+{/if}
+{include file="footer.html"}

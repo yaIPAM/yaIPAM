@@ -16,7 +16,7 @@ class VlansController extends BaseController
 
     public function IndexAction()
     {
-        global $vlans_config;
+        global $Config;
 
         $this->CheckAccess(\Service\User::GROUP_USER);
 
@@ -89,17 +89,17 @@ class VlansController extends BaseController
             $n = $data['VlanID'];
         }
 
-        if ($lastVlan['VlanID'] < $vlans_config['maxID']) {
-            if (($vlans_config['maxID'] - $lastVlan['VlanID']) == 1) {
+        if ($lastVlan['VlanID'] < $Config['vlan']['maxID']) {
+            if (($Config['vlan']['maxID'] - $lastVlan['VlanID']) == 1) {
                 $vlan_list[] = array(
-                    "VlanID"    =>  $vlans_config['maxID'],
+                    "VlanID"    =>  $Config['vlan']['maxID'],
                     "VlanName"  =>  "<i>Frei</i>",
                     "VlanFree"  =>  true,
-                    "FirstFree" =>  $vlans_config['maxID'],
+                    "FirstFree" =>  $Config['vlan']['maxID'],
                 );
             } else {
                 $vlan_list[] = array(
-                    "VlanID"    =>  ($lastVlan['VlanID']+1)."-".$vlans_config['maxID'],
+                    "VlanID"    =>  ($lastVlan['VlanID']+1)."-".$Config['vlan']['maxID'],
                     "VlanName"  =>  "<i>Frei</i>",
                     "VlanFree"  =>  true,
                     "FirstFree" =>  ($lastVlan['VlanID']+1),
