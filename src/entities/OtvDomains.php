@@ -1,6 +1,5 @@
 <?php
-
-
+namespace Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -94,4 +93,3 @@ class OtvDomains
         return $this->domainid;
     }
 }
-

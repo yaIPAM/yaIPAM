@@ -2,7 +2,6 @@
 
 namespace Entity;
 
-
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -95,4 +94,3 @@ class VlanDomains
         return $this->domainDescription;
     }
 }
-

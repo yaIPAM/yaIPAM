@@ -1,6 +1,5 @@
 <?php
-
-
+namespace Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -126,4 +125,3 @@ class PrefixesVrfs
         return $this->parentid;
     }
 }
-

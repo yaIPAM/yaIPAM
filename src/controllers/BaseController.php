@@ -16,10 +16,11 @@ class BaseController
     protected $_tplfile = "";
     protected $req;
     protected $em;
+    protected $auditManager;
 
-    public function __construct($controller, $action) {
-
-        global $tpl, $request, $EntityManager;
+    public function __construct($controller, $action)
+    {
+        global $tpl, $request, $EntityManager, $auditManager;
 
         $this->_controller = $controller;
         $this->_action = $action;
@@ -27,18 +28,37 @@ class BaseController
         $this->_tplfile = strtolower(str_replace('Controller', '', $controller)).'/'.strtolower(str_replace('Action', '', $this->_action)).'.html';
         $this->req = $request;
         $this->em = $EntityManager;
+        $this->auditManager = $auditManager;
     }
 
-    protected function set($name,$value = null) {
+    /**
+     * @return \SimpleThings\EntityAudit\AuditManager
+     */
+    protected function getAuditManager()
+    {
+        return $this->auditManager;
+    }
+
+    protected function getEM()
+    {
+        return $this->em;
+    }
+
+    /**
+     * @param $name
+     * @param null $value
+     */
+    protected function set($name, $value = null)
+    {
         if ($value == null) {
             $this->_template->assign($name);
-        }
-        else {
-            $this->_template->assign($name,$value);
+        } else {
+            $this->_template->assign($name, $value);
         }
     }
 
-    protected function CheckRequired(array $required) {
+    protected function CheckRequired(array $required)
+    {
         foreach ($required as $req) {
             $req = trim($req);
             if (empty($req)) {
@@ -49,30 +69,31 @@ class BaseController
         return true;
     }
 
-    protected function CheckAccess($Access) {
+    protected function CheckAccess($Access)
+    {
         if (\Service\User::showGroup() >= $Access) {
             return true;
-        }
-        else {
+        } else {
             header("Location: ".SITE_BASE."/error/denied");
             return false;
         }
     }
 
-    protected function view() {
+    protected function view()
+    {
         global $whoops;
         try {
             $this->set('S_ACTIVE_MENU', $this->_controller);
-            #$this->_template->display("header.html");
 
             if ($this->_template->templateExists($this->_tplfile)) {
                 $this->_template->display($this->_tplfile);
             }
 
-            #$this->_template->display("footer.html");
-        }
-        catch (Exception $e) {
+            return true;
+        } catch (\Exception $e) {
             $whoops->handleException($e);
+
+            return false;
         }
     }
 }

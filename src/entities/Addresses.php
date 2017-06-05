@@ -1,7 +1,6 @@
 <?php
 namespace Entity;
 
-
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -105,7 +104,9 @@ class Addresses
      */
     public function setAddress($address)
     {
-        $this->address = $address;
+        $IP = \IP::create($address);
+        $this->address = $IP->numeric();
+        $this->addressafi = $IP->getVersion();
 
         return $this;
     }
@@ -117,6 +118,16 @@ class Addresses
      */
     public function getAddress()
     {
+        if (is_resource($this->address)) {
+            $this->address = stream_get_contents($this->address);
+        }
+
+        if ($this->getAddressafi() == 4) {
+            return long2ip($this->address);
+        } elseif ($this->getAddressafi() == 6) {
+            return long2ip6($this->address);
+        }
+
         return $this->address;
     }
 
@@ -312,4 +323,3 @@ class Addresses
         return $this->addressprefix;
     }
 }
-

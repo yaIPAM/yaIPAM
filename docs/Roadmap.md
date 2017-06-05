@@ -21,5 +21,4 @@ This is a (not complete) roadmap on what has to be done. If you think anything i
 - [x] Search
 - [x] Show free for IP addresses
 - [ ] Move the last Model/Entity-ish classes to doctrine entities.
-- [ ] Code cleanup
 - [ ] A nice little installer/updater, maybe doctrine can help us there

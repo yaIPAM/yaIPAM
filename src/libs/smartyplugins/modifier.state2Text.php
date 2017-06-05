@@ -7,8 +7,7 @@
  * Time: 11:45
  */
 
-function smarty_modifier_state2Text(int $ID): string {
-
-	return stateToText($ID);
-
+function smarty_modifier_state2Text(int $ID): string
+{
+    return stateToText($ID);
 }

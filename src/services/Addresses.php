@@ -1,5 +1,6 @@
 <?php
 namespace Service;
+
 // @TODO Move this to an entity
 
 /**
@@ -10,7 +11,6 @@ namespace Service;
  */
 class Addresses
 {
-
     const STATE_FREE = 0;
     const STATE_ALLOCATED = 1;
     const STATE_RESERVED = 2;
@@ -27,111 +27,50 @@ class Addresses
     /**
      * @return bool
      */
-    public function save(): bool {
-        global $dbal;
+    public function save(): bool
+    {
+        global $whoops;
 
-        $queryBuilder = $dbal->createQueryBuilder();
+        try {
+            $this->em->persist($this->entity);
+            $this->em->flush();
 
-        if ($this->getAddressID() == 0) {
+            return true;
+        } catch (\Exception $e) {
+            $whoops->handleException($e);
 
-            $queryBuilder
-                ->insert('addresses')
-                ->setValue('Address', ':Address')
-                ->setValue('AddressAFI', ':AddressAFI')
-                ->setValue('AddressState', ':AddressState')
-                ->setValue('AddressName', ':AddressName')
-                ->setValue('AddressFQDN', ':AddressFQDN')
-                ->setValue('AddressMAC', ':AddressMAC')
-                ->setValue('AddressTT', ':AddressTT')
-                ->setValue('AddressDescription', ':AddressDescription')
-                ->setValue('AddressPrefix', ':AddressPrefix');
-
-
-        }
-        else {
-            $queryBuilder
-                ->update('addresses')
-                ->set('Address', ':Address')
-                ->set('AddressAFI', ':AddressAFI')
-                ->set('AddressState', ':AddressState')
-                ->set('AddressName', ':AddressName')
-                ->set('AddressFQDN', ':AddressFQDN')
-                ->set('AddressMAC', ':AddressMAC')
-                ->set('AddressTT', ':AddressTT')
-                ->set('AddressDescription', ':AddressDescription')
-                ->set('AddressPrefix', ':AddressPrefix')
-                ->where('AddressID = :AddressID')
-                ->setParameter('AddressID', $this->getAddressID());
-        }
-
-        $queryBuilder
-            ->setParameter('Address', $this->getAddress(true))
-            ->setParameter('AddressAFI', $this->getAddressAFI())
-            ->setParameter('AddressState', $this->getAddressState())
-            ->setParameter('AddressName', $this->getAddressName())
-            ->setParameter('AddressFQDN', $this->getAddressFQDN())
-            ->setParameter('AddressMAC', $this->getAddressMAC())
-            ->setParameter('AddressTT', $this->getAddressTT())
-            ->setParameter('AddressDescription', $this->getAddressDescription())
-            ->setParameter('AddressPrefix', $this->getAddressPrefix());
-
-        if ($queryBuilder->execute() === false) {
             return false;
         }
-
-        return true;
-
-
     }
 
-    public function getAddressByID(int $AddressID): array {
-        global $dbal;
+    public function getAddressByID(int $AddressID): bool
+    {
+        $this->entity = $this->em->find("Entity\Addresses", $AddressID);
 
-        $queryBuilder = $dbal->createQueryBuilder();
-
-        $select = $queryBuilder
-            ->select('*')
-            ->from('addresses')
-            ->where('AddressID = :AddressID')
-            ->setParameter('AddressID', $AddressID)
-            ->execute()
-            ->fetch();
-
-
-        $this->setAddressID($select['AddressID']);
-        $this->setAddressAFI($select['AddressAFI']);
-        $this->setAddress($select['Address'], true);
-        $this->setAddressState($select['AddressState']);
-        $this->setAddressName($select['AddressName']);
-        $this->setAddressFQDN($select['AddressFQDN']);
-        $this->setAddressMAC($select['AddressMAC']);
-        $this->setAddressTT($select['AddressTT']);
-        $this->setAddressDescription($select['AddressDescription']);
-        $this->setAddressPrefix($select['AddressPrefix']);
-
-
-        return (array)$select;
-    }
-
-    public function delete(): bool {
-        global $dbal;
-
-        $queryBuilder = $dbal->createQueryBuilder();
-
-        $queryBuilder
-            ->delete('addresses')
-            ->where('AddressID = :AddressID')
-            ->setParameter('AddressID', $this->getAddressID());
-
-        if ($queryBuilder->execute() === false) {
-            return false;
-        }
-        else {
+        if ($this->entity != null) {
             return true;
         }
+
+        return false;
     }
 
-    public static function deleteByPrefix(int $PrefixID): bool {
+    public function delete(): bool
+    {
+        global $whoops;
+
+        try {
+            $this->em->remove($this->entity);
+            $this->em->flush();
+
+            return true;
+        } catch (\Exception $e) {
+            $whoops->handleException($e);
+            return false;
+        }
+    }
+
+    public static function deleteByPrefix(int $PrefixID): bool
+    {
         global $dbal;
 
         $queryBuilder = $dbal->createQueryBuilder();
@@ -143,13 +82,13 @@ class Addresses
 
         if ($queryBuilder->execute() === false) {
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
 
-    public static function calcNewPrefix(int $OldPrefixID, int $VRF, int $AFI) {
+    public static function calcNewPrefix(int $OldPrefixID, int $VRF, int $AFI)
+    {
         global $dbal;
 
         $queryBuilder = $dbal->createQueryBuilder();
@@ -163,7 +102,6 @@ class Addresses
             ->fetchAll();
 
         foreach ($select as $data) {
-
             $queryBuilder = $dbal->createQueryBuilder();
             $Address = ($data['AddressAFI'] == 4) ? long2ip($data['Address']) : long2ip6($data['Address']);
             $NewPrefixID = self::getParentID($Address, $VRF, $AFI);
@@ -180,15 +118,15 @@ class Addresses
         }
 
         return true;
-
     }
 
-    public static function AddressExists(string $Address, int $VRF): bool {
+    public static function AddressExists(string $Address, int $VRF): bool
+    {
         global $dbal;
 
         $queryBuilder = $dbal->createQueryBuilder();
 
-        $AFI = IPLib\Factory::addressFromString($Address);
+        $AFI = \IP::create($Address);
 
         $select = $queryBuilder
             ->select('COUNT(*) AS total')
@@ -198,8 +136,8 @@ class Addresses
             ->andWhere('p.MasterVRF = :MasterVRF')
             ->andWhere('Address = :Address')
             ->setParameter('MasterVRF', $VRF)
-            ->setParameter('AddressAFI', $AFI->getAddressType())
-            ->setParameter('Address', ($AFI->getAddressType()==4) ? ip2long($Address) : ip2long6($Address))
+            ->setParameter('AddressAFI', $AFI->getVersion())
+            ->setParameter('Address', $AFI->numeric())
             ->execute()
             ->fetch();
 
@@ -213,7 +151,8 @@ class Addresses
     /**
      * @return array
      */
-    public static function listAddresses(int $PrefixID): array {
+    public static function listAddresses(int $PrefixID): array
+    {
         global $EntityManager;
 
         $queryBuilder = $EntityManager->createQueryBuilder();
@@ -244,7 +183,6 @@ class Addresses
         $usedaddresses = array();
 
         if (!empty($select)) {
-
             foreach ($select as $data) {
                 $address = stream_get_contents($data['address']);
                 $address = \IP::create($address);
@@ -265,11 +203,9 @@ class Addresses
             foreach ($free as $freedata) {
                 if ($freedata->numeric() == $firstIP) {
                     $type = "network";
-                }
-                else if ($freedata->numeric() == $lastIP) {
+                } elseif ($freedata->numeric() == $lastIP) {
                     $type = "broadcast";
-                }
-                else {
+                } else {
                     $type = "normal";
                 }
                 if (isset($usedaddresses[$freedata->numeric()])) {
@@ -285,8 +221,7 @@ class Addresses
                         "free" => false,
                         "type"  =>  $type,
                     );
-                }
-                else {
+                } else {
                     $addresses[] = array(
                         "address" => $freedata->numeric(),
                         "addressstate" => 0,
@@ -302,7 +237,6 @@ class Addresses
 
 
         return (array)$addresses;
-
     }
 
     /**
@@ -310,7 +244,8 @@ class Addresses
      * @param int $VRF
      * @return int
      */
-    public static function getParentID(string $Address, int $VRF, int $AFI): int {
+    public static function getParentID(string $Address, int $VRF, int $AFI): int
+    {
         global $dbal;
 
         $queryBuilder = $dbal->createQueryBuilder();
@@ -322,7 +257,7 @@ class Addresses
             ->andWhere('MasterVRF = :MasterVRF')
             ->andWhere('AFI = :AFI')
             ->orderBy('PrefixLength', 'DESC')
-            ->setParameter('address', IPLib\Factory::addressFromString($Address)->getComparableString())
+            ->setParameter('address', \IPLib\Factory::addressFromString($Address)->getComparableString())
             ->setParameter('MasterVRF', $VRF)
             ->setParameter('AFI', $AFI)
             ->execute()
@@ -331,7 +266,8 @@ class Addresses
         return (int)$select['PrefixID'];
     }
 
-    public function getEntity() {
+    public function getEntity()
+    {
         return $this->entity;
     }
 }

@@ -9,11 +9,10 @@
 
 namespace Controller;
 
-
 class SearchController extends BaseController
 {
-    public function SearchAction() {
-
+    public function SearchAction()
+    {
         $this->CheckAccess(\Service\User::GROUP_USER);
 
         $SearchString = $this->req->request->get("search");
@@ -29,8 +28,7 @@ class SearchController extends BaseController
                 ->setParameter('address', $IPSearch->numeric())
                 ->getQuery()
                 ->getArrayResult();
-        }
-        catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             $IPSearch = null;
         }
 
@@ -52,9 +50,7 @@ class SearchController extends BaseController
             }
 
             $NetworkSearch = $NetworkSearch->getQuery()->getArrayResult();
-
-        }
-        catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             $NetworkSearch = null;
         }
 
@@ -108,6 +104,4 @@ class SearchController extends BaseController
 
         return $this->view();
     }
-
-
 }

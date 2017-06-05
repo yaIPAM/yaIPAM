@@ -1,5 +1,6 @@
 <?php
 namespace Controller;
+
 /**
  * User: ktammling
  * Date: 23.05.17
@@ -14,8 +15,7 @@ class LoginController extends \Controller\BaseController
         if ($this->req->request->getBoolean('submit') && \Service\User::checkCSFR($this->req->request->get('csfr'))) {
             if ($User->Authenticate($this->req->request->get('Username'), $this->req->request->get('Password'))) {
                 header("Location: ".SITE_BASE);
-            }
-            else {
+            } else {
                 \MessageHandler::Error(_('Login failure'), _('The username and password combination you have entered is incorrect.'));
             }
         }
@@ -31,11 +31,8 @@ class LoginController extends \Controller\BaseController
 
         if ($User->Logout()) {
             header("Location: ".SITE_BASE);
-        }
-        else {
+        } else {
             throw new RuntimeException(_('Error destroying user session.'));
         }
-
     }
-
 }

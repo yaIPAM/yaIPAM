@@ -1,5 +1,6 @@
 <?php
 namespace Controller;
+
 /**
  * VrfsController.php
  * Project: yaipam
@@ -7,12 +8,12 @@ namespace Controller;
  * Date: 17.04.17
  * Time: 12:17
  */
-class VrfsController extends BaseController {
-
+class VrfsController extends BaseController
+{
     private $edit = false;
 
-    public function IndexAction() {
-
+    public function IndexAction()
+    {
         $this->CheckAccess(\Service\User::GROUP_USER);
 
         $this->set("D_VRF_LIST", \Service\VRF::getAll());
@@ -20,8 +21,8 @@ class VrfsController extends BaseController {
         return $this->view();
     }
 
-    public function EditAction() {
-
+    public function EditAction()
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
         $this->edit = true;
@@ -29,8 +30,8 @@ class VrfsController extends BaseController {
         return $this->AddAction();
     }
 
-    public function AddAction() {
-
+    public function AddAction()
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
         $VRF = new \Service\VRF($this->em);
@@ -45,14 +46,12 @@ class VrfsController extends BaseController {
                 "D_VRFRT"   =>  $VRF->getEntity()->getVrfrt(),
                 "D_VRFRD"   =>  $VRF->getEntity()->getVrfrd(),
             ));
-        }
-        else {
+        } else {
             $this->edit = false;
             $this->set("D_MODE", "add");
         }
 
         if ($this->req->request->get('submitForm1') != null) {
-
             if ($this->req->request->get('VRFName') == null) {
                 \MessageHandler::Warning("Bitte notwendige Felder ausfüllen", "Bitte wenigstens einen VRF Namen angeben.");
                 $this->set(array(
@@ -79,30 +78,26 @@ class VrfsController extends BaseController {
                 ));
                 if (!$this->edit) {
                     \MessageHandler::Error("Anlagefehler", "Beim Anlegen der VRF ist ein Fehler aufgetreten.");
-                }
-                else {
+                } else {
                     \MessageHandler::Error("Bearbeitungsfehler", "Beim Bearbeiten der VRF ist ein Fehler aufgetreten.");
                 }
-            }
-            else {
+            } else {
                 if (!$this->edit) {
                     \MessageHandler::Success("VRF angelegt", "Die neue VRF wurde angelegt.");
-                }
-                else {
+                } else {
                     \MessageHandler::Success("VRF bearbeitet", "Die VRF wurde bearbeitet.");
                 }
 
                 $this->_tplfile = 'vrfs/index.html';
                 return $this->IndexAction();
             }
-
         }
 
         return $this->view();
     }
 
-    public function DeleteAction() {
-
+    public function DeleteAction()
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
         $vrf = new \Service\VRF($this->em);
@@ -119,8 +114,7 @@ class VrfsController extends BaseController {
                 \MessageHandler::Success("VRF gelöscht", "Die VRF wurde gelöscht.");
                 $this->_tplfile = 'vrfs/index.html';
                 return $this->IndexAction();
-            }
-            else {
+            } else {
                 \MessageHandler::Error("Ooops!", "Da ist etwas schief gelaufen. Da muss man mal gucken.");
             }
         }

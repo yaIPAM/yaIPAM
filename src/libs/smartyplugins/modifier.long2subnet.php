@@ -7,13 +7,12 @@
  * Time: 11:45
  */
 
-function smarty_modifier_long2subnet($subnet, $prefixlength): string {
-
+function smarty_modifier_long2subnet($subnet, $prefixlength): string
+{
     if (is_resource($subnet)) {
         $subnet = stream_get_contents($subnet);
     }
     $IP = \IPBlock::create($subnet, $prefixlength);
 
-	return $IP;
-
+    return $IP;
 }

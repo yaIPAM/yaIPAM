@@ -3,3 +3,4 @@ cache/
 /.idea/
 /config.php
 /composer.lock
+/.php_cs.cache

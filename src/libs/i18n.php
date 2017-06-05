@@ -21,8 +21,8 @@
  *
  * Source: <https://github.com/delight-im/PHP-I18N>
  */
-class I18N {
-
+class I18N
+{
     const SESSION_LANGUAGE_PREFERENCE = 'i18n_language_preference';
 
     /**
@@ -34,7 +34,8 @@ class I18N {
      * @param array|null $mappings (optional) the mappings from Accept-Language values (as regular expressions) to the appropriate gettext language identifiers
      * @throws Exception if the initialization fails
      */
-    public static function init($domain, $directory, $defaultLanguage, $mappings = array()) {
+    public static function init($domain, $directory, $defaultLanguage, $mappings = array())
+    {
         // first check if we have an active session to load/save the language preference
         if (!self::isSessionActive()) {
             throw new Exception('You must call session_start() before you can use the I18N class');
@@ -43,15 +44,14 @@ class I18N {
         // get the language from the preference in session or auto-detect it
         if (isset($_SESSION[self::SESSION_LANGUAGE_PREFERENCE])) {
             $language = $_SESSION[self::SESSION_LANGUAGE_PREFERENCE];
-        }
-        else {
+        } else {
             $language = self::getAutoDetectedLanguage($defaultLanguage, $mappings);
             $_SESSION[self::SESSION_LANGUAGE_PREFERENCE] = $language;
         }
 
         // set up gettext for the given configuration
         if (!putenv('LANG='.$language.'.utf8')) {
-        	throw new Exception("Error setting Environment variables for gettext");
+            throw new Exception("Error setting Environment variables for gettext");
         }
 
         setlocale(LC_MESSAGES, $language.'.utf8');
@@ -68,11 +68,13 @@ class I18N {
      *
      * @param string $newLanguageIdentifier the identifier of the new language to use for all pages
      */
-    public static function changeLanguage($newLanguageIdentifier) {
+    public static function changeLanguage($newLanguageIdentifier)
+    {
         $_SESSION[self::SESSION_LANGUAGE_PREFERENCE] = htmlspecialchars(trim($newLanguageIdentifier));
     }
 
-    private static function getAutoDetectedLanguage($defaultLanguage, $mappings) {
+    private static function getAutoDetectedLanguage($defaultLanguage, $mappings)
+    {
         // get the preferred language from the browser
         $browserLanguage = self::getBrowserLanguage();
 
@@ -95,24 +97,23 @@ class I18N {
      *
      * @return string|null the preferred language from the browser or NULL
      */
-    public static function getBrowserLanguage() {
+    public static function getBrowserLanguage()
+    {
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             return locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-        }
-        else {
-            return NULL;
+        } else {
+            return null;
         }
     }
 
-    private static function isSessionActive() {
+    private static function isSessionActive()
+    {
         if (version_compare(phpversion(), '5.4.0', '>=')) {
             return session_status() === PHP_SESSION_ACTIVE;
-        }
-        else {
+        } else {
             return session_id() !== '';
         }
     }
-
 }
 
 /**
@@ -130,7 +131,8 @@ class I18N {
  *
  * Example #2: echo __('There are %1$d monkeys in the %2$s', 3, _('garden'));
  */
-function __($str) {
+function __($str)
+{
     $args = func_get_args();
     $args[0] = _($str);
     return call_user_func_array('sprintf', $args);

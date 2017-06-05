@@ -9,16 +9,15 @@
 
 namespace Controller;
 
-
 class ErrorController extends BaseController
 {
-
-    public function NotfoundAction() {
+    public function NotfoundAction()
+    {
         return $this->view();
     }
 
-    public function DeniedAction() {
+    public function DeniedAction()
+    {
         return $this->view();
     }
-
 }

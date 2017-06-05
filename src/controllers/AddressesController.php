@@ -1,8 +1,5 @@
 <?php
 namespace Controller;
-require_once SCRIPT_BASE . '/models/Model_VLAN.php';
-require_once SCRIPT_BASE . '/models/Model_VLAN_Domain.php';
-require_once SCRIPT_BASE . '/models/Model_Address.php';
 
 /**
  * addresses.php
@@ -11,26 +8,27 @@ require_once SCRIPT_BASE . '/models/Model_Address.php';
  * Date: 23.04.17
  * Time: 11:13
  */
-class AddressesController extends BaseController {
+class AddressesController extends BaseController
+{
+    private $CurrentSubnet;
+    private $CurrentVRF;
+    private $edit = false;
 
-	private $CurrentSubnet;
-	private $CurrentVRF;
-	private $edit = false;
-
-	public function IndexAction() {
+    public function IndexAction()
+    {
         $this->CheckAccess(\Service\User::GROUP_USER);
 
-		$this->set("D_VRF_LIST", \Service\VRF::getWithRoot());
+        $this->set("D_VRF_LIST", \Service\VRF::getWithRoot());
 
         return $this->view();
-	}
+    }
 
-	public function AddressdeleteAction($SubnetID = null, $AddressID = null) {
-
+    public function AddressdeleteAction($SubnetID = null, $AddressID = null)
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
-	    $Address = new \Model_Address();
-        if (empty($Address->getAddressByID($AddressID))) {
+        $Address = new \Service\Addresses($this->em);
+        if (!($Address->getAddressByID($AddressID))) {
             \MessageHandler::Error(_('IP does not exist'), _('The selected IP address does not exist.'));
             $this->_tplfile = 'addresses/subnet.html';
             return $this->SubnetAction($SubnetID);
@@ -41,8 +39,7 @@ class AddressesController extends BaseController {
                 \MessageHandler::Error(_('Could not delete IP'), _('An error occured while deleting the IP.'));
                 $this->_tplfile = 'addresses/subnet.html';
                 return $this->SubnetAction($SubnetID);
-            }
-            else {
+            } else {
                 \MessageHandler::Success(_('IP deleted'), _('The IP has been deleted'));
                 $this->_tplfile = 'addresses/subnet.html';
                 return $this->SubnetAction($SubnetID);
@@ -51,42 +48,42 @@ class AddressesController extends BaseController {
 
         $this->set(array(
             "D_PrefixID"    =>  $SubnetID,
-            "D_Address" =>  $Address->getAddress(),
+            "D_Address" =>  $Address->getEntity()->getAddress(),
             "D_AddressID"   =>  $AddressID,
         ));
 
         $this->view();
     }
 
-    public function AddresseditAction($SubnetID = null, $AddressID = null) {
-
+    public function AddresseditAction($SubnetID = null, $AddressID = null)
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
-	    $this->setCurrentSubnet($SubnetID);
-	    $this->_tplfile = 'addresses/addressadd.html';
-	    $this->edit = true;
-	    return $this->AddressaddAction($SubnetID, $AddressID);
+        $this->setCurrentSubnet($SubnetID);
+        $this->_tplfile = 'addresses/addressadd.html';
+        $this->edit = true;
+        return $this->AddressaddAction($SubnetID, $AddressID);
     }
 
-	public function AddressaddAction($SubnetID = null, $AddressID = null, $Address = null) {
-
+    public function AddressaddAction($SubnetID = null, $AddressID = null, $Address = null)
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
-	    $Prefix = new \Service\Prefixes($this->em);
-	    if ($SubnetID == null or empty($Prefix->getByID($SubnetID))) {
-	        \MessageHandler::Error(_('Prefix not existing'), _('The selected Prefix does not exist.'));
+        $Prefix = new \Service\Prefixes($this->em);
+        if ($SubnetID == null or empty($Prefix->getByID($SubnetID))) {
+            \MessageHandler::Error(_('Prefix not existing'), _('The selected Prefix does not exist.'));
 
-	        $this->_tplfile = 'addresses/index.html';
-	        return $this->IndexAction();
+            $this->_tplfile = 'addresses/index.html';
+            return $this->IndexAction();
         }
 
         if ($AddressID == 0 && $Address != null) {
-	        $this->set('D_Address', $Address);
+            $this->set('D_Address', $Address);
         }
 
         $this->set("D_PrefixID", $Prefix->getEntity()->getPrefixid());
 
-        $Address = new \Model_Address();
+        $Address = new \Service\Addresses($this->em);
 
         if ($this->edit) {
             $Address->getAddressByID($AddressID);
@@ -95,18 +92,16 @@ class AddressesController extends BaseController {
         if ($this->edit && !empty($Address)) {
             $this->set(array(
                 "D_MODE"    =>  "edit",
-                "D_AddressID"   =>  $Address->getAddressID(),
-                "D_Address" =>  $Address->getAddress(),
-                "D_AddressName" =>  $Address->getAddressName(),
-                "D_AddressFQDN" =>  $Address->getAddressFQDN(),
-                "D_AddressState"    =>  $Address->getAddressState(),
-                "D_AddressMAC"  =>  $Address->getAddressMAC(),
-                "D_AddressTT"   =>  $Address->getAddressTT(),
-                "D_AddressDescription"  =>  $Address->getAddressDescription(),
+                "D_AddressID"   =>  $Address->getEntity()->getAddressID(),
+                "D_Address" =>  $Address->getEntity()->getAddress(),
+                "D_AddressName" =>  $Address->getEntity()->getAddressName(),
+                "D_AddressFQDN" =>  $Address->getEntity()->getAddressFQDN(),
+                "D_AddressState"    =>  $Address->getEntity()->getAddressState(),
+                "D_AddressMAC"  =>  $Address->getEntity()->getAddressMAC(),
+                "D_AddressTT"   =>  $Address->getEntity()->getAddressTT(),
+                "D_AddressDescription"  =>  $Address->getEntity()->getAddressDescription(),
             ));
-
-        }
-        else {
+        } else {
             $this->set(array(
                 "D_MODE"    =>  "add",
             ));
@@ -115,13 +110,12 @@ class AddressesController extends BaseController {
 
         $error = false;
         if ($this->req->request->get('submitForm1') != null) {
-
             if ($this->req->request->get('Address') == null or \IPLib\Factory::addressFromString($this->req->request->get('Address')) == false) {
                 \MessageHandler::Error(_('Invalid address'), _('The supplied IP address is invalid.'));
                 $error = true;
             }
 
-            if (!$this->edit && \Model_Address::AddressExists($this->req->request->get('Address'), $Prefix->getEntity()->getMasterVRF())) {
+            if (!$this->edit && \Service\Addresses::AddressExists($this->req->request->get('Address'), $Prefix->getEntity()->getMasterVRF())) {
                 \MessageHandler::Warning(_('Address existing'), _('The IP address already exists'));
                 $error = true;
             }
@@ -141,97 +135,98 @@ class AddressesController extends BaseController {
             }
 
             if (!$this->edit) {
-                $NewAddress = new \Model_Address();
+                $NewAddress = new \Service\Addresses($this->em);
                 $Address = \IPLib\Factory::addressFromString($this->req->request->get('Address'));
-                $NewAddress->setAddress($this->req->request->get('Address'));
-                $NewAddress->setAddressAFI($Address->getAddressType());
-                $NewAddress->setAddressPrefix($NewAddress::getParentID($this->req->request->get('Address'), $Prefix->getEntity()->getMasterVRF(), $Address->getAddressType()));
-            }
-            else {
+                $NewAddress->getEntity()->setAddress($this->req->request->get('Address'));
+                $NewAddress->getEntity()->setAddressAFI($Address->getAddressType());
+                $NewAddress->getEntity()->setAddressPrefix($NewAddress::getParentID($this->req->request->get('Address'), $Prefix->getEntity()->getMasterVRF(), $Address->getAddressType()));
+            } else {
                 $NewAddress = $Address;
-                $NewAddress->setAddressPrefix($NewAddress::getParentID($this->req->request->get('Address'), $Prefix->getEntity()->getMasterVRF(), $Address->getAddressAFI()));
+                $NewAddress->getEntity()->setAddressPrefix($NewAddress::getParentID($this->req->request->get('Address'), $Prefix->getEntity()->getMasterVRF(), $Address->getEntity()->getAddressAFI()));
             }
 
-            $NewAddress->setAddressDescription($this->req->request->get('AddressDescription'));
-            $NewAddress->setAddressFQDN($this->req->request->get('AddressFQDN'));
-            $NewAddress->setAddressMAC($this->req->request->get('AddressMAC'));
-            $NewAddress->setAddressName($this->req->request->get('AddressName'));
-            $NewAddress->setAddressState($this->req->request->get('AddressState'));
-            $NewAddress->setAddressTT($this->req->request->get('AddressTT'));
+            $NewAddress->getEntity()->setAddressDescription($this->req->request->get('AddressDescription'));
+            $NewAddress->getEntity()->setAddressFQDN($this->req->request->get('AddressFQDN'));
+            $NewAddress->getEntity()->setAddressMAC($this->req->request->get('AddressMAC'));
+            $NewAddress->getEntity()->setAddressName($this->req->request->get('AddressName'));
+            $NewAddress->getEntity()->setAddressState($this->req->request->get('AddressState'));
+            $NewAddress->getEntity()->setAddressTT($this->req->request->get('AddressTT'));
 
 
             if ($NewAddress->save() === false) {
                 \MessageHandler::Error(_('Error'), _('Error while saving IP address'));
                 $this->_tplfile = 'addresses/subnet.html';
                 return $this->SubnetAction($SubnetID);
-            }
-            else {
+            } else {
                 \MessageHandler::Success(_('Saved'), _('IP address has been saved.'));
                 $this->_tplfile = 'addresses/subnet.html';
                 return $this->SubnetAction($SubnetID);
             }
-
-
         }
 
-        $this->view();
+        return $this->view();
     }
 
-    public function SubneteditAction(int $SubnetID) {
+    public function SubneteditAction(int $SubnetID)
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
-	    $this->setCurrentSubnet($SubnetID);
-	    $this->_tplfile = 'addresses/subnetadd.html';
-	    $this->edit = true;
-	    return $this->SubnetaddAction();
+        $this->setCurrentSubnet($SubnetID);
+        $this->_tplfile = 'addresses/subnetadd.html';
+        $this->edit = true;
+        return $this->SubnetaddAction();
     }
 
-	public function SubnetaddAction($SubnetID = null, $Prefix = null, $PrefixLength = null) {
-
+    /**
+     * @param null $SubnetID
+     * @param null $Prefix
+     * @param null $PrefixLength
+     * @return bool
+     */
+    public function SubnetaddAction($SubnetID = null, $Prefix = null, $PrefixLength = null)
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
-	    if ($SubnetID == null) {
+        if ($SubnetID == null) {
             $SubnetID = $this->getCurrentSubnet();
         }
 
         if ($PrefixLength != null && $Prefix != null) {
-	        $this->set("D_PrefixName", $Prefix.'/'.$PrefixLength);
-	    }
+            $this->set("D_PrefixName", $Prefix.'/'.$PrefixLength);
+        }
 
 
-		$CurrentSubnet = new \Service\Prefixes($this->em);
-		$CurrentSubnet->getByID($SubnetID);
+        $CurrentSubnet = new \Service\Prefixes($this->em);
+        $CurrentSubnet->getByID($SubnetID);
 
 
-		if (!empty($CurrentSubnet) && $this->edit) {
-			$this->set(array(
-				"D_MODE"    =>  "edit",
-				"D_PrefixID"    =>  $CurrentSubnet->getEntity()->getPrefixID(),
-				"D_PrefixName"  =>  $CurrentSubnet->getEntity()->getPrefix()."/".$CurrentSubnet->getEntity()->getPrefixLength(),
-				"D_PrefixState" =>  $CurrentSubnet->getEntity()->getPrefixState(),
-				"D_PrefixDescription"   =>  $CurrentSubnet->getEntity()->getPrefixDescription(),
+        if (!empty($CurrentSubnet) && $this->edit) {
+            $this->set(array(
+                "D_MODE"    =>  "edit",
+                "D_PrefixID"    =>  $CurrentSubnet->getEntity()->getPrefixID(),
+                "D_PrefixName"  =>  $CurrentSubnet->getEntity()->getPrefix()."/".$CurrentSubnet->getEntity()->getPrefixLength(),
+                "D_PrefixState" =>  $CurrentSubnet->getEntity()->getPrefixState(),
+                "D_PrefixDescription"   =>  $CurrentSubnet->getEntity()->getPrefixDescription(),
                 "D_PrefixVLAN"  =>  $CurrentSubnet->getEntity()->getPrefixVLAN(),
-			));
-		}
+            ));
+        }
 
-		$VRF = \Service\VRF::getAllExcept($CurrentSubnet->getEntity()->getMasterVRF());
+        $VRF = \Service\VRF::getAllExcept($CurrentSubnet->getEntity()->getMasterVRF());
 
-		$this->set(array(
-			"D_PrefixID"    =>  $SubnetID,
-			"D_VRFS"    =>  $VRF,
-            "D_VLANS"   =>  \Model_VLAN::getAll(),
-		));
+        $this->set(array(
+            "D_PrefixID"    =>  $SubnetID,
+            "D_VRFS"    =>  $VRF,
+            "D_VLANS"   =>  \Service\Vlans::getAll(),
+        ));
 
-		if ($this->req->request->getBoolean('Submit')) {
-
-		    if (\IPLib\Range\Subnet::fromString($this->req->request->get('PrefixName')) ==  null) {
+        if ($this->req->request->getBoolean('Submit')) {
+            if (\IPLib\Range\Subnet::fromString($this->req->request->get('PrefixName')) ==  null) {
                 \MessageHandler::Error(_('Invalid prefix'), _('The entered prefix is invalid.'));
 
                 $this->set(array(
                     "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
                     "D_PrefixState" =>  $this->req->request->get('PrefixState'),
                     "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-                    "D_PrefixState" =>  $this->req->request->getInt('PrefixState'),
                     "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
                 ));
 
@@ -245,138 +240,136 @@ class AddressesController extends BaseController {
                     "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
                     "D_PrefixState" =>  $this->req->request->get('PrefixState'),
                     "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-                    "D_PrefixState" =>  $this->req->request->getInt('PrefixState'),
                     "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
                 ));
 
                 return $this->view();
             }
 
-			if ($this->req->request->get('PrefixName') == null) {
-				\MessageHandler::Error(_('Empty field'), _('Please fill in all required fields'));
+            if ($this->req->request->get('PrefixName') == null) {
+                \MessageHandler::Error(_('Empty field'), _('Please fill in all required fields'));
 
-				$this->set(array(
-					"D_PrefixName"  =>  $this->req->request->get('PrefixName'),
-					"D_PrefixState" =>  $this->req->request->get('PrefixState'),
-					"D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-					"D_PrefixState" =>  $this->req->request->getInt('PrefixState'),
+                $this->set([
+                    "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
+                    "D_PrefixState" =>  $this->req->request->get('PrefixState'),
+                    "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
                     "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
-				));
+                ]);
 
-				return $this->view();
-			}
+                return $this->view();
+            }
 
-			if (!(\IPLib\Range\Subnet::fromString($this->req->request->get('PrefixName')))) {
-				\MessageHandler::Error(_('Invalid Prefix'), _('This Prefix is invalid.'));
+            if (!(\IPLib\Range\Subnet::fromString($this->req->request->get('PrefixName')))) {
+                \MessageHandler::Error(_('Invalid Prefix'), _('This Prefix is invalid.'));
 
-				$this->set(array(
-					"D_PrefixName"  =>  $this->req->request->get('PrefixName'),
-					"D_PrefixState" =>  $this->req->request->get('PrefixState'),
-					"D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-					"D_PrefixState" =>  $this->req->request->getInt('PrefixState'),
+                $this->set(array(
+                    "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
+                    "D_PrefixState" =>  $this->req->request->get('PrefixState'),
+                    "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
                     "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
-				));
+                ));
 
-				return $this->view();
-			}
+                return $this->view();
+            }
 
-			if (!$this->edit) {
-				$ParentID = \Service\Prefixes::CalculateParentID($this->req->request->get('PrefixName'), $CurrentSubnet->getEntity()->getMasterVRF());
-			}
+            if (!$this->edit) {
+                $ParentID = \Service\Prefixes::CalculateParentID($this->req->request->get('PrefixName'), $CurrentSubnet->getEntity()->getMasterVRF());
+            }
 
-			$PrefixName = $this->req->request->get('PrefixName');
-		    $PrefixName = explode("/", $PrefixName);
-		    $Prefix = \IPBlock::create($PrefixName[0], $PrefixName[1]);
-			$PrefixCompare = \IPLib\Range\Subnet::fromString($PrefixName[0].'/'.$PrefixName[1]);
+            $PrefixName = $this->req->request->get('PrefixName');
+            $PrefixName = explode("/", $PrefixName);
+            $Prefix = \IPBlock::create($PrefixName[0], $PrefixName[1]);
+            $PrefixCompare = \IPLib\Range\Subnet::fromString($PrefixName[0].'/'.$PrefixName[1]);
 
-			if (!$this->edit) {
-				$NewSubnet = new \Service\Prefixes($this->em);
-				$NewSubnet->getEntity()->setParentID($ParentID);
-			}
-			else {
-				$NewSubnet = $CurrentSubnet;
-			}
+            if (!$this->edit) {
+                $NewSubnet = new \Service\Prefixes($this->em);
+                $NewSubnet->getEntity()->setParentID($ParentID);
+            } else {
+                $NewSubnet = $CurrentSubnet;
+            }
 
-			$NewSubnet->getEntity()->setPrefix($Prefix);
-			$NewSubnet->getEntity()->setMasterVRF($CurrentSubnet->getEntity()->getMasterVRF());
-			$NewSubnet->getEntity()->setPrefixDescription($this->req->request->get('PrefixDescription'));
-			$NewSubnet->getEntity()->setRangeFrom($PrefixCompare->getComparableStartString());
-			$NewSubnet->getEntity()->setRangeTo($PrefixCompare->getComparableEndString());
-			$NewSubnet->getEntity()->setPrefixLength($PrefixName[1]);
-			$NewSubnet->getEntity()->setAFI($Prefix->getVersion());
-			$NewSubnet->getEntity()->setPrefixState($this->req->request->get('PrefixState'));
-			$NewSubnet->getEntity()->setPrefixVLAN($this->req->request->get('PrefixVLAN'));
+            $NewSubnet->getEntity()->setPrefix($Prefix);
+            $NewSubnet->getEntity()->setMasterVRF($CurrentSubnet->getEntity()->getMasterVRF());
+            $NewSubnet->getEntity()->setPrefixDescription($this->req->request->get('PrefixDescription'));
+            $NewSubnet->getEntity()->setRangeFrom($PrefixCompare->getComparableStartString());
+            $NewSubnet->getEntity()->setRangeTo($PrefixCompare->getComparableEndString());
+            $NewSubnet->getEntity()->setPrefixLength($PrefixName[1]);
+            $NewSubnet->getEntity()->setAFI($Prefix->getVersion());
+            $NewSubnet->getEntity()->setPrefixState($this->req->request->get('PrefixState'));
+            $NewSubnet->getEntity()->setPrefixVLAN($this->req->request->get('PrefixVLAN'));
 
-			if ($NewSubnet->save()) {
-				\MessageHandler::Success(_('Prefix saved'), _('The prefix has been saved'));
+            if ($NewSubnet->save()) {
+                \MessageHandler::Success(_('Prefix saved'), _('The prefix has been saved'));
 
-				$this->_tplfile = 'addresses/subnet.html';
-				return $this->SubnetAction($NewSubnet->getEntity()->getPrefixID());
-			}
-			else {
-				\MessageHandler::Error(_('Prefix not saved'), _('Error saving the prefix'));
+                $this->_tplfile = 'addresses/subnet.html';
+                return $this->SubnetAction($NewSubnet->getEntity()->getPrefixID());
+            } else {
+                \MessageHandler::Error(_('Prefix not saved'), _('Error saving the prefix'));
 
-				$this->set(array(
-					"D_PrefixName"  =>  $this->req->request->get('PrefixName'),
-					"D_PrefixState" =>  $this->req->request->get('PrefixState'),
-					"D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
+                $this->set(array(
+                    "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
+                    "D_PrefixState" =>  $this->req->request->get('PrefixState'),
+                    "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
                     "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
-				));
+                ));
 
-				return $this->view();
-			}
-		}
+                return $this->view();
+            }
+        }
 
         $this->view();
-	}
+    }
 
 
-	public function SubnetdeleteAction($SubnetID) {
-
+    public function SubnetdeleteAction($SubnetID)
+    {
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
-		$CurrentSubnet = new \Service\Prefixes($this->em);
-		$CurrentSubnet->getByID($SubnetID);
-		$this->setCurrentSubnet($SubnetID);
+        $CurrentSubnet = new \Service\Prefixes($this->em);
+        $CurrentSubnet->getByID($SubnetID);
+        $this->setCurrentSubnet($SubnetID);
 
-		if (empty($CurrentSubnet)) {
-			\MessageHandler::Warning(_('Prefix not existing'), _('The selected prefix does not exist.'));
-			$this->_tplfile = 'addresses/subnet.html';
-			return $this->SubnetAction($SubnetID);
-		}
+        if (empty($CurrentSubnet)) {
+            \MessageHandler::Warning(_('Prefix not existing'), _('The selected prefix does not exist.'));
+            $this->_tplfile = 'addresses/subnet.html';
+            return $this->SubnetAction($SubnetID);
+        }
 
-		if ($this->req->request->getBoolean('submitForm1') && $this->req->request->getInt('DeleteOption') == 1) {
-			if ($CurrentSubnet->delete(1)) {
-				\MessageHandler::Success(_('Prefix deleted'), _('The prefix and all nested prefixes/addresses have been deleted.'));
-				$this->_tplfile = 'addresses/index.html';
-				return $this->IndexAction();
-			}
-			else {
-				\MessageHandler::Error(_("Ooops!"), _('Something unexpected went wrong!'));
-			}
-		} else if ($this->req->request->getBoolean('submitForm1') && $this->req->request->getInt('DeleteOption') == 2) {
-			if ($CurrentSubnet->delete(2)) {
-				\MessageHandler::Success(_('Prefix deleted'), _('The prefix has been deleted'));
-				$this->_tplfile = 'addresses/index.html';
-				return $this->IndexAction();
-			}
-			else {
-				\MessageHandler::Error(_("Ooops!"), _('Something unexpected went wrong!'));
-			}
-		}
+        if ($this->req->request->getBoolean('submitForm1') && $this->req->request->getInt('DeleteOption') == 1) {
+            if ($CurrentSubnet->delete(1)) {
+                \MessageHandler::Success(_('Prefix deleted'), _('The prefix and all nested prefixes/addresses have been deleted.'));
+                $this->_tplfile = 'addresses/index.html';
+                return $this->IndexAction();
+            } else {
+                \MessageHandler::Error(_("Ooops!"), _('Something unexpected went wrong!'));
+            }
+        } elseif ($this->req->request->getBoolean('submitForm1') && $this->req->request->getInt('DeleteOption') == 2) {
+            if ($CurrentSubnet->delete(2)) {
+                \MessageHandler::Success(_('Prefix deleted'), _('The prefix has been deleted'));
+                $this->_tplfile = 'addresses/index.html';
+                return $this->IndexAction();
+            } else {
+                \MessageHandler::Error(_("Ooops!"), _('Something unexpected went wrong!'));
+            }
+        }
 
 
-		$this->set(array(
-			"D_Prefix"  =>  $CurrentSubnet->getEntity()->getPrefix(),
-			"D_PrefixLength"    =>  $CurrentSubnet->getEntity()->getPrefixLength(),
-			"D_PrefixID"    =>  $CurrentSubnet->getEntity()->getPrefixID(),
-		));
+        $this->set(array(
+            "D_Prefix"  =>  $CurrentSubnet->getEntity()->getPrefix(),
+            "D_PrefixLength"    =>  $CurrentSubnet->getEntity()->getPrefixLength(),
+            "D_PrefixID"    =>  $CurrentSubnet->getEntity()->getPrefixID(),
+        ));
 
         $this->view();
-	}
+    }
 
-	public function SubnetAction($SubnetID = null) {
-		global $EntityManager;
+    /**
+     * @param null $SubnetID
+     * @return bool
+     */
+    public function SubnetAction($SubnetID = null)
+    {
+        global $EntityManager;
 
         $this->CheckAccess(\Service\User::GROUP_USER);
 
@@ -384,87 +377,87 @@ class AddressesController extends BaseController {
 
         if ($SubnetID !== null) {
             $ID = $SubnetID;
-        }
-        else {
+        } else {
             $ID = $this->getCurrentSubnet();
         }
 
-		$Subnet = new \Service\Prefixes($EntityManager);
-		$Subnet->getByID($ID);
+        $Subnet = new \Service\Prefixes($EntityManager);
+        $Subnet->getByID($ID);
 
-		$VRF = new \Service\VRF($EntityManager);
-		$VRF->getByID($Subnet->getEntity()->getMastervrf());
+        $VRF = new \Service\VRF($EntityManager);
+        $VRF->getByID($Subnet->getEntity()->getMastervrf());
         $SubnetPrefix = $Subnet->getEntity()->getPrefix();
-		$IPData = \IPBlock::create($SubnetPrefix."/".$Subnet->getEntity()->getPrefixlength());
+        $IPData = \IPBlock::create($SubnetPrefix."/".$Subnet->getEntity()->getPrefixlength());
 
-		if ($Subnet->getEntity()->getPrefixvlan() == null) {
-		    $Prefix = _('None');
-        }
-        else {
-            $Vlan = new \Model_VLAN();
+        if ($Subnet->getEntity()->getPrefixvlan() == null or $Subnet->getEntity()->getPrefixvlan() == 0) {
+            $Prefix = _('None');
+        } else {
+            $Vlan = new \Service\Vlans($this->em);
             $Vlan->get($Subnet->getEntity()->getPrefixvlan());
 
-            $VlanDomain = new \Model_VLAN_Domain();
-            $VlanDomain->selectByID($Vlan->getVlanDomainID());
+            $VlanDomain = new \Service\VlanDomains($this->em);
+            $VlanDomain->selectByID($Vlan->getEntity()->getVlanDomainID());
 
-            $Prefix = $VlanDomain->getDomainName().": ".$Vlan->getVlanID()." - ".$Vlan->getVlanName();
+            $Prefix = $VlanDomain->getDomainName().": ".($Vlan->getEntity() != null) ? $Vlan->getEntity()->getVlanID()." - ".$Vlan->getEntity()->getVlanName() : "";
         }
 
 
 
-		$this->set(array(
-			"D_PrefixID"    =>  $Subnet->getEntity()->getPrefixid(),
-			"D_MasterVRF"   =>  $Subnet->getEntity()->getMastervrf(),
-			"D_MasterVRF_Name"  =>  $VRF->getEntity()->getVrfname(),
-			"D_AFI" =>  $Subnet->getEntity()->getAfi(),
-			"D_Prefix"  =>  $SubnetPrefix,
-			"D_RangeTo" =>  $IPData->getLastIp(),
-			"D_RangeFrom"   =>  $IPData->getFirstIp(),
-			"D_PrefixDescription"   =>  $Subnet->getEntity()->getPrefixdescription(),
-			"D_PrefixLength"    =>  $Subnet->getEntity()->getPrefixlength(),
-			"D_ParentID"    =>  $Subnet->getEntity()->getParentid(),
-			"D_Subnets" =>  \Service\Prefixes::getSubPrefixes($Subnet->getEntity()->getPrefixid()),
-			"D_Addresses"   =>  \Service\Addresses::listAddresses($Subnet->getEntity()->getPrefixid()),
-			"D_Breadcrumbs"  =>  \service\Prefixes::createSubnetBreadcrumbs($ID),
-			"D_NetworkMask" =>  $IPData->getMask(),
-			"D_Broadcast_Address" => $IPData->getLastIp(),
+
+        $this->set([
+            "D_PrefixID"    =>  $Subnet->getEntity()->getPrefixid(),
+            "D_MasterVRF"   =>  $Subnet->getEntity()->getMastervrf(),
+            "D_MasterVRF_Name"  =>  $VRF->getEntity()->getVrfname(),
+            "D_AFI" =>  $Subnet->getEntity()->getAfi(),
+            "D_Prefix"  =>  $SubnetPrefix,
+            "D_RangeTo" =>  $IPData->getLastIp(),
+            "D_RangeFrom"   =>  $IPData->getFirstIp(),
+            "D_PrefixDescription"   =>  $Subnet->getEntity()->getPrefixdescription(),
+            "D_PrefixLength"    =>  $Subnet->getEntity()->getPrefixlength(),
+            "D_ParentID"    =>  $Subnet->getEntity()->getParentid(),
+            "D_Subnets" =>  \Service\Prefixes::getSubPrefixes($Subnet->getEntity()->getPrefixid()),
+            "D_Addresses"   =>  \Service\Addresses::listAddresses($Subnet->getEntity()->getPrefixid()),
+            "D_Breadcrumbs"  =>  \service\Prefixes::createSubnetBreadcrumbs($ID),
+            "D_NetworkMask" =>  $IPData->getMask(),
+            "D_Broadcast_Address" => $IPData->getLastIp(),
             "D_Network_Address" => $IPData->getFirstIp(),
-			"D_NetworkNumber_Addresses" =>  $IPData->getNbAddresses(),
-			"D_Network_Wildcard"    =>  reverseNetmask($IPData->getMask()),
+            "D_NetworkNumber_Addresses" =>  $IPData->getNbAddresses(),
+            "D_Network_Wildcard"    =>  reverseNetmask($IPData->getMask()),
             "D_PrefixVLAN"  =>  $Prefix,
-		));
+        ]);
 
-		return $this->view();
-	}
+        return $this->view();
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getCurrentSubnet() {
-		return $this->CurrentSubnet;
-	}
+    /**
+     * @return mixed
+     */
+    public function getCurrentSubnet()
+    {
+        return $this->CurrentSubnet;
+    }
 
-	/**
-	 * @param mixed $CurrentSubnet
-	 */
-	public function setCurrentSubnet($CurrentSubnet) {
-		$this->CurrentSubnet = $CurrentSubnet;
-	}
+    /**
+     * @param mixed $CurrentSubnet
+     */
+    public function setCurrentSubnet($CurrentSubnet)
+    {
+        $this->CurrentSubnet = $CurrentSubnet;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getCurrentVRF() {
-		return $this->CurrentVRF;
-	}
+    /**
+     * @return mixed
+     */
+    public function getCurrentVRF()
+    {
+        return $this->CurrentVRF;
+    }
 
-	/**
-	 * @param mixed $CurrentVRF
-	 */
-	public function setCurrentVRF($CurrentVRF) {
-		$this->CurrentVRF = $CurrentVRF;
-	}
-
-
-
+    /**
+     * @param mixed $CurrentVRF
+     */
+    public function setCurrentVRF($CurrentVRF)
+    {
+        $this->CurrentVRF = $CurrentVRF;
+    }
 }

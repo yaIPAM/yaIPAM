@@ -6,6 +6,7 @@
  */
 
 namespace Entity;
+
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -15,7 +16,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 
-class User {
+class User
+{
     /**
      * @var integer
      *

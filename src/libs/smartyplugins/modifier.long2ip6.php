@@ -7,8 +7,7 @@
  * Time: 11:46
  */
 
-function smarty_modifier_long2ip6(string $ip): string {
-
-	return long2ip6($ip);
-
+function smarty_modifier_long2ip6(string $ip): string
+{
+    return long2ip6($ip);
 }

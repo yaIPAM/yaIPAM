@@ -170,7 +170,4 @@ class Vrfs
     {
         $this->prefixes = $prefixes;
     }
-
-
 }
-

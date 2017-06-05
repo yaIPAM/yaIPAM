@@ -10,9 +10,9 @@
               {include file=$S_MESSAGE_FILE}
               {/if}
               <form method="post" action="{$SITE_BASE}/vlans/delete/">
-                  <input type="hidden" name="ID" value="{$D_VLAN.ID}">
+                  <input type="hidden" name="ID" value="{$D_VLAN->getId()}">
                   <div class="alert-info alert">
-                      Soll VLAN <strong>{$D_VLAN.VlanName} ({$D_VLAN.VlanID})</strong> wirklich gelöscht werden?
+                      Soll VLAN <strong>{$D_VLAN->getVlanname()} ({$D_VLAN->getVlanid()})</strong> wirklich gelöscht werden?
                       <button type="submit" name="submitForm1" value="true" class="btn btn-danger">Löschen</button>
 
                   </div>

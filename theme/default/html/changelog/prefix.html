@@ -1,0 +1,51 @@
+{include file="header.html"}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{t}Changelog{/t} - {t}Prefix{/t} <a href='{"addresses/subnet/{$D_PrefixID}"|url}'>{$D_Prefix}</a></h1>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                {if isset($S_MESSAGE)}
+                {include file=$S_MESSAGE_FILE}
+                {/if}
+                {if !empty($D_AuditRevisions_Prefixes)}
+                <table class="table table-bordered table-striped table-hover" id="revisions">
+                    <thead>
+                    <th>{t}Revision{/t}</th>
+                    <th>{t}Date{/t}</th>
+                    <th>{t}Username{/t}</th>
+                    <th>{t}Prefix{/t}</th>
+                    <th>{t}Prefix Description{/t}</th>
+                    </thead>
+                    <tbody>
+                    {foreach item=rev from=$D_AuditRevisions_Prefixes}
+                    <tr>
+                        <td>{$rev.rev}</td>
+                        <td>{$rev.timestamp}</td>
+                        <td>{$rev.username}</td>
+                        <td>{$rev.prefix}</td>
+                        <td>{$rev.prefixdescription}</td>
+                    </tr>
+                    {foreachelse}
+                    <tr>
+                        <td colspan="3">{t}No revisions for this object{/t}</td>
+                    </tr>
+                    {/foreach}
+                    </tbody>
+                </table>
+                {/if}
+            </div>
+        </div>
+    </section>
+</div>
+{if !empty($D_AuditRevisions_Prefixes)}
+<script type="text/javascript">
+    $(document).ready(function() {
+         $('#revisions').DataTable({
+            "ordering": false,
+        });
+    });
+</script>
+{/if}
+{include file="footer.html"}

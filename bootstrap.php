@@ -11,10 +11,17 @@ use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL;
+use SimpleThings\EntityAudit\AuditConfiguration;
+use SimpleThings\EntityAudit\AuditManager;
+use Doctrine\Common\EventManager;
+
 define("SCRIPT_BASE", __DIR__);
 
 session_start();
 
+// Include default config
+require 'config.dist.php';
+// Defaults will be overwritten by a local configuration.
 require 'config.php';
 
 define("SITE_BASE", $general_config['sitebase']);
@@ -38,7 +45,7 @@ require SCRIPT_BASE .'/src/libs/functions.php';
 
 // Error Handling
 $whoops = new \Whoops\Run;
-$whoops->pushHandler(function() {
+$whoops->pushHandler(function () {
     ob_clean();
     exit;
 });
@@ -59,16 +66,39 @@ I18N::init('messages', SCRIPT_BASE.'/lang', 'en_US', array(
 $dbal_config = new DBAL\Configuration();
 $dbal = DriverManager::getConnection($dbase_config, $dbal_config);
 $orm_config = Setup::createAnnotationMetadataConfiguration(array(SCRIPT_BASE.'/src/entities'), $general_config['devMode'], null, null, false);
-#$orm_config = Setup::createYAMLMetadataConfiguration(array(SCRIPT_BASE.'/config/yml'), $general_config['devMode'], null, null, false);
-$EntityManager = EntityManager::create($dbase_config, $orm_config);
+if (extension_loaded('apcu')) {
+    $orm_config->setQueryCacheImpl(new \Doctrine\Common\Cache\ApcuCache());
+    $orm_config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ApcuCache());
+    $orm_config->setResultCacheImpl(new \Doctrine\Common\Cache\ApcuCache());
+}
+$auditconfig = new AuditConfiguration();
+$auditconfig->setAuditedEntityClasses(array(
+    'Entity\Addresses',
+    'Entity\Prefixes',
+    'Entity\User',
+    'Entity\Vrfs'
+));
+$auditconfig->setGlobalIgnoreColumns(array(
+    'created_at',
+    'updated_at'
+));
+$auditconfig->setUsernameCallable(function () {
+    return $_SESSION['Username'];
+});
+$evm = new EventManager();
+$auditManager = new AuditManager($auditconfig);
+$auditManager->registerEvents($evm);
+$EntityManager = EntityManager::create($dbase_config, $orm_config, $evm);
 $EntityManager->getConfiguration()->addCustomStringFunction('inet_aton', 'Application\DQL\InetAtonFunction');
 $EntityManager->getConfiguration()->addCustomStringFunction('inet6_aton', 'Application\DQL\Inet6AtonFunction');
 $EntityManager->getConfiguration()->addCustomStringFunction('MATCH_AGAINST', 'Application\DQL\MatchAgainstFunction');
 
 
+$a = array();
 
-// Now we are ready
+// Request wrapper from Symfony.
 use Symfony\Component\HttpFoundation\Request;
+
 $request = new Request(
     $_GET,
     $_POST,

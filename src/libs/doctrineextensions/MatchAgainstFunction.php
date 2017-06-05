@@ -17,22 +17,20 @@ use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 /**
  * "MATCH_AGAINST" "(" {StateFieldPathExpression ","}* Literal ")"
  */
-class MatchAgainstFunction extends FunctionNode {
-
+class MatchAgainstFunction extends FunctionNode
+{
     public $columns = array();
     public $needle;
 
     public function parse(\Doctrine\ORM\Query\Parser $parser)
     {
-
         $parser->match(Lexer::T_IDENTIFIER);
         $parser->match(Lexer::T_OPEN_PARENTHESIS);
 
         do {
             $this->columns[] = $parser->StateFieldPathExpression();
             $parser->match(Lexer::T_COMMA);
-        }
-        while (!$parser->getLexer()->isNextToken(Lexer::T_INPUT_PARAMETER));
+        } while (!$parser->getLexer()->isNextToken(Lexer::T_INPUT_PARAMETER));
 
         // Got an input parameter
         $this->needle = $parser->InputParameter();

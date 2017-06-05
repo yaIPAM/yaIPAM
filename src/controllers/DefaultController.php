@@ -4,10 +4,13 @@ namespace Controller;
 
 class DefaultController extends BaseController
 {
+    public function IndexAction()
+    {
+        global $auditManager;
 
-    public function IndexAction() {
+        $auditReader = $auditManager->createAuditReader($this->getEM());
+
+
         $this->view();
     }
-
-
 }

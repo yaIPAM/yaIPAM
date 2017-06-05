@@ -6,10 +6,11 @@
  */
 
 namespace Service;
+
 use Symfony\Component\Yaml\Exception\RuntimeException;
 
-class User {
-
+class User
+{
     const GROUP_USER = 1;
     const GROUP_ADMINISTRATOR = 2;
     const GROUP_SYSTEMADMIN = 3;
@@ -21,7 +22,8 @@ class User {
      * User constructor.
      * @param $EntityManager
      */
-    public function __construct($EntityManager) {
+    public function __construct($EntityManager)
+    {
         $this->em = $EntityManager;
         $this->entity = new \Entity\User();
     }
@@ -31,14 +33,13 @@ class User {
      * @param $UserID
      * @return bool
      */
-    public function findbyID(int $UserID) {
-
+    public function findbyID(int $UserID)
+    {
         $this->entity = $this->em->find('\Entity\User', $UserID);
 
         if ($this->entity == null) {
             return false;
-        }
-        else {
+        } else {
             return $this->entity;
         }
     }
@@ -47,11 +48,11 @@ class User {
      * @param $Username
      * @return bool
      */
-    public function UserExists($Username): bool {
+    public function UserExists($Username): bool
+    {
         if ($this->em->getRepository('\Entity\User')->findOneByUsername($Username) == null) {
             return false;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -61,8 +62,8 @@ class User {
      * @param $Password
      * @return bool
      */
-    public function Authenticate(string $Username, string $Password): bool {
-
+    public function Authenticate(string $Username, string $Password): bool
+    {
         $this->entity = $this->em->getRepository('\Entity\User')->findOneByUsername($Username);
 
         if ($this->entity == null) {
@@ -75,8 +76,7 @@ class User {
             $_SESSION['Group'] = $this->entity->getUsergroup();
 
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -85,11 +85,11 @@ class User {
      * @param $Hash
      * @return bool
      */
-    public static function checkCSFR(string $Hash): bool {
+    public static function checkCSFR(string $Hash): bool
+    {
         if ($_SESSION['csfr'] == $Hash) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -97,7 +97,8 @@ class User {
     /**
      * @return bool
      */
-    public function Logout(): bool {
+    public function Logout(): bool
+    {
         unset($_SESSION['Username']);
         unset($_SESSION['Group']);
         $_SESSION['login'] = false;
@@ -109,7 +110,8 @@ class User {
      * @param int $Group
      * @return bool
      */
-    public static function checkGroup(int $Group): bool {
+    public static function checkGroup(int $Group): bool
+    {
         if ($_SESSION['Group'] == $Group) {
             return true;
         }
@@ -117,14 +119,16 @@ class User {
         return false;
     }
 
-    public static function showGroup() {
+    public static function showGroup()
+    {
         return $_SESSION['Group'];
     }
 
     /**
      * @return mixed
      */
-    public function getEntity() {
+    public function getEntity()
+    {
         return $this->entity;
     }
 }

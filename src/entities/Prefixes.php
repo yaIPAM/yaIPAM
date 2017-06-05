@@ -1,7 +1,6 @@
 <?php
 namespace Entity;
 
-
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -118,8 +117,7 @@ class Prefixes
         if ($Prefix->getVersion() == 4) {
             $Prefix = explode("/", $Prefix);
             $this->prefix = ip2long($Prefix[0]);
-        }
-        else if ($Prefix->getVersion() == 6) {
+        } elseif ($Prefix->getVersion() == 6) {
             $Prefix = explode("/", $Prefix);
             $this->prefix = ip2long6($Prefix[0]);
         }
@@ -137,15 +135,13 @@ class Prefixes
         if (is_resource($this->prefix)) {
             $prefix = stream_get_contents($this->prefix);
             rewind($this->prefix);
-        }
-        else {
+        } else {
             $prefix = $this->prefix;
         }
 
         if ($this->getAfi() == 4) {
             return long2ip($prefix);
-        }
-        else if ($this->getAfi() == 6) {
+        } elseif ($this->getAfi() == 6) {
             return long2ip6($prefix);
         }
     }
@@ -366,4 +362,3 @@ class Prefixes
         return $this->prefixvlan;
     }
 }
-

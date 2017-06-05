@@ -1,5 +1,5 @@
 <?php
-require_once 'bootstrap.php';
+require_once(__DIR__.'/bootstrap.php');
 require_once SCRIPT_BASE.'/src/libs/MessageHandler.php';
 
 error_reporting(E_ALL ^ E_NOTICE);
@@ -20,28 +20,25 @@ $tpl->assign("SITE_TITLE", $general_config['site_title']);
 
 if (empty($request->query->get('url'))) {
     $url = "default";
-}
-else {
+} else {
     $url = $request->query->get('url');
 }
 
 if ($_SESSION['login'] == false) {
     $url = "login/";
     $tpl->assign("S_LOGIN", false);
-}
-else {
+} else {
     $tpl->assign("S_LOGIN", true);
 }
 
 $urlArray = array();
-$urlArray = explode("/",$url);
+$urlArray = explode("/", $url);
 
 $controller = $urlArray[0];
 array_shift($urlArray);
 if (empty($urlArray[0])) {
     $action = "IndexAction";
-}
-else {
+} else {
     $action = $urlArray[0].'Action';
 }
 array_shift($urlArray);
@@ -57,8 +54,7 @@ if (method_exists($controller, $action)) {
     try {
         $dispatch = new $controller($controllerName, $action);
         call_user_func_array(array($dispatch, $action), $queryString);
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         $whoops->handleException($e);
     }
 } else {

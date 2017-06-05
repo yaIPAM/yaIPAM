@@ -8,10 +8,10 @@ namespace Controller;
  */
 class UsersettingsController extends BaseController
 {
-
     private $error = false;
 
-    public function IndexAction() {
+    public function IndexAction()
+    {
         $this->CheckAccess(\Service\User::GROUP_SYSTEMADMIN);
 
         $this->set('D_USERS', $this->em->getRepository('Entity\User')->findAll());
@@ -19,8 +19,8 @@ class UsersettingsController extends BaseController
         return $this->view();
     }
 
-    public function DeleteAction($UserID = 0) {
-
+    public function DeleteAction($UserID = 0)
+    {
         $this->CheckAccess(\Service\User::GROUP_SYSTEMADMIN);
 
         $User = $this->em->find('Entity\User', $UserID);
@@ -48,17 +48,15 @@ class UsersettingsController extends BaseController
         $this->set("D_User", $User);
 
         $this->view();
-
     }
 
-    public function EditAction($UserID = 0) {
-
+    public function EditAction($UserID = 0)
+    {
         $this->CheckAccess(\Service\User::GROUP_SYSTEMADMIN);
 
         $User = $this->em->find('Entity\User', $UserID);
 
         if ($this->req->request->get('submit') != null) {
-
             if ($User == null) {
                 $this->_tplfile = 'usersettings/index.html';
                 \MessageHandler::Error(_('User not found'), _('The selected user does not exist.'));
@@ -100,11 +98,11 @@ class UsersettingsController extends BaseController
         $this->view();
     }
 
-    public function AddAction() {
-
+    public function AddAction()
+    {
         $this->CheckAccess(\Service\User::GROUP_SYSTEMADMIN);
 
-       if ($this->req->request->get('submit') != null) {
+        if ($this->req->request->get('submit') != null) {
             $User = new \Service\User($this->em);
 
             if ($User->UserExists($this->req->request->get('Username'))) {
@@ -138,11 +136,10 @@ class UsersettingsController extends BaseController
                 $this->em->flush();
                 \MessageHandler::Success(_('User added'), _('The user has been added successfully.'));
                 return $this->view();
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 throw new \RuntimeException($e);
             }
-       }
+        }
 
         return $this->view();
     }

@@ -7,10 +7,9 @@
  * Time: 11:12
  */
 
-function smarty_modifier_url(string $link, bool $internal = true): string {
+function smarty_modifier_url(string $link, bool $internal = true): string
+{
+    $link = ($internal)  ? SITE_BASE."/$link" : "$link";
 
-	$link = ($internal)  ? SITE_BASE."/$link" : "$link";
-
-	return $link;
-
+    return $link;
 }

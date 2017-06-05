@@ -19,6 +19,8 @@
 		"doctrine/orm": "2.5.x-dev",
 		"smarty-gettext/smarty-gettext": "v1.5.0",
 		"rlanvin/php-ip": "dev-master",
-		"s1lentium/iptools": "*"
+		"s1lentium/iptools": "*",
+		"simplethings/entity-audit-bundle": "1.0.*",
+		"phpmd/phpmd": "2.*"
 	}
 }
