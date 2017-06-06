@@ -2,6 +2,8 @@
 
 namespace Controller;
 
+use \Framework\BaseController;
+
 /**
  * OtvController.php
  * Project: yaipam

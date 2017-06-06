@@ -1,6 +1,8 @@
 <?php
 namespace Controller;
 
+use \Framework\BaseController;
+
 /**
  * VrfsController.php
  * Project: yaipam

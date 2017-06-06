@@ -8,6 +8,7 @@
  */
 
 namespace Controller;
+use \Framework\BaseController;
 
 class ErrorController extends BaseController
 {

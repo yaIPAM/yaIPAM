@@ -1,6 +1,8 @@
 <?php
 namespace Controller;
 
+use \Framework\BaseController;
+
 /**
   * User: ktammling
  * Date: 24.05.17

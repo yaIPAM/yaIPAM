@@ -1,12 +1,13 @@
 <?php
 namespace Controller;
+use \Framework\BaseController;
 
 /**
  * User: ktammling
  * Date: 23.05.17
  * Time: 19:40
  */
-class LoginController extends \Controller\BaseController
+class LoginController extends BaseController
 {
     public function IndexAction()
     {

@@ -1,5 +1,6 @@
 <?php
 namespace Controller;
+use \Framework\BaseController;
 
 /**
  * addresses.php

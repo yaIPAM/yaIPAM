@@ -1,6 +1,7 @@
 <?php
 namespace Controller;
 
+use \Framework\BaseController;
 /**
  * VlansController.php
  * Project: yaipam

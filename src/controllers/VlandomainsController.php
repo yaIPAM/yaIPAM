@@ -1,6 +1,8 @@
 <?php
 namespace Controller;
 
+use \Framework\BaseController;
+
 /**
  * vlandomains.php
  * Project: yaipam

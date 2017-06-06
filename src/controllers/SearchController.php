@@ -9,6 +9,8 @@
 
 namespace Controller;
 
+use \Framework\BaseController;
+
 class SearchController extends BaseController
 {
     public function SearchAction()

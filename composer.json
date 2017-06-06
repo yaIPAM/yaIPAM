@@ -5,7 +5,8 @@
 			"Entity\\": "src/entities/",
 			"Controller\\": "src/controllers/",
 			"Application\\DQL\\": "src/libs/doctrineextensions",
-			"DoctrineDBALMigrations\\": "src/migrations/"
+			"DoctrineDBALMigrations\\": "src/migrations/",
+			"Framework\\": "src/libs/framework"
 		}
 	},
 	"require": {
@@ -13,7 +14,7 @@
 		"doctrine/migrations":	"*",
 		"doctrine/orm": "2.5.x-dev",
 		"simplethings/entity-audit-bundle": "1.0.*",
-		"symfony/http-foundation": "v3.2.7",
+		"symfony/http-foundation": "v3.3.*",
 		"filp/whoops": "2.1.8",
 		"caffeinated/flash": "v3.0.1",
 		"smarty/smarty": "3.1.*",

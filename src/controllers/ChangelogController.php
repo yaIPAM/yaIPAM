@@ -9,6 +9,7 @@
 
 namespace Controller;
 
+use \Framework\BaseController;
 use MessageHandler;
 use Service\Addresses;
 use Service\Prefixes;

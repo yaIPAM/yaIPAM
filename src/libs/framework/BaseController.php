@@ -1,5 +1,5 @@
 <?php
-namespace Controller;
+namespace Framework;
 
 /**
  * Basecontroller.php
