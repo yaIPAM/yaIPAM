@@ -1,6 +1,7 @@
 <?php
 namespace Controller;
 use \Framework\BaseController;
+use \Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * User: ktammling
@@ -15,7 +16,8 @@ class LoginController extends BaseController
 
         if ($this->req->request->getBoolean('submit') && \Service\User::checkCSFR($this->req->request->get('csfr'))) {
             if ($User->Authenticate($this->req->request->get('Username'), $this->req->request->get('Password'))) {
-                header("Location: ".SITE_BASE);
+	            $response = new RedirectResponse(SITE_BASE);
+	            $response->send();
             } else {
                 \MessageHandler::Error(_('Login failure'), _('The username and password combination you have entered is incorrect.'));
             }
@@ -31,9 +33,10 @@ class LoginController extends BaseController
         $User = new \Service\User($this->em);
 
         if ($User->Logout()) {
-            header("Location: ".SITE_BASE);
+	        $response = new RedirectResponse(SITE_BASE);
+	        $response->send();
         } else {
-            throw new RuntimeException(_('Error destroying user session.'));
+            \MessageHandler::Error(_('General error'), _('Error destroying user session.'));
         }
     }
 }

@@ -33,6 +33,8 @@ class VRF
 
     public function save(): bool
     {
+	    global $whoops;
+
         if (\Doctrine\ORM\UnitOfWork::STATE_NEW === $this->em->getUnitOfWork()->getEntityState($this->entity)) {
             try {
                 $this->em->getConnection()->beginTransaction();
@@ -41,6 +43,7 @@ class VRF
                 $Prefix = new \Entity\Prefixes();
                 $RootPrefix = \IPLib\Range\Subnet::fromString('0.0.0.0/0');
                 $Prefix->setPrefix('0.0.0.0/0');
+	            $Prefix->setPrefixlength(0);
                 $Prefix->setPrefixdescription("IPv4 Root Prefix");
                 $Prefix->setRangefrom($RootPrefix->getComparableStartString());
                 $Prefix->setRangeto($RootPrefix->getComparableEndString());
@@ -52,6 +55,7 @@ class VRF
                 $Prefix = new \Entity\Prefixes();
                 $RootPrefix = \IPLib\Range\Subnet::fromString('::/0');
                 $Prefix->setPrefix('::/0');
+	            $Prefix->setPrefixlength(0);
                 $Prefix->setPrefixdescription("IPv6 Root Prefix");
                 $Prefix->setRangefrom($RootPrefix->getComparableStartString());
                 $Prefix->setRangeto($RootPrefix->getComparableEndString());
@@ -65,10 +69,9 @@ class VRF
                 $this->em->getConnection()->commit();
 
                 return true;
-            } catch (Exception $e) {
-                throw new RuntimeException($e);
-
-                $this->em->getConnection()->rollBack();
+            } catch (\Exception $e) {
+	            $this->em->getConnection()->rollBack();
+                $whoops->handleException($e);
 
                 return false;
             }
@@ -79,7 +82,7 @@ class VRF
 
                 return true;
             } catch (Exception $e) {
-                throw new RuntimeException($e);
+	            $whoops->handleException($e);
 
                 return false;
             }

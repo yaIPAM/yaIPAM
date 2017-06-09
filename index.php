@@ -2,7 +2,21 @@
 require_once(__DIR__.'/bootstrap.php');
 require_once SCRIPT_BASE.'/src/libs/MessageHandler.php';
 
+if ($Config['general']['devMode']) {
+	error_reporting(E_ALL);
+}
+
 $siteBase = rtrim($Config['general']['sitebase'], "/");
+if (empty($siteBase)) {
+	$siteBase = "/";
+}
+if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") or (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == "https")) {
+	$siteProto = "https";
+}
+else {
+	$siteProto = "http";
+}
+$siteBase = sprintf("%s://%s%s", $siteProto  ,$_SERVER['SERVER_NAME'], $siteBase);
 define("SITE_BASE", $siteBase);
 
 // Language setup
@@ -27,7 +41,8 @@ $tpl->setPluginsDir(__DIR__.'/src/libs/smartyplugins');
 
 
 $tpl->assign("SITE_BASE", SITE_BASE);
-$tpl->assign("THEME_URL", SITE_BASE."/theme/default/");
+$theme_url = rtrim(SITE_BASE, "/");
+$tpl->assign("THEME_URL", $theme_url."/theme/default");
 $tpl->assign("SITE_TITLE", $Config['general']['site_title']);
 
 
