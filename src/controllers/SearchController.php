@@ -61,7 +61,7 @@ class SearchController extends BaseController
             $NetworkSearch = null;
         }
 
-        if (strlen($SearchString)-1 < 4) {
+        if (strlen($SearchString) - 1 < 4) {
             \MessageHandler::Warning(_('Searchstring too short'), _('The search string must contain at least 4 characters for the search being most effective.'));
         }
 

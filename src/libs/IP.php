@@ -43,8 +43,8 @@ function ip2cidr($ips)
     while ($start < count($chunk)) {
         if ($chunk[$start] != 0) {
             $start_ip = isset($range) ? long2ip(ip2long($range[1]) + 1) : $ips[0];
-            $range = cidr2ip($start_ip . '/' . (32 - $start));
-            $return[] = $start_ip . '/' . (32 - $start);
+            $range = cidr2ip($start_ip.'/'.(32 - $start));
+            $return[] = $start_ip.'/'.(32 - $start);
         }
         $start++;
     }

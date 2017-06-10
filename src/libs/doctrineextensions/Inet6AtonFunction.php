@@ -1,6 +1,6 @@
 <?php
 /**
-  * Inet6AtonFunction.php
+ * Inet6AtonFunction.php
  * Project: yaIPAM
  * User: ktammling
  * Date: 27.05.17
@@ -39,6 +39,6 @@ class Inet6AtonFunction extends \Doctrine\ORM\Query\AST\Functions\FunctionNode
      */
     public function getSql(\Doctrine\ORM\Query\SqlWalker $sqlWalker)
     {
-        return 'INET6_ATON('. $this->valueExpression->dispatch($sqlWalker) . ')';
+        return 'INET6_ATON('.$this->valueExpression->dispatch($sqlWalker).')';
     }
 }

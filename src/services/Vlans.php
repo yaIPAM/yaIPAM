@@ -21,7 +21,7 @@ class Vlans
     }
 
     /**
-     * @return mixed
+     * @return \Entity\Vlans
      */
     public function getEntity()
     {
@@ -137,8 +137,8 @@ class Vlans
             return $this;
         }
         catch (\Exception $e) {
-           $whoops->handleException($e);
-           return false;
+            $whoops->handleException($e);
+            return false;
         }
     }
 
@@ -200,8 +200,7 @@ class Vlans
             $this->em->flush();
 
             return true;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $whoops->handleException($e);
             return false;
         }
@@ -219,8 +218,7 @@ class Vlans
             $this->em->flush();
 
             return true;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $whoops->handleException($e);
             return false;
         }
@@ -235,8 +233,7 @@ class Vlans
             $this->em->flush();
 
             return true;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $whoops->handleException($e);
             return false;
         }

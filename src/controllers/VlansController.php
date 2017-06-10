@@ -52,7 +52,7 @@ class VlansController extends BaseController
                 );
             } else {
                 $vlan_list[0] = array(
-                    "VlanID"    =>  "1-".($firstVlan['VlanID']-1),
+                    "VlanID"    =>  "1-".($firstVlan['VlanID'] - 1),
                     "VlanName"  =>  "<i>Frei</i>",
                     "VlanFree"  =>  true,
                     "FirstFree" =>  1,
@@ -64,11 +64,11 @@ class VlansController extends BaseController
         $FirstFree = 0;
 
         foreach ($vlans_list as $data) {
-            if ($n < $data['VlanID'] && ($n+1) != $data['VlanID']) {
+            if ($n < $data['VlanID'] && ($n + 1) != $data['VlanID']) {
                 if (($n + 1) == ($data['VlanID'] - 1)) {
                     $VlanID = $n + 1;
                 } else {
-                    $VlanID = ($n + 1) . "-" . ($data['VlanID'] - 1);
+                    $VlanID = ($n + 1)."-".($data['VlanID'] - 1);
                 }
                 $FirstFree = ($n + 1);
 
@@ -100,10 +100,10 @@ class VlansController extends BaseController
                 );
             } else {
                 $vlan_list[] = array(
-                    "VlanID"    =>  ($lastVlan['VlanID']+1)."-".$Config['vlan']['maxID'],
+                    "VlanID"    =>  ($lastVlan['VlanID'] + 1)."-".$Config['vlan']['maxID'],
                     "VlanName"  =>  "<i>Frei</i>",
                     "VlanFree"  =>  true,
-                    "FirstFree" =>  ($lastVlan['VlanID']+1),
+                    "FirstFree" =>  ($lastVlan['VlanID'] + 1),
                 );
             }
         }
@@ -161,7 +161,6 @@ class VlansController extends BaseController
     }
 
     /**
-     * @param bool $edit
      */
     public function AddAction()
     {
@@ -237,14 +236,12 @@ class VlansController extends BaseController
                     \MessageHandler::Success("VLAN eintragen", sprintf("Das VLAN %s (%s) wurde eingetragen.", $vlan->getEntity()->getVlanName(), $vlan->getEntity()->getVlanID()));
                     $this->_tplfile = 'vlans/index.html';
                     return $this->IndexAction();
-                }
-                else {
+                } else {
                     \MessageHandler::Success("VLAN bearbeitet", sprintf("Das VLAN %s (%s) wurde angepasst.", $vlan->getEntity()->getVlanName(), $vlan->getEntity()->getVlanID()));
                     $this->_tplfile = 'vlans/index.html';
                     return $this->IndexAction();
                 }
-            }
-            else {
+            } else {
                 \MessageHandler::Error("Fehler", "Beim Eintragen gab es einen merkwürdigen Fehler.");
                 return $this->view();
             }

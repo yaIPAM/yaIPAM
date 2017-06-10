@@ -51,7 +51,7 @@ class Core
         $controller = ucwords($controller);
         $model = rtrim($controller, 's');
         $controller .= 'Controller';
-        $controller = $namespace . $controller;
+        $controller = $namespace.$controller;
         if (method_exists($controller, $action)) {
             try {
                 $dispatch = new $controller($controllerName, $action);

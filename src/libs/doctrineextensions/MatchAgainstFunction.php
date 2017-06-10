@@ -48,10 +48,10 @@ class MatchAgainstFunction extends FunctionNode
             $haystack .= $column->dispatch($sqlWalker);
         }
 
-        return "MATCH(" .
-            $haystack .
-            ") AGAINST (" .
-            $this->needle->dispatch($sqlWalker) .
+        return "MATCH(".
+            $haystack.
+            ") AGAINST (".
+            $this->needle->dispatch($sqlWalker).
             " IN BOOLEAN MODE )";
     }
 }

@@ -1,8 +1,6 @@
 <?php
 namespace Service;
 
-use Symfony\Component\Yaml\Exception\RuntimeException;
-
 #require_once SCRIPT_BASE .'/models/Model_Address.php';
 
 /**
@@ -28,7 +26,7 @@ class Prefixes
         $this->em->beginTransaction();
 
         if ($this->getEntity()->getPrefix() == 0 && $this->getEntity()->getPrefixlength() != 0) {
-            $this->getEntity()->setParentID(self::CalculateParentID($this->getEntity()->getPrefix() . "/" . $this->getEntity()->getPrefixlength(), $this->getEntity()->getMastervrf()));
+            $this->getEntity()->setParentID(self::CalculateParentID($this->getEntity()->getPrefix()."/".$this->getEntity()->getPrefixlength(), $this->getEntity()->getMastervrf()));
         }
 
         try {
@@ -195,7 +193,7 @@ class Prefixes
             if ($data['PrefixLength'] == 0) {
                 continue;
             }
-            $Prefix = ($data['AFI']==4) ? long2ip($data['Prefix']) : long2ip6($data['Prefix']);
+            $Prefix = ($data['AFI'] == 4) ? long2ip($data['Prefix']) : long2ip6($data['Prefix']);
             $Prefix = $Prefix."/".$data['PrefixLength'];
             $NewParent = self::CalculateParentID($Prefix, $data['MasterVRF'], $data['PrefixID']);
             $queryBuilder = $dbal->createQueryBuilder();

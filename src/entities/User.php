@@ -143,7 +143,7 @@ class User
     }
 
     /**
-     * @param int $group
+     * @param int $usergroup
      */
     public function setUsergroup(int $usergroup)
     {

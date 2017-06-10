@@ -38,15 +38,15 @@ if (!isset($_SESSION['login'])) {
 }
 
 // Composer Autoloader
-require SCRIPT_BASE . '/vendor/autoload.php';
-require SCRIPT_BASE .'/src/libs/MessageHandler.php';
-require SCRIPT_BASE .'/src/libs/IP.php';
-require SCRIPT_BASE .'/src/libs/i18n.php';
-require SCRIPT_BASE .'/src/libs/functions.php';
+require SCRIPT_BASE.'/vendor/autoload.php';
+require SCRIPT_BASE.'/src/libs/MessageHandler.php';
+require SCRIPT_BASE.'/src/libs/IP.php';
+require SCRIPT_BASE.'/src/libs/i18n.php';
+require SCRIPT_BASE.'/src/libs/functions.php';
 
 // Error Handling
 $whoops = new \Whoops\Run;
-$whoops->pushHandler(function () {
+$whoops->pushHandler(function() {
     ob_clean();
     exit;
 });
@@ -75,7 +75,7 @@ $auditconfig->setGlobalIgnoreColumns(array(
     'created_at',
     'updated_at'
 ));
-$auditconfig->setUsernameCallable(function () {
+$auditconfig->setUsernameCallable(function() {
     return $_SESSION['Username'];
 });
 $evm = new EventManager();

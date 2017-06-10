@@ -16,8 +16,8 @@ class LoginController extends BaseController
 
         if ($this->req->request->getBoolean('submit') && \Service\User::checkCSFR($this->req->request->get('csfr'))) {
             if ($User->Authenticate($this->req->request->get('Username'), $this->req->request->get('Password'))) {
-	            $response = new RedirectResponse(SITE_BASE);
-	            $response->send();
+                $response = new RedirectResponse(SITE_BASE);
+                $response->send();
             } else {
                 \MessageHandler::Error(_('Login failure'), _('The username and password combination you have entered is incorrect.'));
             }
@@ -33,8 +33,8 @@ class LoginController extends BaseController
         $User = new \Service\User($this->em);
 
         if ($User->Logout()) {
-	        $response = new RedirectResponse(SITE_BASE);
-	        $response->send();
+            $response = new RedirectResponse(SITE_BASE);
+            $response->send();
         } else {
             \MessageHandler::Error(_('General error'), _('Error destroying user session.'));
         }

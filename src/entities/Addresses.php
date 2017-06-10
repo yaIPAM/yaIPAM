@@ -172,7 +172,7 @@ class Addresses
     /**
      * Get addressstate
      *
-     * @return boolean
+     * @return integer
      */
     public function getAddressstate()
     {
