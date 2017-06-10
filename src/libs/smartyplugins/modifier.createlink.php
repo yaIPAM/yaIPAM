@@ -11,7 +11,7 @@ function smarty_modifier_createlink(string $link, string $title, string $class =
 {
     $class = (!empty($class)) ? "class=\"$class\"" : "";
     $link = ltrim($link, "/");
-    $link = ($internal)  ? SITE_BASE."/$link" : "$link";
+    $link = ($internal) ? SITE_BASE."/$link" : "$link";
 
     $string = "<a href=\"$link\" $class>$title</a>";
 

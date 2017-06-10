@@ -182,7 +182,7 @@ class AddressesController extends BaseController
      * @param null $SubnetID
      * @param null $Prefix
      * @param null $PrefixLength
-     * @return bool
+     * @return boolean|null
      */
     public function SubnetaddAction($SubnetID = null, $Prefix = null, $PrefixLength = null)
     {
@@ -221,7 +221,7 @@ class AddressesController extends BaseController
         ));
 
         if ($this->req->request->getBoolean('Submit')) {
-            if (\IPLib\Range\Subnet::fromString($this->req->request->get('PrefixName')) ==  null) {
+            if (\IPLib\Range\Subnet::fromString($this->req->request->get('PrefixName')) == null) {
                 \MessageHandler::Error(_('Invalid prefix'), _('The entered prefix is invalid.'));
 
                 $this->set(array(
@@ -431,7 +431,7 @@ class AddressesController extends BaseController
     }
 
     /**
-     * @return mixed
+     * @return integer
      */
     public function getCurrentSubnet()
     {

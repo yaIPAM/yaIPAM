@@ -36,7 +36,7 @@ $ver = new VersionCommand();
 $diff->setMigrationConfiguration($configuration);
 
 
-$cli = ConsoleRunner::createApplication($helperSet,[
+$cli = ConsoleRunner::createApplication($helperSet, [
     $diff, $exec, $gen, $migrate, $status, $ver
 ]);
 return $cli->run();

@@ -60,7 +60,7 @@ class OtvController extends BaseController
                 "D_OTV_DESCRIPTION" =>  $otv->getOTVDescription(),
             ));
         } else {
-            $DomainsSelected =  $this->req->request->get('OTVDomains');
+            $DomainsSelected = $this->req->request->get('OTVDomains');
 
             $this->set(array(
                 "D_OTV_ID" =>  $this->req->request->getInt('OTVID'),
@@ -70,7 +70,7 @@ class OtvController extends BaseController
         }
 
         foreach ($DomainsList as $data) {
-            $domains[]= array(
+            $domains[] = array(
                 "domain_id" =>  $data['domain_id'],
                 "domain_name"   =>  $data['domain_name'],
                 "domain_selected"   =>  (($DomainsSelected != null) && in_array($data['domain_id'], $DomainsSelected)) ? true : false,

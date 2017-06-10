@@ -3,20 +3,20 @@ require_once(__DIR__.'/bootstrap.php');
 require_once SCRIPT_BASE.'/src/libs/MessageHandler.php';
 
 if ($Config['general']['devMode']) {
-	error_reporting(E_ALL);
+    error_reporting(E_ALL);
 }
 
 $siteBase = rtrim($Config['general']['sitebase'], "/");
 if (empty($siteBase)) {
-	$siteBase = "/";
+    $siteBase = "/";
 }
 if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") or (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == "https")) {
-	$siteProto = "https";
+    $siteProto = "https";
 }
 else {
-	$siteProto = "http";
+    $siteProto = "http";
 }
-$siteBase = sprintf("%s://%s%s", $siteProto  ,$_SERVER['SERVER_NAME'], $siteBase);
+$siteBase = sprintf("%s://%s%s", $siteProto, $_SERVER['SERVER_NAME'], $siteBase);
 define("SITE_BASE", $siteBase);
 
 // Language setup

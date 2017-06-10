@@ -40,6 +40,6 @@ class InetAtonFunction extends \Doctrine\ORM\Query\AST\Functions\FunctionNode
      */
     public function getSql(\Doctrine\ORM\Query\SqlWalker $sqlWalker)
     {
-        return 'INET_ATON('. $this->valueExpression->dispatch($sqlWalker) . ')';
+        return 'INET_ATON('.$this->valueExpression->dispatch($sqlWalker).')';
     }
 }

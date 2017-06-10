@@ -18,6 +18,10 @@ class BaseController
     protected $em;
     protected $auditManager;
 
+    /**
+     * @param string $controller
+     * @param string $action
+     */
     public function __construct($controller, $action)
     {
         global $tpl, $request, $EntityManager, $auditManager;
