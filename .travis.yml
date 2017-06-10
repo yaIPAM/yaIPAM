@@ -5,11 +5,11 @@ php:
     - hhvm
 
 before_install:
-    - pecl install gettext
-    - pecl install pdo_mysql
-    - pecl install ldap
-    - pecl install intl
-    - pecl install bcmath
+#    - pecl install gettext
+#    - pecl install pdo_mysql
+#    - pecl install ldap
+#    - pecl install intl
+#    - pecl install bcmath
     - echo "extension = apcu.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - echo "extension = gettext.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - echo "extension = pdo-mysql.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
@@ -20,4 +20,4 @@ before_install:
 install:
     - composer install --prefer-dist --no-interaction
 
-script: vendor/bin/phpunit
+script: phpunit --configuration tests/phpunit.xml
