@@ -1,0 +1,2 @@
+filter:
+    paths: ["vendor/*", "docs/*", "tools/*", "tests/*", "theme/default/bootstrap/*", "theme/default/dist/*", "theme/default/plugins/*"]
