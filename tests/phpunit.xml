@@ -4,6 +4,7 @@
     </logging>
     <testsuites>
         <testsuite name="yaIPAM Test Suite">
+            <file>../tests/DatabaseSetupTest.php</file>
             <directory suffix="Test.php" phpVersion="7.0.0" phpVersionOperator=">=">../tests/</directory>
             <directory suffix="Test.php" phpVersion="7.0.0" phpVersionOperator=">=">../tests/controllers/</directory>
         </testsuite>
