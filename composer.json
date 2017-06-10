@@ -25,6 +25,7 @@
 		"s1lentium/iptools": "*"
 	},
 	"require-dev": {
-		"phpmd/phpmd": "2.*"
+		"phpmd/phpmd": "2.*",
+		"phpunit/phpunit": "~5.7"
 	}
 }

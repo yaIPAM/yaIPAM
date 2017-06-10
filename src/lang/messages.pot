@@ -1,0 +1,42 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+#: theme/default/html/subnets/subnet_add.html:3
+msgid "Addressspace Management"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:3
+msgid "Add prefix"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:13
+msgid "Prefix"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:17
+msgid "State"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:19
+msgid "Allocated"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:20
+msgid "Reserved"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:21
+msgid "Expired"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:25
+msgid "Description"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:28
+msgid "Save"
+msgstr ""
+
+#: theme/default/html/subnets/subnet_add.html:29
+msgid "Back"
+msgstr ""
