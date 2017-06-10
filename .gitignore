@@ -4,3 +4,4 @@ cache/
 /config.php
 /composer.lock
 /.php_cs.cache
+/tests/codeCoverage/

@@ -1,3 +1,5 @@
+[![Build Status](https://www.travis-ci.org/KlaasT/yaIPAM.svg?branch=master)](https://www.travis-ci.org/KlaasT/yaIPAM)
+
 # yaIPAM - yet another IPAM
 
 In the beginning this was just a little experiment for simple functions which can do stuff with IP addresses and networks. However after time goes by it started to become bigger and bigger.

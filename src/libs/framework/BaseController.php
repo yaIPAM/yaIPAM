@@ -89,7 +89,7 @@ class BaseController
         try {
             $this->set('S_ACTIVE_MENU', $this->_controller);
 
-            if ($this->_template->templateExists($this->_tplfile)) {
+            if ($this->_template->templateExists($this->_tplfile) && UNIT_TEST !== true) {
                 $this->_template->display($this->_tplfile);
             }
 

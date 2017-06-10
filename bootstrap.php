@@ -97,3 +97,47 @@ $request = new Request(
     $_FILES,
     $_SERVER
 );
+
+// Firing up Smarty as a template engine
+$tpl = new Smarty();
+
+$tpl->setTemplateDir(__DIR__.'/theme/default/html');
+$tpl->setCompileDir(__DIR__.'/cache');
+$tpl->setCacheDir(__DIR__.'/cache');
+$tpl->setConfigDir(__DIR__.'/theme/default/configs');
+$tpl->setPluginsDir(__DIR__.'/src/libs/smartyplugins');
+
+if ($Config['general']['devMode']) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
+else {
+	error_reporting(E_ALL ^ E_NOTICE);
+	ini_set('display_errors', 0);
+}
+
+if (defined("UNIT_TEST") && UNIT_TEST)
+{
+	$siteBase = "/";
+} else {
+	$siteBase = rtrim($Config['general']['sitebase'], "/");
+	if (empty($siteBase)) {
+		$siteBase = "/";
+	}
+	if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") or (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == "https")) {
+		$siteProto = "https";
+	} else {
+		$siteProto = "http";
+	}
+	$siteBase = sprintf("%s://%s%s", $siteProto, $_SERVER['SERVER_NAME'], $siteBase);
+}
+
+define("SITE_BASE", $siteBase);
+
+// Language setup
+
+I18N::init('messages', SCRIPT_BASE.'/lang', 'en_US', array(
+    '/^de((-|_).*?)?$/i' => 'de_DE',
+    '/^en((-|_).*?)?$/i' => 'en_US',
+    '/^es((-|_).*?)?$/i' => 'es_ES'
+));

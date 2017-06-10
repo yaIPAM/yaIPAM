@@ -1,8 +1,19 @@
-<phpunit backupGlobals="true" bootstrap="../bootstrap.php">
+<phpunit backupGlobals="false" bootstrap="../bootstrap.php">
+    <logging>
+        <log type="coverage-html" target="codeCoverage" charset="UTF-8"/>
+    </logging>
+    <testsuites>
+        <testsuite name="yaIPAM Test Suite">
+            <directory suffix="Test.php" phpVersion="7.0.0" phpVersionOperator=">=">../tests/</directory>
+            <directory suffix="Test.php" phpVersion="7.0.0" phpVersionOperator=">=">../tests/controllers/</directory>
+        </testsuite>
+    </testsuites>
     <filter>
         <whitelist>
-            <directory>/src</directory>
+            <directory suffix=".php">../src/</directory>
         </whitelist>
     </filter>
-    <testsuite>/tests/</testsuite>
+    <php>
+        <const name="UNIT_TEST" value="true"/>
+    </php>
 </phpunit>
