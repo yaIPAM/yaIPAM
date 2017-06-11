@@ -108,7 +108,7 @@ $tpl->setConfigDir(__DIR__.'/theme/default/configs');
 $tpl->setPluginsDir(__DIR__.'/src/libs/smartyplugins');
 
 if ($Config['general']['devMode']) {
-    error_reporting(E_ALL);
+    error_reporting(E_ALL ^ E_NOTICE);
     ini_set('display_errors', 1);
 }
 else {
