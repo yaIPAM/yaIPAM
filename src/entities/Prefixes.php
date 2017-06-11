@@ -90,6 +90,16 @@ class Prefixes
      */
     private $prefixvlan;
 
+    /**
+     * @var integer
+     *
+     * Link to Other Prefix
+     *
+     * @ORM\OneToOne(targetEntity="Prefixes")
+     * @ORM\JoinColumn(name="linkedIPv6Prefix", referencedColumnName="prefixid")
+     */
+    private $linkedIPv6Prefix;
+
 
     /**
      * Get prefixid
@@ -361,4 +371,20 @@ class Prefixes
     {
         return $this->prefixvlan;
     }
+
+	/**
+	 * @return mixed
+	 */
+	public function getLinkedIPv6Prefix() {
+		return $this->linkedIPv6Prefix;
+	}
+
+	/**
+	 * @param mixed $linkedIPv6Prefix
+	 */
+	public function setLinkedIPv6Prefix($linkedIPv6Prefix) {
+		$this->linkedIPv6Prefix = $linkedIPv6Prefix;
+	}
+
+
 }

@@ -64,4 +64,13 @@ class Core
             call_user_func_array(array($dispatch, 'NotFoundAction'), $queryString);
         }
     }
+
+    public static function unitTestAlive() {
+    	if ((defined('UNIT_TEST')
+		    && UNIT_TEST === true)) {
+    		return true;
+	    }
+
+	    return false;
+    }
 }

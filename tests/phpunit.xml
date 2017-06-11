@@ -1,6 +1,6 @@
 <phpunit backupGlobals="false" bootstrap="../bootstrap.php">
     <logging>
-        <log type="coverage-html" target="codeCoverage" charset="UTF-8"/>
+        <log type="coverage-clover" targe="clover.xml"/>
     </logging>
     <testsuites>
         <testsuite name="yaIPAM Test Suite">

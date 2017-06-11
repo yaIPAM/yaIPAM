@@ -89,7 +89,8 @@ class BaseController
         try {
             $this->set('S_ACTIVE_MENU', $this->_controller);
 
-            if ($this->_template->templateExists($this->_tplfile) && (!defined('UNIT_TEST') or UNIT_TEST !== true)) {
+            if ($this->_template->templateExists($this->_tplfile)
+	            && !(Core::unitTestAlive())) {
                 $this->_template->display($this->_tplfile);
             }
 

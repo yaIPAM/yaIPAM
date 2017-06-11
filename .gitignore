@@ -5,3 +5,4 @@ cache/
 /composer.lock
 /.php_cs.cache
 /tests/codeCoverage/
+/tests/clover.xml
