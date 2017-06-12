@@ -1,8 +1,6 @@
 <?php
 namespace Service;
 
-#require_once SCRIPT_BASE .'/models/Model_Address.php';
-
 /**
  * Model_Subnet.php
  * Project: yaipam
@@ -32,7 +30,7 @@ class Prefixes
         try {
             $this->em->persist($this->getEntity());
             $this->em->flush();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->em->rollBack();
             return false;
         }
@@ -159,7 +157,7 @@ class Prefixes
             } else {
                 return false;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }

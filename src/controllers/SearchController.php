@@ -13,19 +13,9 @@ use \Framework\BaseController;
 
 class SearchController extends BaseController
 {
-    public function SearchAction()
+
+    private function searchIP($SearchString)
     {
-        $this->CheckAccess(\Service\User::GROUP_USER);
-
-        $SearchString = $this->req->request->get("search");
-        $OrignalSearchString = $SearchString;
-        $FulltextSearch = trim($SearchString, '*')."*";
-
-        if (empty($OrignalSearchString)) {
-            \MessageHandler::Error(_('Searchstring too short'), _("The search string seems to be empty and won't work like this."));
-            return $this->view();
-        }
-
         try {
             $IPSearch = \IP::create($SearchString);
             $IPSearch = $this->em->createQueryBuilder('a')
@@ -39,6 +29,11 @@ class SearchController extends BaseController
             $IPSearch = null;
         }
 
+        return $IPSearch;
+    }
+
+    private function searchPrefix($SearchString)
+    {
         try {
             $SearchStringArray = explode("/", $SearchString);
             $Prefix = $SearchStringArray[0];
@@ -61,10 +56,11 @@ class SearchController extends BaseController
             $NetworkSearch = null;
         }
 
-        if (strlen($SearchString) - 1 < 4) {
-            \MessageHandler::Warning(_('Searchstring too short'), _('The search string must contain at least 4 characters for the search being most effective.'));
-        }
+        return $NetworkSearch;
+    }
 
+    private function ipFulltextSearch($FulltextSearch)
+    {
         $result = $this->em->createQueryBuilder('a')
             ->select('a.addressid', 'a.address', 'a.addressdescription', 'a.addressname', 'a.addressstate', 'a.addressfqdn', 'a.addressmac', 'a.addresstt', 'a.addressprefix')
             ->where("MATCH_AGAINST (a.addressname, a.addressfqdn, a.addressdescription, :searchterm) > 0.0")
@@ -73,13 +69,11 @@ class SearchController extends BaseController
             ->getQuery()
             ->getResult();
 
-        if ($IPSearch != null) {
-            $result = array_merge($result, $IPSearch);
-        }
+        return $result;
+    }
 
-
-        $this->set("D_Addresses", $result);
-
+    private function prefixFulltextSearch($FulltextSearch)
+    {
         $result = $this->em->createQueryBuilder('p')
             ->select('p.prefixid', 'p.prefix', 'p.prefixdescription', 'p.prefixlength')
             ->where("MATCH_AGAINST (p.prefixdescription, :searchterm) > 0.0")
@@ -88,12 +82,11 @@ class SearchController extends BaseController
             ->getQuery()
             ->getResult();
 
-        if ($NetworkSearch != null) {
-            $result = array_merge($result, $NetworkSearch);
-        }
+        return $result;
+    }
 
-        $this->set("D_Subnets", $result);
-
+    private function vlanSearch($SearchString, $FulltextSearch)
+    {
         $result = $this->em->createQueryBuilder('v')
             ->select('v.vlanid', 'v.vlanname')
             ->where("MATCH_AGAINST (v.vlanname, :searchterm) > 0.0")
@@ -103,6 +96,48 @@ class SearchController extends BaseController
             ->setParameter('searchtermid', $SearchString)
             ->getQuery()
             ->getArrayResult();
+
+        return $result;
+    }
+
+    public function SearchAction()
+    {
+        $this->CheckAccess(\Service\User::GROUP_USER);
+
+        $SearchString = $this->req->request->get("search");
+        $OrignalSearchString = $SearchString;
+        $FulltextSearch = trim($SearchString, '*')."*";
+
+        if (empty($OrignalSearchString)) {
+            \MessageHandler::Error(_('Searchstring too short'), _("The search string seems to be empty or too short. Please use at least 4 characters."));
+            return $this->view();
+        }
+        else if (strlen($SearchString) - 1 < 4) {
+            \MessageHandler::Warning(_('Searchstring too short'), _('The search string must contain at least 4 characters for the search being most effective.'));
+        }
+
+        $IPSearch = $this->searchIP($SearchString);
+
+        $NetworkSearch = $this->searchPrefix($SearchString);
+
+        $result = $this->ipFulltextSearch($FulltextSearch);
+
+        if ($IPSearch != null) {
+            $result = array_merge($result, $IPSearch);
+        }
+
+
+        $this->set("D_Addresses", $result);
+
+        $result = $this->prefixFulltextSearch($FulltextSearch);
+
+        if ($NetworkSearch != null) {
+            $result = array_merge($result, $NetworkSearch);
+        }
+
+        $this->set("D_Subnets", $result);
+
+        $result = $this->vlanSearch($SearchString, $FulltextSearch);
 
         $this->set("D_Vlans", $result);
 
