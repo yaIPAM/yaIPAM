@@ -66,11 +66,11 @@ class Core
     }
 
     public static function unitTestAlive() {
-    	if ((defined('UNIT_TEST')
-		    && UNIT_TEST === true)) {
-    		return true;
-	    }
+        if ((defined('UNIT_TEST')
+            && UNIT_TEST === true)) {
+            return true;
+        }
 
-	    return false;
+        return false;
     }
 }

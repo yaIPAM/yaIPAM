@@ -373,7 +373,7 @@ class Prefixes
     }
 
 	/**
-	 * @return mixed
+	 * @return integer
 	 */
 	public function getLinkedIPv6Prefix() {
 		return $this->linkedIPv6Prefix;

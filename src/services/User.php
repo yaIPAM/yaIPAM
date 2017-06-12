@@ -11,7 +11,7 @@ use Symfony\Component\Yaml\Exception\RuntimeException;
 
 class User
 {
-	const GROUP_GUEST = 0;
+    const GROUP_GUEST = 0;
     const GROUP_USER = 1;
     const GROUP_ADMINISTRATOR = 2;
     const GROUP_SYSTEMADMIN = 3;
@@ -122,11 +122,11 @@ class User
 
     public static function showGroup()
     {
-    	if (isset($_SESSION['Group'])) {
-    	    return $_SESSION['Group'];
-	    }
+        if (isset($_SESSION['Group'])) {
+            return $_SESSION['Group'];
+        }
 
-	    return self::GROUP_GUEST;
+        return self::GROUP_GUEST;
     }
 
     /**

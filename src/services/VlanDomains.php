@@ -64,8 +64,7 @@ class VlanDomains
 
             return $domains;
 
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $whoops->handleException($e);
             return false;
         }
@@ -96,8 +95,7 @@ class VlanDomains
             $this->em->flush();
 
             return true;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $whoops->handleException($e);
             return false;
         }
@@ -118,8 +116,7 @@ class VlanDomains
             $this->em->commit();
 
             return true;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->em->rollBack();
             $whoops->handleException($e);
             return false;

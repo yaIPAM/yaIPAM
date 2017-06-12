@@ -10,7 +10,7 @@
 function smarty_modifier_url(string $link, bool $internal = true): string
 {
     $link = ltrim($link, "/");
-    $link = ($internal)  ? SITE_BASE."/$link" : "$link";
+    $link = ($internal) ? SITE_BASE."/$link" : "$link";
 
     return $link;
 }

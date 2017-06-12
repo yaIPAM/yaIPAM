@@ -90,7 +90,7 @@ class BaseController
             $this->set('S_ACTIVE_MENU', $this->_controller);
 
             if ($this->_template->templateExists($this->_tplfile)
-	            && !(Core::unitTestAlive())) {
+                && !(Core::unitTestAlive())) {
                 $this->_template->display($this->_tplfile);
             }
 
