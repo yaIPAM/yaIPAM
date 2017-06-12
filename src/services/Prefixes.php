@@ -76,6 +76,54 @@ class Prefixes
         return true;
     }
 
+    private function deleteAll($PrefixID): bool
+    {
+        $queryBuilder = $this->em->createQueryBuilder();
+        $delete_prefixes = $queryBuilder
+            ->select('p.prefixid')
+            ->from('Entity\Prefixes', 'p')
+            ->where('p.parentid = :PrefixID')
+            ->orWhere('p.prefixid = :PrefixID')
+            ->setParameter('PrefixID', $PrefixID)
+            ->getQuery()
+            ->getArrayResult();
+
+        try {
+            foreach ($delete_prefixes as $delete_prefix) {
+                $DeleteEntity = $this->em->find('Entity\Prefixes', $PrefixID);
+                $this->em->remove($DeleteEntity);
+            }
+            $this->em->flush();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        if (Addresses::deleteByPrefix($PrefixID) === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function deleteRecalc($PrefixID, $MasterVRF, $AFI): bool
+    {
+        $DeleteEntity = $this->em->find('Entity\Prefixes', $PrefixID);
+        try {
+            $this->em->remove($DeleteEntity);
+            $this->em->flush();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $this->RecalcTree($PrefixID);
+
+        if (Addresses::calcNewPrefix($PrefixID, $MasterVRF, $AFI) === false) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function delete(int $Option = 1): bool
     {
 
@@ -87,43 +135,12 @@ class Prefixes
         $AFI = $this->getEntity()->getAFI();
 
         if ($Option == 1) {
-            $delete_prefixes = $queryBuilder
-                ->select('p.prefixid')
-                ->from('Entity\Prefixes', 'p')
-                ->where('p.parentid = :PrefixID')
-                ->orWhere('p.prefixid = :PrefixID')
-                ->setParameter('PrefixID', $PrefixID)
-                ->getQuery()
-                ->getArrayResult();
-
-            try {
-                foreach ($delete_prefixes as $delete_prefix) {
-                    $DeleteEntity = $this->em->find('Entity\Prefixes', $PrefixID);
-                    $this->em->remove($DeleteEntity);
-                }
-                $this->em->flush();
-            } catch (\Exception $e) {
-                $this->em->rollback();
-                return false;
-            }
-
-            if (Addresses::deleteByPrefix($PrefixID) === false) {
+            if (!$this->deleteAll($PrefixID)) {
                 $this->em->rollback();
                 return false;
             }
         } elseif ($Option == 2) {
-            $DeleteEntity = $this->em->find('Entity\Prefixes', $PrefixID);
-            try {
-                $this->em->remove($DeleteEntity);
-                $this->em->flush();
-            } catch (\Exception $e) {
-                $this->em->rollback();
-                return false;
-            }
-
-            $this->RecalcTree($PrefixID);
-
-            if (Addresses::calcNewPrefix($PrefixID, $MasterVRF, $AFI) === false) {
+            if (!($this->deleteRecalc($PrefixID, $MasterVRF, $AFI))) {
                 $this->em->rollback();
                 return false;
             }

@@ -41,6 +41,7 @@ class VlansController extends BaseController
 
         $firstVlan = $Vlans->firstVLANByDomain($this->getVlanDomainSelected());
         $lastVlan = $Vlans->LastVLANByDomain($this->getVlanDomainSelected());
+        $vlan_list = array();
 
         if ($firstVlan['VlanID'] > 1) {
             if (($firstVlan['VlanID'] - 1) == 1) {
