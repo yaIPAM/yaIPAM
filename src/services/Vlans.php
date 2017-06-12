@@ -135,8 +135,7 @@ class Vlans
 
             $this->entity = $Vlan;
             return $this;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $whoops->handleException($e);
             return false;
         }

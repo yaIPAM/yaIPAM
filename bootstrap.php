@@ -112,24 +112,24 @@ if ($Config['general']['devMode']) {
     ini_set('display_errors', 1);
 }
 else {
-	error_reporting(E_ALL ^ E_NOTICE);
-	ini_set('display_errors', 0);
+    error_reporting(E_ALL ^ E_NOTICE);
+    ini_set('display_errors', 0);
 }
 
 if (defined("UNIT_TEST") && UNIT_TEST)
 {
-	$siteBase = "/";
+    $siteBase = "/";
 } else {
-	$siteBase = rtrim($Config['general']['sitebase'], "/");
-	if (empty($siteBase)) {
-		$siteBase = "/";
-	}
-	if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") or (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == "https")) {
-		$siteProto = "https";
-	} else {
-		$siteProto = "http";
-	}
-	$siteBase = sprintf("%s://%s%s", $siteProto, $_SERVER['SERVER_NAME'], $siteBase);
+    $siteBase = rtrim($Config['general']['sitebase'], "/");
+    if (empty($siteBase)) {
+        $siteBase = "/";
+    }
+    if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") or (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == "https")) {
+        $siteProto = "https";
+    } else {
+        $siteProto = "http";
+    }
+    $siteBase = sprintf("%s://%s%s", $siteProto, $_SERVER['SERVER_NAME'], $siteBase);
 }
 
 define("SITE_BASE", $siteBase);

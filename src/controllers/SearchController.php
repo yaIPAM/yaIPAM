@@ -111,8 +111,7 @@ class SearchController extends BaseController
         if (empty($OrignalSearchString)) {
             \MessageHandler::Error(_('Searchstring too short'), _("The search string seems to be empty or too short. Please use at least 4 characters."));
             return $this->view();
-        }
-        else if (strlen($SearchString) - 1 < 4) {
+        } else if (strlen($SearchString) - 1 < 4) {
             \MessageHandler::Warning(_('Searchstring too short'), _('The search string must contain at least 4 characters for the search being most effective.'));
         }
 
