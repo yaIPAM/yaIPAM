@@ -2,13 +2,13 @@ filter:
     excluded_paths:
         - '*.min.js'
         - '*/dist/*'
-        - '*/vendor/*'
-        - '*/docs/*'
-        - '*/tools/*'
-        - '*/tests/*'
-        - '*/theme/default/bootstrap/*'
-        - '*/theme/default/dist/*'
-        - '*/theme/default/plugins/*'
+        - 'vendor/*'
+        - 'docs/*'
+        - 'tools/*'
+        - 'tests/*'
+        - 'theme/default/bootstrap/*'
+        - 'theme/default/dist/*'
+        - 'theme/default/plugins/*'
 tools:
     external_code_coverage: true
     php_mess_detector: true
