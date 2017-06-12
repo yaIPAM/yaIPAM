@@ -30,16 +30,18 @@ class Prefixes
         try {
             $this->em->persist($this->getEntity());
             $this->em->flush();
+
         } catch (\Exception $e) {
             $this->em->rollBack();
             return false;
         }
 
-        if ($this->getEntity()->getPrefixid() == 0) {
-            $this->RecalcTree($this->getEntity()->getParentID(), $this->getEntity()->getPrefixID());
-            \Service\Addresses::calcNewPrefix($this->getEntity()->getParentID(), $this->getEntity()->getMasterVRF(), $this->getEntity()->getAFI());
-        }
+        Addresses::calcNewPrefix($this->getEntity()->getParentID(), $this->getEntity()->getMasterVRF(), $this->getEntity()->getAFI());
+
+        $this->RecalcTree($this->getEntity()->getParentID(), $this->getEntity()->getPrefixID());
+
         $this->em->commit();
+
         return true;
     }
 
@@ -76,50 +78,58 @@ class Prefixes
 
     public function delete(int $Option = 1): bool
     {
-        global $dbal;
 
-        $dbal->beginTransaction();
+        $this->em->beginTransaction();
+        $queryBuilder = $this->em->createQueryBuilder();
 
-        $queryBuilder = $dbal->createQueryBuilder();
+        $PrefixID = $this->getEntity()->getPrefixID();
+        $MasterVRF = $this->getEntity()->getMasterVRF();
+        $AFI = $this->getEntity()->getAFI();
 
         if ($Option == 1) {
-            $delete = $queryBuilder
-                ->delete('prefixes')
-                ->where('PrefixID = :PrefixID')
-                ->orWhere('ParentID = :PrefixID')
-                ->setParameter('PrefixID', $this->getEntity()->getPrefixID());
+            $delete_prefixes = $queryBuilder
+                ->select('p.prefixid')
+                ->from('Entity\Prefixes', 'p')
+                ->where('p.parentid = :PrefixID')
+                ->orWhere('p.prefixid = :PrefixID')
+                ->setParameter('PrefixID', $PrefixID)
+                ->getQuery()
+                ->getArrayResult();
 
-            if ($delete->execute() === false) {
-                $dbal->rollBack();
+            try {
+                foreach ($delete_prefixes as $delete_prefix) {
+                    $DeleteEntity = $this->em->find('Entity\Prefixes', $PrefixID);
+                    $this->em->remove($DeleteEntity);
+                }
+                $this->em->flush();
+            } catch (\Exception $e) {
+                $this->em->rollback();
                 return false;
             }
 
-            if (\Service\Addresses::deleteByPrefix($this->getEntity()->getPrefixID()) === false) {
-                $dbal->rollBack();
+            if (Addresses::deleteByPrefix($PrefixID) === false) {
+                $this->em->rollback();
                 return false;
             }
         } elseif ($Option == 2) {
-            $delete = $queryBuilder
-                ->delete('prefixes')
-                ->where('PrefixID = :PrefixID')
-                ->setParameter('PrefixID', $this->getEntity()->getPrefixID());
+            $DeleteEntity = $this->em->find('Entity\Prefixes', $PrefixID);
+            try {
+                $this->em->remove($DeleteEntity);
+                $this->em->flush();
+            } catch (\Exception $e) {
+                $this->em->rollback();
+                return false;
+            }
 
-            if ($delete->execute() === false) {
-                $dbal->rollBack();
+            $this->RecalcTree($PrefixID);
+
+            if (Addresses::calcNewPrefix($PrefixID, $MasterVRF, $AFI) === false) {
+                $this->em->rollback();
                 return false;
             }
         }
 
-        if ($Option == 2) {
-            $this->RecalcTree($this->getEntity()->getPrefixID());
-
-            if (\Service\Addresses::calcNewPrefix($this->getEntity()->getPrefixID(), $this->getEntity()->getMasterVRF(), $this->getEntity()->getAFI()) === false) {
-                $dbal->rollBack();
-                return false;
-            }
-        }
-
-        $dbal->commit();
+        $this->em->commit();
 
         return true;
     }
@@ -169,40 +179,36 @@ class Prefixes
      */
     public function RecalcTree(int $ParentID, int $SelfID = 0): bool
     {
-        global $dbal;
-
-        $queryBuilder = $dbal->createQueryBuilder();
+        $queryBuilder = $this->em->createQueryBuilder();
 
         $select = $queryBuilder
-            ->select('PrefixID', 'MasterVRF', 'Prefix', 'AFI', 'PrefixLength')
-            ->from('prefixes')
-            ->where('ParentID = :ParentID')
-            ->andWhere('ParentID <> 0')
+            ->select('p.prefixid', 'p.mastervrf', 'p.prefix', 'p.afi', 'p.prefixlength')
+            ->from('Entity\Prefixes', 'p')
+            ->where('p.parentid = :ParentID')
+            ->andWhere('p.parentid <> 0')
             ->setParameter('ParentID', $ParentID);
 
         if ($SelfID != 0) {
-            $select->andWhere('PrefixID <> :SelfID')
+            $select->andWhere('p.prefixid <> :SelfID')
             ->setParameter('SelfID', $SelfID);
         }
 
-        $select = $select->execute()->fetchAll();
+        $select = $select->getQuery()->getArrayResult();
 
         foreach ($select as $data) {
-            if ($data['PrefixLength'] == 0) {
+            if ($data['prefixlength'] == 0) {
                 continue;
             }
-            $Prefix = ($data['AFI'] == 4) ? long2ip($data['Prefix']) : long2ip6($data['Prefix']);
-            $Prefix = $Prefix."/".$data['PrefixLength'];
-            $NewParent = self::CalculateParentID($Prefix, $data['MasterVRF'], $data['PrefixID']);
-            $queryBuilder = $dbal->createQueryBuilder();
-            $queryBuilder
-                ->update('prefixes')
-                ->set('ParentID', ':ParentID')
-                ->where('PrefixID = :PrefixID')
-                ->setParameter('ParentID', $NewParent)
-                ->setParameter('PrefixID', $data['PrefixID']);
-
-            if ($queryBuilder->execute() === false) {
+            $Prefix = stream_get_contents($data['prefix']);
+            $Prefix = ($data['afi'] == 4) ? long2ip($Prefix) : long2ip6($Prefix);
+            $Prefix = $Prefix."/".$data['prefixlength'];
+            $NewParent = self::CalculateParentID($Prefix, $data['mastervrf'], $data['prefix']);
+            $PrefixEntity = $this->em->find('Entity\Prefixes', $data['prefixid']);
+            $PrefixEntity->setParentid($NewParent);
+            try {
+                $this->em->persist($PrefixEntity);
+                $this->em->flush();
+            } catch (\Exception $e) {
                 return false;
             }
         }
@@ -326,7 +332,7 @@ class Prefixes
                 }
             } elseif ($n == 1 && $ParentPrefix->getFirstIp() != $Prefix->current()) {
                 $LastFree = $Prefix->minus(1);
-                $subnets = self::parseFreeSubnet($subnets, $ParentPrefix->getFirstIp(), $LastFree->getLastIp()->getNetworks());
+                $subnets = self::parseFreeSubnet($subnets, $ParentPrefix->getFirstIp(), $LastFree->getLastIp());
                 $subnets = self::parseNonFreeSubnet($subnets, $Prefix, $data);
 
                 try {
@@ -338,7 +344,7 @@ class Prefixes
 
             if ($n > 1) {
                 $LastFree = $Prefix->minus(1);
-                $subnets = self::parseFreeSubnet($subnets, $NextFree->getFirstIp(), $LastFree->getLastIp()->getNetworks());
+                $subnets = self::parseFreeSubnet($subnets, $NextFree->getFirstIp(), $LastFree->getLastIp());
                 $subnets = self::parseNonFreeSubnet($subnets, $Prefix, $data);
 
                 try {
@@ -349,7 +355,7 @@ class Prefixes
             }
 
             if ($len == $n) {
-                $subnets = self::parseFreeSubnet($subnets, $NextFree->getFirstIp(), $ParentPrefix->getLastIp()->getNetworks());
+                $subnets = self::parseFreeSubnet($subnets, $NextFree->getFirstIp(), $ParentPrefix->getLastIp());
             }
             $n++;
         }
@@ -377,7 +383,7 @@ class Prefixes
     public static function parseFreeSubnet($subnets, $FirstIP, $LastIP)
     {
         try {
-            $FreeNetworks = \IPTools\Range::parse($FirstIP.'-'.$LastIP);
+            $FreeNetworks = \IPTools\Range::parse($FirstIP.'-'.$LastIP)->getNetworks();
             foreach ($FreeNetworks as $network) {
                 $Freenetwork = explode("/", $network);
                 $subnets[] = array(

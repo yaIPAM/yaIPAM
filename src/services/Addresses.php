@@ -89,30 +89,30 @@ class Addresses
 
     public static function calcNewPrefix(int $OldPrefixID, int $VRF, int $AFI)
     {
-        global $dbal;
+        global $EntityManager;
 
-        $queryBuilder = $dbal->createQueryBuilder();
+        $queryBuilder = $EntityManager->createQueryBuilder();
 
         $select = $queryBuilder
-            ->select('AddressID', 'Address', 'AddressAFI')
-            ->from('addresses')
-            ->where('AddressPrefix = :AddressPrefix')
+            ->select('a.addressid', 'a.address', 'a.addressafi')
+            ->from('Entity\Addresses', 'a')
+            ->where('a.addressprefix = :AddressPrefix')
             ->setParameter('AddressPrefix', $OldPrefixID)
-            ->execute()
-            ->fetchAll();
+            ->getQuery()
+            ->getArrayResult();
 
         foreach ($select as $data) {
-            $queryBuilder = $dbal->createQueryBuilder();
-            $Address = ($data['AddressAFI'] == 4) ? long2ip($data['Address']) : long2ip6($data['Address']);
+            $address = stream_get_contents($data['address']);
+            $Address = ($data['addressafi'] == 4) ? long2ip($address) : long2ip6($address);
             $NewPrefixID = self::getParentID($Address, $VRF, $AFI);
 
-            $queryBuilder
-                ->update('addresses')
-                ->set('AddressPrefix', $NewPrefixID)
-                ->where('AddressID = :AddressID')
-                ->setParameter('AddressID', $data['AddressID']);
+            $AddressEntity = $EntityManager->find('Entity\Addresses', $data['addressid']);
 
-            if ($queryBuilder->execute() === false) {
+            $AddressEntity->setAddressprefix($NewPrefixID);
+            try {
+                $EntityManager->persist($AddressEntity);
+                $EntityManager->flush();
+            } catch (\Exception $e) {
                 return false;
             }
         }
@@ -246,24 +246,25 @@ class Addresses
      */
     public static function getParentID(string $Address, int $VRF, int $AFI): int
     {
-        global $dbal;
+        global $EntityManager;
 
-        $queryBuilder = $dbal->createQueryBuilder();
+        $queryBuilder = $EntityManager->createQueryBuilder();
 
         $select = $queryBuilder
-            ->select('PrefixID')
-            ->from('prefixes')
-            ->where(':address between RangeFrom and RangeTo')
-            ->andWhere('MasterVRF = :MasterVRF')
-            ->andWhere('AFI = :AFI')
-            ->orderBy('PrefixLength', 'DESC')
+            ->select('p.prefixid')
+            ->from('Entity\Prefixes', 'p')
+            ->where(':address between p.rangefrom and p.rangeto')
+            ->andWhere('p.mastervrf = :MasterVRF')
+            ->andWhere('p.afi = :AFI')
+            ->orderBy('p.prefixlength', 'DESC')
             ->setParameter('address', \IPLib\Factory::addressFromString($Address)->getComparableString())
             ->setParameter('MasterVRF', $VRF)
             ->setParameter('AFI', $AFI)
-            ->execute()
-            ->fetch();
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getSingleResult();
 
-        return (int)$select['PrefixID'];
+        return (int)$select['prefixid'];
     }
 
     public function getEntity()
