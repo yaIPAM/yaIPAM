@@ -309,10 +309,7 @@ class Prefixes
 
         $subnets = array();
         $n = 1;
-        $freesubnet_from = null;
-        $freesubnet_to = null;
         $len = count($select);
-        $usedaddresses = array();
 
         $ParentPrefix = $EntityManager->find('Entity\Prefixes', $ParentID);
         $ParentPrefix = \IPBlock::create($ParentPrefix->getPrefix().'/'.$ParentPrefix->getPrefixlength());
@@ -322,45 +319,17 @@ class Prefixes
             $Prefix = \IPBlock::create($PrefixResource.'/'.$data['prefixlength']);
 
             if ($n == 1 && $ParentPrefix->getFirstIp() == $Prefix->current()) {
-                $subnets[] = array(
-                    "prefix"    =>  $Prefix->current(),
-                    "prefixlength"  =>  $data['prefixlength'],
-                    "prefixdescription" =>  $data['prefixdescription'],
-                    "prefixid"  =>  $data['prefixid'],
-                    "vlanid"    =>  $data['vlanid'],
-                    "domainName"    =>  $data['domainName'],
-                    "vlanname"  =>  $data['vlanname'],
-                    "free"  =>  false,
-
-                );
+                $subnets = self::parseNonFreeSubnet($subnets, $Prefix, $data);
 
                 try {
                     $NextFree = $Prefix->plus(1);
                 } catch (\Exception $e) {
+                    // Do nothing if there is nothing to do
                 }
             } elseif ($n == 1 && $ParentPrefix->getFirstIp() != $Prefix->current()) {
                 $LastFree = $Prefix->minus(1);
-                $FreeNetworks = \IPTools\Range::parse($ParentPrefix->getFirstIp().'-'.$LastFree->getLastIp())->getNetworks();
-                foreach ($FreeNetworks as $network) {
-                    $Freenetwork = explode("/", $network);
-                    $subnets[] = array(
-                        "prefix"    =>  $Freenetwork[0],
-                        "prefixlength"  =>  $Freenetwork[1],
-                        "free"  =>  true,
-                    );
-                }
-
-                $subnets[] = array(
-                    "prefix"    =>  $Prefix->current(),
-                    "prefixlength"  =>  $data['prefixlength'],
-                    "prefixdescription" =>  $data['prefixdescription'],
-                    "prefixid"  =>  $data['prefixid'],
-                    "vlanid"    =>  $data['vlanid'],
-                    "domainName"    =>  $data['domainName'],
-                    "vlanname"  =>  $data['vlanname'],
-                    "free"  =>  false,
-
-                );
+                $subnets = self::parseFreeSubnet($subnets, $ParentPrefix->getFirstIp(), $LastFree->getLastIp()->getNetworks());
+                $subnets = self::parseNonFreeSubnet($subnets, $Prefix, $data);
 
                 try {
                     $NextFree = $Prefix->plus(1);
@@ -370,56 +339,58 @@ class Prefixes
             }
 
             if ($n > 1) {
-                try {
-                    $LastFree = $Prefix->minus(1);
-                    $FreeNetworks = \IPTools\Range::parse($NextFree->getFirstIp().'-'.$LastFree->getLastIp())->getNetworks();
-                    foreach ($FreeNetworks as $network) {
-                        $Freenetwork = explode("/", $network);
-                        $subnets[] = array(
-                            "prefix"    =>  $Freenetwork[0],
-                            "prefixlength"  =>  $Freenetwork[1],
-                            "free"  =>  true,
-                        );
-                    }
-                } catch (\Exception $e) {
-                }
-
-                $subnets[] = array(
-                    "prefix"    =>  $Prefix->current(),
-                    "prefixlength"  =>  $data['prefixlength'],
-                    "prefixdescription" =>  $data['prefixdescription'],
-                    "prefixid"  =>  $data['prefixid'],
-                    "vlanid"    =>  $data['vlanid'],
-                    "domainName"    =>  $data['domainName'],
-                    "vlanname"  =>  $data['vlanname'],
-                    "free"  =>  false,
-
-                );
+                $LastFree = $Prefix->minus(1);
+                $subnets = self::parseFreeSubnet($subnets, $NextFree->getFirstIp(), $LastFree->getLastIp()->getNetworks());
+                $subnets = self::parseNonFreeSubnet($subnets, $Prefix, $data);
 
                 try {
                     $NextFree = $Prefix->plus(1);
                 } catch (\Exception $e) {
+                    // Do nothing if there is nothing to do
                 }
             }
 
             if ($len == $n) {
-                try {
-                    $FreeNetworks = \IPTools\Range::parse($NextFree->getFirstIp().'-'.$ParentPrefix->getLastIp())->getNetworks();
-                    foreach ($FreeNetworks as $network) {
-                        $Freenetwork = explode("/", $network);
-                        $subnets[] = array(
-                            "prefix"    =>  $Freenetwork[0],
-                            "prefixlength"  =>  $Freenetwork[1],
-                            "free"  =>  true,
-                        );
-                    }
-                } catch (\Exception $e) {
-                }
+                $subnets = self::parseFreeSubnet($subnets, $NextFree->getFirstIp(), $ParentPrefix->getLastIp()->getNetworks());
             }
             $n++;
         }
 
-        #$subnets = array_orderby($subnets, 'prefix');
+        return $subnets;
+    }
+
+    public static function parseNonFreeSubnet($subnets, $Prefix, $data)
+    {
+        $subnets[] = array(
+            "prefix"    =>  $Prefix->current(),
+            "prefixlength"  =>  $data['prefixlength'],
+            "prefixdescription" =>  $data['prefixdescription'],
+            "prefixid"  =>  $data['prefixid'],
+            "vlanid"    =>  $data['vlanid'],
+            "domainName"    =>  $data['domainName'],
+            "vlanname"  =>  $data['vlanname'],
+            "free"  =>  false,
+
+        );
+
+        return $subnets;
+    }
+
+    public static function parseFreeSubnet($subnets, $FirstIP, $LastIP)
+    {
+        try {
+            $FreeNetworks = \IPTools\Range::parse($FirstIP.'-'.$LastIP);
+            foreach ($FreeNetworks as $network) {
+                $Freenetwork = explode("/", $network);
+                $subnets[] = array(
+                    "prefix"    =>  $Freenetwork[0],
+                    "prefixlength"  =>  $Freenetwork[1],
+                    "free"  =>  true,
+                );
+            }
+        } catch (\Exception $e) {
+            // Do nothing when nothing is to do
+        }
 
         return $subnets;
     }
