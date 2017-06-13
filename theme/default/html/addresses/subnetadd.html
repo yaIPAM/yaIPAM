@@ -47,6 +47,22 @@
                            {/foreach}
                        </select>
                    </div>
+                   <div class="row">
+                       <div class="form-group col-md-2">
+                           <label for="LinkedIPV6">{t}Dual-Stack IPv6 VRF{/t}</label>
+                           <select name="LinkedIPV6_VRF" id="LinkedIPV6" class="form-control select2" data-placeholder="{t}Select VRF{/t}">
+                               {foreach item=vrfs from=$D_AllVRFS}
+                               <option value="{$vrfs->getvrfid()}">{$vrfs->getvrfname()}</option>
+                               {foreachelse}
+                               <option value="0">--- {t}No VRFs available{/t} ---</option>
+                               {/foreach}
+                           </select>
+                       </div>
+                       <div class="form-group col-md-2">
+                           <label for="LinkedIPV6_Network">{t}Dual-Stack IPv6 Network{/t}</label>
+                           <input type="text" name="LinkedIPV6_Network" id="LinkedIPV6_Network" class="form-control">
+                       </div>
+                   </div>
                    <button type="submit" name="Submit" value="true" class="btn btn-success">{t}Save{/t}</button>
                    {"/addresses/subnet/{$D_PrefixID}/"|createlink:"{t}Back{/t}":"btn btn-default"}
                </form>

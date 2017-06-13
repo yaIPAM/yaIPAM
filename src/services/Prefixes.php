@@ -152,6 +152,34 @@ class Prefixes
     }
 
     /**
+     * @param $Prefix
+     * @return bool
+     */
+    public static function PrefixAlreadylinked($Prefix): bool
+    {
+        global $EntityManager;
+
+        $PrefixLength = $Prefix[1];
+        $Prefix = explode("/", $Prefix[0]);
+        $Prefix = ip2long6($Prefix);
+
+        $EntityLinked = $EntityManager->getRepository('Entity\Prefixes')->findOneBy(['prefix' => $Prefix, 'prefixlength' => $PrefixLength]);
+
+        if ($EntityLinked == null) {
+            return false;
+        }
+
+        $EntityPrefix = $EntityManager->find('Entity\Prefixes', $EntityLinked->getPrefixid());
+
+        if ($EntityPrefix != null) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+    /**
      * @param string $Prefix
      * @param int $VRF
      * @return bool

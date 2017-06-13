@@ -1,6 +1,11 @@
 <?php
 namespace Controller;
 use \Framework\BaseController;
+use \Service\VRF;
+use \Service\Vlans;
+use \Service\Addresses;
+use \Service\Prefixes;
+use \IPLib\Range\Subnet;
 
 /**
  * addresses.php
@@ -14,6 +19,7 @@ class AddressesController extends BaseController
     private $CurrentSubnet;
     private $CurrentVRF;
     private $edit = false;
+    private $error = false;
 
     public function IndexAction()
     {
@@ -197,7 +203,7 @@ class AddressesController extends BaseController
         }
 
 
-        $CurrentSubnet = new \Service\Prefixes($this->em);
+        $CurrentSubnet = new Prefixes($this->em);
         $CurrentSubnet->getByID($SubnetID);
 
 
@@ -212,78 +218,55 @@ class AddressesController extends BaseController
             ));
         }
 
-        $VRF = \Service\VRF::getAllExcept($CurrentSubnet->getEntity()->getMasterVRF());
+        $VRF = VRF::getAllExcept($CurrentSubnet->getEntity()->getMasterVRF());
 
         $this->set(array(
             "D_PrefixID"    =>  $SubnetID,
             "D_VRFS"    =>  $VRF,
-            "D_VLANS"   =>  \Service\Vlans::getAll(),
+            "D_VLANS"   =>  Vlans::getAll(),
+            "D_AllVRFS" =>   VRF::getAll(),
         ));
 
         if ($this->req->request->getBoolean('Submit')) {
-            if (\IPLib\Range\Subnet::fromString($this->req->request->get('PrefixName')) == null) {
+            $PrefixName_orig = $this->req->request->get('PrefixName');
+            $LinkedIPV6_Network = $this->req->request->get('LinkedIPV6_Network');
+            $PrefixState = $this->req->request->get('PrefixState');
+            $PrefixDescription = $this->req->request->get('PrefixDescription');
+            $PrefixVLAN = $this->req->request->getInt('PrefixVLAN');
+            $LinkedIPV6_VRF = $this->req->request->get('LinkedIPV6_VRF');
+
+            if (Subnet::fromString($PrefixName_orig) == null) {
                 \MessageHandler::Error(_('Invalid prefix'), _('The entered prefix is invalid.'));
-
-                $this->set(array(
-                    "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
-                    "D_PrefixState" =>  $this->req->request->get('PrefixState'),
-                    "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-                    "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
-                ));
-
-                return $this->view();
+                return $this->subnetAddError($PrefixName_orig, $PrefixState, $PrefixDescription, $PrefixVLAN, $LinkedIPV6_Network, $LinkedIPV6_VRF);
             }
 
-            if (!$this->edit && \Service\Prefixes::PrefixExists($this->req->request->get('PrefixName'), $CurrentSubnet->getEntity()->getMasterVRF())) {
+            if (!$this->edit && Prefixes::PrefixExists($PrefixName_orig, $CurrentSubnet->getEntity()->getMasterVRF())) {
                 \MessageHandler::Error(_('Prefix already exists'), _('The entered prefix already exists.'));
-
-                $this->set(array(
-                    "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
-                    "D_PrefixState" =>  $this->req->request->get('PrefixState'),
-                    "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-                    "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
-                ));
-
-                return $this->view();
+                return $this->subnetAddError($PrefixName_orig, $PrefixState, $PrefixDescription, $PrefixVLAN, $LinkedIPV6_Network, $LinkedIPV6_VRF);
             }
 
-            if ($this->req->request->get('PrefixName') == null) {
+            if ($PrefixName_orig == null) {
                 \MessageHandler::Error(_('Empty field'), _('Please fill in all required fields'));
-
-                $this->set([
-                    "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
-                    "D_PrefixState" =>  $this->req->request->get('PrefixState'),
-                    "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-                    "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
-                ]);
-
-                return $this->view();
+                return $this->subnetAddError($PrefixName_orig, $PrefixState, $PrefixDescription, $PrefixVLAN, $LinkedIPV6_Network, $LinkedIPV6_VRF);
             }
 
-            if (!(\IPLib\Range\Subnet::fromString($this->req->request->get('PrefixName')))) {
-                \MessageHandler::Error(_('Invalid Prefix'), _('This Prefix is invalid.'));
-
-                $this->set(array(
-                    "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
-                    "D_PrefixState" =>  $this->req->request->get('PrefixState'),
-                    "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-                    "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
-                ));
-
-                return $this->view();
+            if ($LinkedIPV6_Network != null && Subnet::fromString($LinkedIPV6_Network)->getAddressType() != 6) {
+                \MessageHandler::Error(_('No valid IPv6'), _('The linked IPv6 network is invalid.'));
+                return $this->subnetAddError($PrefixName_orig, $PrefixState, $PrefixDescription, $PrefixVLAN, $LinkedIPV6_Network, $LinkedIPV6_VRF);
             }
 
-            if (!$this->edit) {
-                $ParentID = \Service\Prefixes::CalculateParentID($this->req->request->get('PrefixName'), $CurrentSubnet->getEntity()->getMasterVRF());
+            if ($LinkedIPV6_Network != null && Prefixes::PrefixAlreadylinked($LinkedIPV6_Network)) {
+                \MessageHandler::Error(_('Prefix linked'), _('The IPv6 prefix has already been linked.'));
+                return $this->subnetAddError($PrefixName_orig, $PrefixState, $PrefixDescription, $PrefixVLAN, $LinkedIPV6_Network, $LinkedIPV6_VRF);
             }
 
-            $PrefixName = $this->req->request->get('PrefixName');
-            $PrefixName = explode("/", $PrefixName);
+            $PrefixName = explode("/", $PrefixName_orig);
             $Prefix = \IPBlock::create($PrefixName[0], $PrefixName[1]);
-            $PrefixCompare = \IPLib\Range\Subnet::fromString($PrefixName[0].'/'.$PrefixName[1]);
+            $PrefixCompare = Subnet::fromString($PrefixName[0] . '/' . $PrefixName[1]);
 
             if (!$this->edit) {
-                $NewSubnet = new \Service\Prefixes($this->em);
+                $ParentID = Prefixes::CalculateParentID($PrefixName_orig, $CurrentSubnet->getEntity()->getMasterVRF());
+                $NewSubnet = new Prefixes($this->em);
                 $NewSubnet->getEntity()->setParentID($ParentID);
             } else {
                 $NewSubnet = $CurrentSubnet;
@@ -301,24 +284,30 @@ class AddressesController extends BaseController
 
             if ($NewSubnet->save()) {
                 \MessageHandler::Success(_('Prefix saved'), _('The prefix has been saved'));
-
                 $this->_tplfile = 'addresses/subnet.html';
                 return $this->SubnetAction($NewSubnet->getEntity()->getPrefixID());
             } else {
                 \MessageHandler::Error(_('Prefix not saved'), _('Error saving the prefix'));
-
-                $this->set(array(
-                    "D_PrefixName"  =>  $this->req->request->get('PrefixName'),
-                    "D_PrefixState" =>  $this->req->request->get('PrefixState'),
-                    "D_PrefixDescription"   =>  $this->req->request->get('PrefixDescription'),
-                    "D_PrefixVLAN"  =>  $this->req->request->getInt('PrefixVLAN'),
-                ));
-
-                return $this->view();
+                return $this->subnetAddError($PrefixName_orig, $PrefixState, $PrefixDescription, $PrefixVLAN, $LinkedIPV6_Network, $LinkedIPV6_VRF);
             }
+
         }
 
         $this->view();
+    }
+
+    private function subnetAddError($prefixName, $prefixState, $prefixDescription, $prefixVLAN, $LinkedIPV6_Network, $LinkedIPV6_VRF)
+    {
+        $this->set(array(
+            "D_PrefixName"  =>  $prefixName,
+            "D_PrefixState" =>  $prefixState,
+            "D_PrefixDescription"   =>  $prefixDescription,
+            "D_PrefixVLAN"  =>  $prefixVLAN,
+            "D_LinkedIPV6_VRF"  =>  $LinkedIPV6_VRF,
+            "D_LinkedIPV6_Network"  =>  $LinkedIPV6_Network,
+        ));
+
+        return $this->view();
     }
 
 
