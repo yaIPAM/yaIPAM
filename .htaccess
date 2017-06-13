@@ -4,6 +4,7 @@ RewriteCond %{SCRIPT_FILENAME} !-d
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-f
 
-RewriteCond %{REQUEST_URI} !^/(theme/.*)$
+RewriteRule ^api/(.*)$ api.php?url=$1 [END]
 
-RewriteRule ^(.*)$ index.php?url=$1 [L]
+RewriteCond %{REQUEST_URI} !^/(theme/.*)$
+RewriteRule ^(.*)$ index.php?url=$1 [END]

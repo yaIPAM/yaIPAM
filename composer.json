@@ -4,6 +4,7 @@
 			"Service\\": "src/services/",
 			"Entity\\": "src/entities/",
 			"Controller\\": "src/controllers/",
+			"APIController\\": "src/apicontrollers/",
 			"Application\\DQL\\": "src/libs/doctrineextensions",
 			"DoctrineDBALMigrations\\": "src/migrations/",
 			"Framework\\": "src/libs/framework"
