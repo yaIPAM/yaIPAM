@@ -60,13 +60,12 @@ class VlanDomains
                 ->setMaxResults(1)
                 ->orderBy('d.domainName')
                 ->getQuery()
-                ->getSingleResult();
+                ->getArrayResult();
 
             return $domains;
 
-        } catch (\Exception $e) {
-            $whoops->handleException($e);
-            return false;
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            return array();
         }
     }
 
