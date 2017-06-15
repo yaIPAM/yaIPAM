@@ -1,4 +1,4 @@
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/KlaasT/yaIPAM/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/KlaasT/yaIPAM/?branch=master)[![Build Status](https://www.travis-ci.org/KlaasT/yaIPAM.svg?branch=master)](https://www.travis-ci.org/KlaasT/yaIPAM) 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yaIPAM/yaIPAM/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yaIPAM/yaIPAM/?branch=master) [![Build Status](https://www.travis-ci.org/yaIPAM/yaIPAM.svg?branch=master)](https://www.travis-ci.org/yaIPAM/yaIPAM) 
 
 # yaIPAM - yet another IPAM
 
