@@ -26,7 +26,7 @@ class Core
             $url = $request->query->get('url');
         }
 
-        if ($_SESSION['login'] == false) {
+        if ($request->getSession()->get('login') == false) {
             $url = "login/";
             $tpl->assign("S_LOGIN", false);
         } else {
@@ -49,7 +49,6 @@ class Core
         $namespace = '\Controller\\';
         $controllerName = $controller;
         $controller = ucwords($controller);
-        $model = rtrim($controller, 's');
         $controller .= 'Controller';
         $controller = $namespace.$controller;
         if (method_exists($controller, $action)) {

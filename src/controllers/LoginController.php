@@ -2,6 +2,7 @@
 namespace Controller;
 use \Framework\BaseController;
 use \Symfony\Component\HttpFoundation\RedirectResponse;
+use \Service\User;
 
 /**
  * User: ktammling
@@ -12,9 +13,9 @@ class LoginController extends BaseController
 {
     public function IndexAction()
     {
-        $User = new \Service\User($this->em);
+        $User = new User($this->em);
 
-        if ($this->req->request->getBoolean('submit') && \Service\User::checkCSFR($this->req->request->get('csfr'))) {
+        if ($this->req->request->getBoolean('submit') && User::checkCSFR($this->req->request->get('csfr'))) {
             if ($User->Authenticate($this->req->request->get('Username'), $this->req->request->get('Password'))) {
                 $response = new RedirectResponse(SITE_BASE);
                 $response->send();
@@ -23,14 +24,14 @@ class LoginController extends BaseController
             }
         }
 
-        $this->set('D_CSFR', $_SESSION['csfr']);
+        $this->set('D_CSFR', $this->req->getSession()->get('csfr'));
 
         $this->view();
     }
 
     public function LogoutAction()
     {
-        $User = new \Service\User($this->em);
+        $User = new User($this->em);
 
         if ($User->Logout()) {
             $response = new RedirectResponse(SITE_BASE);

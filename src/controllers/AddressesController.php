@@ -19,7 +19,6 @@ class AddressesController extends BaseController
     private $CurrentSubnet;
     private $CurrentVRF;
     private $edit = false;
-    private $error = false;
 
     public function IndexAction()
     {
@@ -77,7 +76,7 @@ class AddressesController extends BaseController
         $this->CheckAccess(\Service\User::GROUP_ADMINISTRATOR);
 
         $Prefix = new \Service\Prefixes($this->em);
-        if ($SubnetID == null or empty($Prefix->getByID($SubnetID))) {
+        if ($SubnetID == null || empty($Prefix->getByID($SubnetID))) {
             \MessageHandler::Error(_('Prefix not existing'), _('The selected Prefix does not exist.'));
 
             $this->_tplfile = 'addresses/index.html';
@@ -359,7 +358,7 @@ class AddressesController extends BaseController
      */
     public function SubnetAction($SubnetID = null)
     {
-        global $EntityManager;
+        $EntityManager = $this->em;
 
         $this->CheckAccess(\Service\User::GROUP_USER);
 
@@ -379,7 +378,7 @@ class AddressesController extends BaseController
         $SubnetPrefix = $Subnet->getEntity()->getPrefix();
         $IPData = \IPBlock::create($SubnetPrefix."/".$Subnet->getEntity()->getPrefixlength());
 
-        if ($Subnet->getEntity()->getPrefixvlan() == null or $Subnet->getEntity()->getPrefixvlan() == 0) {
+        if ($Subnet->getEntity()->getPrefixvlan() == null || $Subnet->getEntity()->getPrefixvlan() == 0) {
             $Prefix = _('None');
         } else {
             $Vlan = new \Service\Vlans($this->em);
