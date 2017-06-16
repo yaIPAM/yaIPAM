@@ -65,6 +65,8 @@ class User
      */
     public function Authenticate(string $Username, string $Password): bool
     {
+        global $session;
+
         $this->entity = $this->em->getRepository('\Entity\User')->findOneByUsername($Username);
 
         if ($this->entity == null) {
@@ -72,9 +74,9 @@ class User
         }
 
         if (password_verify($Password, $this->entity->getPassword())) {
-            $_SESSION['login'] = true;
-            $_SESSION['Username'] = $Username;
-            $_SESSION['Group'] = $this->entity->getUsergroup();
+            $session->set('login', true);
+            $session->set('Username', $Username);
+            $session->set('Group', $this->entity->getUsergroup());
 
             return true;
         } else {
@@ -88,7 +90,9 @@ class User
      */
     public static function checkCSFR(string $Hash): bool
     {
-        if ($_SESSION['csfr'] == $Hash) {
+        global $session;
+
+        if ($session->get('csfr') == $Hash) {
             return true;
         } else {
             return false;
@@ -100,9 +104,10 @@ class User
      */
     public function Logout(): bool
     {
-        unset($_SESSION['Username']);
-        unset($_SESSION['Group']);
-        $_SESSION['login'] = false;
+        global $session;
+
+        $session->clear();
+        $session->set('login', false);
 
         return true;
     }

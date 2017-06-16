@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class API
 {
-    public function handle(Request $request, $whoops, $tpl)
+    public function handle(Request $request, $whoops, $tpl, $session)
     {
         if (empty($request->query->get('url'))) {
             $url = "default";

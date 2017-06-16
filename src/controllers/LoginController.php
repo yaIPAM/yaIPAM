@@ -24,7 +24,7 @@ class LoginController extends BaseController
             }
         }
 
-        $this->set('D_CSFR', $this->req->getSession()->get('csfr'));
+        $this->set('D_CSFR', $this->session->get('csfr'));
 
         $this->view();
     }

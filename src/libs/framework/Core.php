@@ -10,15 +10,17 @@
 namespace Framework;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class Core
 {
     public function __construct()
     {
+
     }
 
 
-    public function handle(Request $request, $whoops, $tpl)
+    public function handle(Request $request, $whoops, $tpl, Session $session)
     {
         if (empty($request->query->get('url'))) {
             $url = "default";
@@ -26,7 +28,7 @@ class Core
             $url = $request->query->get('url');
         }
 
-        if ($request->getSession()->get('login') == false) {
+        if ($session->get('login') == false) {
             $url = "login/";
             $tpl->assign("S_LOGIN", false);
         } else {

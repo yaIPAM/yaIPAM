@@ -17,6 +17,7 @@ class BaseController
     protected $req;
     protected $em;
     protected $auditManager;
+    protected $session;
 
     /**
      * @param string $controller
@@ -24,9 +25,10 @@ class BaseController
      */
     public function __construct($controller, $action)
     {
-        global $tpl, $request, $EntityManager, $auditManager;
+        global $tpl, $request, $EntityManager, $auditManager, $session;
 
         $this->_controller = $controller;
+        $this->session = $session;
         $this->_action = $action;
         $this->_template = $tpl;
         $this->_tplfile = strtolower(str_replace('Controller', '', $controller)).'/'.strtolower(str_replace('Action', '', $this->_action)).'.html';
