@@ -1,4 +1,4 @@
-<phpunit backupGlobals="false" bootstrap="../bootstrap.php">
+<phpunit backupGlobals="false" bootstrap="unitTests.php">
     <logging>
         <log type="coverage-clover" target="clover.xml"/>
     </logging>
