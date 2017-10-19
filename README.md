@@ -1,3 +1,6 @@
+Unmaintained? Not really. The company who wanted me to write and finalize the product chose to use something else in the very last minute. If anyone is still interested in this project please contact me at klaas@tammling.hamburg and I will keep on working on this.
+
+
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yaIPAM/yaIPAM/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yaIPAM/yaIPAM/?branch=master) [![Build Status](https://www.travis-ci.org/yaIPAM/yaIPAM.svg?branch=master)](https://www.travis-ci.org/yaIPAM/yaIPAM) 
 
 # yaIPAM - yet another IPAM
